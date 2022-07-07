@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace telemedicine_webapi.Domain.Entities;
 
-public class Patient
+public class Patient : BaseAuditableEntity
 {
     public long INN { get; set; }
     [MinLength(3)]

@@ -3,7 +3,7 @@ using telemedicine_webapi.Domain.Entities;
 
 namespace telemedicine_webapi.Application.TodoItems.Queries.GetTodoItemsWithPagination;
 
-public class TodoItemBriefDto : IMapFrom<TodoItem>
+public class HospitalBriefDto : IMapFrom<TodoItem>
 {
     public int Id { get; set; }
 

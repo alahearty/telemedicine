@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace telemedicine_webapi.WebUI.Controllers;
+namespace telemedicine.api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

@@ -4,9 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace telemedicine_webapi.Domain.Entities;
 
-public class Hospital
+public class Hospital : BaseAuditableEntity
 {
-
+    public Hospital()
+    {
+        Doctors = new HashSet<Physician>();
+    }
     public string? HospitalName { get; set; }
     public string? Address { get; set; }
 
