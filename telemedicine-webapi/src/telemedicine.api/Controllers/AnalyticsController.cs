@@ -5,7 +5,7 @@ namespace telemedicine.api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AnalyticsController : ControllerBase
+public class AnalyticsController : ApiControllerBase
 {
     [HttpGet("Products")]
     public IActionResult GetProducts()
