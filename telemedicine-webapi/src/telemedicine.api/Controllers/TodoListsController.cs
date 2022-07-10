@@ -6,7 +6,7 @@ using telemedicine_webapi.Application.TodoLists.Queries.GetTodos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace telemedicine_webapi.WebUI.Controllers;
+namespace telemedicine.api.Controllers;
 
 [Authorize]
 public class TodoListsController : ApiControllerBase

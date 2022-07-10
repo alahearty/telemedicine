@@ -20,7 +20,7 @@ public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>, 
         DbContextOptions<ApplicationDbContext> options,
         IOptions<OperationalStoreOptions> operationalStoreOptions,
         IMediator mediator,
-        AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor) 
+        AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor)
         : base(options, operationalStoreOptions)
     {
         _mediator = mediator;
@@ -28,6 +28,11 @@ public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>, 
     }
 
     public DbSet<TodoList> TodoLists => Set<TodoList>();
+
+    public DbSet<Hospital> Hospitals => Set<Hospital>();
+    public DbSet<Patient> Patients => Set<Patient>();
+
+    public DbSet<Physician> Physicians => Set<Physician>();
 
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 

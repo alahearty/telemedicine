@@ -7,13 +7,13 @@ using telemedicine_webapi.Application.TodoItems.Queries.GetTodoItemsWithPaginati
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace telemedicine_webapi.WebUI.Controllers;
+namespace telemedicine.api.Controllers;
 
 [Authorize]
 public class TodoItemsController : ApiControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<PaginatedList<TodoItemBriefDto>>> GetTodoItemsWithPagination([FromQuery] GetTodoItemsWithPaginationQuery query)
+    public async Task<ActionResult<PaginatedList<HospitalBriefDto>>> GetTodoItemsWithPagination([FromQuery] GetTodoItemsWithPaginationQuery query)
     {
         return await Mediator.Send(query);
     }

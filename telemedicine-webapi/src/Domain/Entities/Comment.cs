@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace telemedicine_webapi.Domain.Entities;
-
 public class Comment : BaseAuditableEntity
 {
-    public string? CommentText { get; set; }
-    public DateTime LastModified { get; set; }
-    public virtual Physician Doctor { get; set; }
+    public virtual string? Title { get; set; }
+    public virtual string? Description { get; set; }
 }

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Respawn;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
 
 namespace telemedicine_webapi.Application.IntegrationTests;
 

@@ -4,42 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace telemedicine_webapi.Domain.Entities;
 
-public class Physician
+public class Physician : User
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-
-    [MinLength(3)]
-    [MaxLength(16)]
-    public string? Login { get; set; }
-    [MinLength(6)]
-    [MaxLength(256)]
-    public string? Password { get; set; }
-    [MinLength(3)]
-    [MaxLength(16)]
-    public string FirstName { get; set; }
-    [MinLength(3)]
-    [MaxLength(16)]
-    public string LastName { get; set; }
-    [MinLength(3)]
-    [MaxLength(16)]
-    public string Patronimic { get; set; }
-
-    [MinLength(6)]
-    [MaxLength(256)]
-    public string Email { get; set; }
-    public string Phone { get; set; }
-    public string MedicalSpecialization { get; set; }
-
-    public bool IsArchive { get; set; }
-
-    public Physician()
-    {
-        Patients = new HashSet<Patient>();
-    }
-
+    public virtual string License { get; set; }
+    public virtual string MedicalSpecialization { get; set; }
+    public virtual bool IsArchive { get; set; }
     public virtual Hospital Hospital { get; set; }
-    public virtual ICollection<Patient> Patients { get; set; }
+    public virtual ICollection<Patient> Patients { get; set; } = new HashSet<Patient>();
 }
 

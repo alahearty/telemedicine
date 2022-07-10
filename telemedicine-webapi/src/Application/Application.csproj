@@ -9,6 +9,18 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Hospital\**" />
+      <Compile Remove="Patient\**" />
+      <Compile Remove="Physician\**" />
+      <EmbeddedResource Remove="Hospital\**" />
+      <EmbeddedResource Remove="Patient\**" />
+      <EmbeddedResource Remove="Physician\**" />
+      <None Remove="Hospital\**" />
+      <None Remove="Patient\**" />
+      <None Remove="Physician\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="10.3.4" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
@@ -17,12 +29,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Domain\Domain.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Hospital\" />
-      <Folder Include="Physician\" />
-      <Folder Include="Patient\" />
     </ItemGroup>
 
 </Project>

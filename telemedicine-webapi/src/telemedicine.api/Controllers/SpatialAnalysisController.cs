@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
+using telemedicine_webapi.Application.WeatherForecasts.Queries.GetWeatherForecasts;
 
 namespace telemedicine.api.Controllers
 {
