@@ -9,15 +9,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="Hospital\**" />
-      <Compile Remove="Patient\**" />
-      <Compile Remove="Physician\**" />
-      <EmbeddedResource Remove="Hospital\**" />
-      <EmbeddedResource Remove="Patient\**" />
-      <EmbeddedResource Remove="Physician\**" />
-      <None Remove="Hospital\**" />
-      <None Remove="Patient\**" />
-      <None Remove="Physician\**" />
+        <Compile Remove="Hospital\**" />
+        <Compile Remove="Patient\**" />
+        <Compile Remove="Physician\**" />
+        <EmbeddedResource Remove="Hospital\**" />
+        <EmbeddedResource Remove="Patient\**" />
+        <EmbeddedResource Remove="Physician\**" />
+        <None Remove="Hospital\**" />
+        <None Remove="Patient\**" />
+        <None Remove="Physician\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -25,6 +25,10 @@
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="10.3.4" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.5" />
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.5" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.5" />
     </ItemGroup>
 
     <ItemGroup>

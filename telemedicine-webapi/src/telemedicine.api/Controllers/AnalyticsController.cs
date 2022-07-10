@@ -7,15 +7,16 @@ namespace telemedicine.api.Controllers;
 [Route("api/[controller]")]
 public class AnalyticsController : ApiControllerBase
 {
-    [HttpGet("Products")]
-    public IActionResult GetProducts()
+    [HttpGet("Service")]
+    public IActionResult GetServices()
     {
-        var products = new List<dynamic>()
+        //To be Replaced
+        var services = new List<dynamic>()
         {
-            new { name = "Product 1", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 }},
-            new { name = "Product 2", data = new int[]  {20, 34, 45, 55, 79, 87, 90, 98 } }
+            new { name = "Consultation 1", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 }},
+            new { name = "Consultation 2", data = new int[]  {20, 34, 45, 55, 79, 87, 90, 98 } }
         };
-        return Ok(products);
+        return Ok(services);
     }
 
     [HttpGet("Revenue")]
@@ -29,7 +30,7 @@ public class AnalyticsController : ApiControllerBase
         return Ok(revenue);
     }
 
-    [HttpGet("Visitor")]
+    [HttpGet("Visitors")]
     public IActionResult GetVisitor()
     {
         var visitor = new { name = "Visitor", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 } };
@@ -54,7 +55,7 @@ public class AnalyticsController : ApiControllerBase
     {
         var reports = new List<dynamic>()
         {
-            new { title = "1,780", subtitle = "New products this week", total = "27.9%", report = "Product Report"},
+            new { title = "1,780", subtitle = "New Physians this week", total = "27.9%", report = "Product Report"},
             new { title = "5,355", subtitle = "Visitor this week", total = "47.9%", report= "Visitor Report"},
             new { title = "475", subtitle = "User signups this week", total = "", report= "User Report"}
         };
