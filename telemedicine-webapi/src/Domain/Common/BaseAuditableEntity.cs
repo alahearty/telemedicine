@@ -1,6 +1,6 @@
 ﻿namespace telemedicine_webapi.Domain.Common;
 
-public abstract class BaseAuditableEntity : BaseEntity
+public abstract class BaseAuditableEntity : BaseEntity<int>
 {
     public DateTime Created { get; set; }
     public DateTime? LastModified { get; set; }

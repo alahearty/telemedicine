@@ -5,10 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace telemedicine_webapi.Domain.Entities;
-public class Comment : BaseAuditableEntity
+public class SheduleTime : BaseAuditableEntity
 {
-    public virtual string? Title { get; set; }
-    public virtual string? Description { get; set; }
+    public virtual DateTime? StartScheduleTime { get; set; }
+    public virtual DateTime? EndScheduleTime { get; set; }
     public virtual Physician? Physician { get; set; }
-    public virtual HealthAnalysisReport? HealthAnalysisReport { get; set; }
 }
