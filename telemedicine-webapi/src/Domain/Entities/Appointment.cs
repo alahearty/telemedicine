@@ -9,5 +9,5 @@ public class Appointment : BaseAuditableEntity
 {
     public virtual Patient? Patient { get; set; }
     public virtual TelemedicineService? TelemedicineService { get; set; }
-    public ScheduleTime AppointmentSchedule { get; set; }
+    public ScheduleTime? AppointmentSchedule { get; set; }
 }
