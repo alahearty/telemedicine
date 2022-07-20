@@ -90,7 +90,7 @@ export default {
     },
     methods: {
         getImage(name) {
-            return require(`../assets/img/${name}`)
+            return require(`../../assets/img/${name}`)
         }
     }
 }

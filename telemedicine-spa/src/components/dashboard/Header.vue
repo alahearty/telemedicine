@@ -80,7 +80,7 @@
             class="user-avatar flex hover:bg-gray-100 dark:hover:bg-gray-700 p-1 cursor-pointer rounded-md"
           >
             <img
-              src="../assets/img/user.jpg"
+              src="../../assets/img/user.jpg"
               class="rounded-full mr-4 w-10 h-10 p-1 ring-1 ring-gray-300 dark:ring-gray-500"
               alt=""
             />

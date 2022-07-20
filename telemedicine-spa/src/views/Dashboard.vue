@@ -30,7 +30,7 @@
       </card>
        
       <!-- end card -->
-      <Card total="256" totalPayout="Total Sales">
+      <Card total="256" totalPayout="Total Payins">
         <div class="bg-orange-200 rounded-full w-14 h-14 text-lg p-3 text-orange-600 mx-auto">
             <span class="">
               <bag-icon/>
@@ -38,7 +38,7 @@
         </div>
       </Card>
       <!-- end card -->
-      <Card total="3569" totalPayout="Total Customers">
+      <Card total="3569" totalPayout="Total Patients">
           <div class="bg-green-200 rounded-full w-14 h-14 text-lg p-3 text-green-600 mx-auto">
             <span class="">
               <user-icon/>
@@ -58,7 +58,7 @@
     <!-- end wrapper card -->
     <div class="mt-2 lg:flex block lg:gap-2">
       <div class="bg-white dark:bg-gray-800 p-5 w-full rounded-md box-border shadow">
-        <chart-component title="Total Sales" subtitle=" your sales chart per-years" total="27.9%" report=" Sales Report">
+        <chart-component title="Total Services" subtitle=" your services chart per-year" total="27.9%" report=" Services Report">
           <span class="float-right">
           <h2 class="text-green-500 -mt-12 flex">
             <span class="mr-2"> 87.9% </span
@@ -85,7 +85,7 @@
     </div>
     <div class="mt-2 lg:flex block lg:gap-2">
       <div class="chart">
-        <chart-component title="1,780" subtitle="This Week New products " total="27.9%" report="Product Report">
+        <chart-component title="5,780" subtitle="This Week New Patients " total="27.9%" report="Patient Report">
           <apexchart
             width="100%"
             height="380"
@@ -96,7 +96,7 @@
         </chart-component>
       </div>
       <div class="chart">
-        <chart-component title=" 5,355" subtitle="This Week Visitors" total="47.9%" report="Vistor Report">
+        <chart-component title=" 355" subtitle="This Week Doctors" total="47.9%" report="Doctor Report">
           <apexchart
             width="100%"
             height="380"
@@ -144,14 +144,14 @@
 
 <script>
   import { Icon } from "@iconify/vue";
-  import Partners from "@/components/Partners.vue";
+  import Partners from "@/components/dashboard/Partners.vue";
   import WalletIcon from "@/components/icons/WalletIcon.vue";
   import BagIcon from "../components/icons/BagIcon.vue";
   import UserIcon from "@/components/icons/UserIcon.vue";
   import TrendIcon from "@/components/icons/TrendIcon.vue";
-  import DataTable from "@/components/DataTable.vue";
-  import ChartComponent from "@/components/ChartComponent.vue"
-  import Card from '@/components/Card.vue';
+  import DataTable from "@/components/dashboard/DataTable.vue";
+  import ChartComponent from "@/components/dashboard/ChartComponent.vue"
+  import Card from '@/components/dashboard/Card.vue';
 
   export default {
     name: "Dashboard",

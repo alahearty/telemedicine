@@ -9,7 +9,7 @@
     </div>
     <footer class="w-full box-border p-5 mt-3 text-center">
       <p class="text-sm dark:text-gray-400">
-        Analytics Dashboard Made by ❤️ Woriayibapri Hearty Alapher &copy; {{ new Date().getFullYear()}}
+        Analytics Dashboard ❤️  &copy; {{ new Date().getFullYear()}}
       </p>
     </footer>
   </div>
