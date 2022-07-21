@@ -1,13 +1,13 @@
 {
-  "name": "analytics-dashboard",
+  "name": "telemedicine",
   "version": "1.0.1",
-  "description": "Analytics Dashboard Vue with Tailwind CSS",
+  "description": "Telemedicine Application with Vue and Tailwind CSS",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "require": "npm i -g sass @vue/cli"
   },
-  "author": "Alapher Woriayibapri Hearty",
+  "author": "Telemedicine",
   "license": "MIT",
   "dependencies": {
     "apexcharts": "^3.34.0",
