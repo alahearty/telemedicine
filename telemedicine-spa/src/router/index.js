@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 // Default Component Page
-import Dashboard from '../views/Dashboard.vue'
-import Login from '../views/Login.vue'
-import Signup from '../views/Signup.vue'
-import Home from '../views/Home.vue'
+import Dashboard from '../views/Admin/Dashboard.vue'
+import Login from '../views/General/Login.vue'
+import Signup from '../views/General/Signup.vue'
+import Home from '../views/General/Home.vue'
 var appname = ' - Analytics Dashboard'
 
 const routes = [

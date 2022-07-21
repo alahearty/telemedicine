@@ -184,7 +184,7 @@
 import { Icon } from '@iconify/vue'
 import Partners from '@/components/dashboard/Partners.vue'
 import WalletIcon from '@/components/icons/WalletIcon.vue'
-import BagIcon from '../components/icons/BagIcon.vue'
+import BagIcon from '../../components/icons/BagIcon.vue'
 import UserIcon from '@/components/icons/UserIcon.vue'
 import TrendIcon from '@/components/icons/TrendIcon.vue'
 import DataTable from '@/components/dashboard/DataTable.vue'
