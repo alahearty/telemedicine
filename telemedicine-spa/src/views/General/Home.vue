@@ -4,6 +4,8 @@
 
     <main>
       <Hero />
+      <Departments />
+      <Promo />
       <AboutUs />
       <Appointment />
     </main>
@@ -17,11 +19,21 @@ import Navbar from '@/components/home-landing/Navbar.vue'
 import Footer from '@/components/home-landing/Footer.vue'
 import Appointment from '@/components/home-landing/AppointmentSection.vue'
 import AboutUs from '@/components/home-landing/AboutUsSection.vue'
+import Departments from '@/components/home-landing/Departments.vue'
 import Hero from '@/components/home-landing/HeroSection.vue'
+import Promo from '@/components/home-landing/PromoSection.vue'
 
 export default {
   name: 'Home',
-  components: { Navbar, Footer, Appointment, Hero, AboutUs },
+  components: {
+    Navbar,
+    Footer,
+    Appointment,
+    Hero,
+    AboutUs,
+    Departments,
+    Promo,
+  },
 }
 </script>
 
@@ -33,6 +45,21 @@ export default {
 }
 body {
   overflow: auto;
+}
+body::-webkit-scrollbar {
+  width: 12px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: rgb(177, 177, 177);
+  border: 2px solid #fff;
+  border-radius: 8px;
+}
+body::-webkit-scrollbar-track {
+  background: #fff;
+}
+body::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(124, 124, 124);
 }
 .home {
   font-family: 'Mulish', sans-serif;

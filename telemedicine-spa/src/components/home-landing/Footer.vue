@@ -1,7 +1,7 @@
 <template>
   <footer>
     <section class="newsletter">
-      <img class="img-bg" src="@/assets/img/footer-bg.png" />
+      <img class="img-bg" src="@/assets/img/dot-lg-bg.png" />
 
       <div class="inner">
         <div>
@@ -22,7 +22,7 @@
       </div>
     </section>
     <section class="footer-links">
-      <img class="img-bg" src="@/assets/img/footer-dot-bg.png" />
+      <img class="img-bg" src="@/assets/img/dot-bg.png" />
       <div class="inner">
         <div class="promo-container">
           <TelemedicineLogo />

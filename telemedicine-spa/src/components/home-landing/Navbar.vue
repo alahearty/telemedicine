@@ -47,6 +47,13 @@ header {
   z-index: 2;
   padding-inline: var(--bg-padding-inline);
 }
+/* header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  filter: blur(4px);
+} */
 
 nav {
   display: flex;
