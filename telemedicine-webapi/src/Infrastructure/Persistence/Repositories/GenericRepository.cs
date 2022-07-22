@@ -1,4 +1,4 @@
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Common;
@@ -6,15 +6,15 @@ using telemedicine_webapi.Infrastructure.Persistence.Context;
 
 namespace telemedicine_webapi.Infrastructure.Persistence.Repositories;
 
-public class GenericRepository<T> : IGenericRepository<T> where T:BaseEntity<int>
+public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity<int>
 {
-    IApplicationDbContext _context;
-    DbSet<T> entities;
+    readonly IApplicationDbContext _context;
+    readonly DbSet<T> entities;
 
     public GenericRepository(IApplicationDbContext context)
     {
-        _context=context;
-        entities=context.Set<T>();   
+        _context = context;
+        entities = context.Set<T>();
     }
 
     public void Add(T entity)
@@ -39,14 +39,14 @@ public class GenericRepository<T> : IGenericRepository<T> where T:BaseEntity<int
 
     public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression)
     {
-        var result = await entities.Where(expression).ToListAsync();  
-        return result; 
+        var result = await entities.Where(expression).ToListAsync();
+        return result;
     }
 
     public T? FirstOrDefault(Expression<Func<T, bool>> expression)
     {
-        var result = entities.FirstOrDefault(expression); 
-        return result;  
+        var result = entities.FirstOrDefault(expression);
+        return result;
     }
 
     public async Task<IEnumerable<T>> GetAllAsync()

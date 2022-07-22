@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using telemedicine.api.Services;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Infrastructure.Identity;
-using telemedicine_webapi.Infrastructure.JWTAuthentication;
 using telemedicine_webapi.Infrastructure.Persistence.Context;
-using telemedicine_webapi.Infrastructure.Persistence.Interceptors;
 using telemedicine_webapi.Infrastructure.Persistence.Repositories;
 
 namespace telemedicine.api.Extensions;
@@ -16,7 +14,7 @@ public static class RegsterServicesExtension
         AddInfrastructureServices(services);
 
         AddApplicationServices(services);
-        
+
         return services;
     }
 
@@ -26,17 +24,17 @@ public static class RegsterServicesExtension
 
     private static void AddInfrastructureServices(IServiceCollection services)
     {
-        services.AddScoped<ICurrentUserService,CurrentUserService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-        services.AddIdentity<ApplicationUser,UserRole>()
+        services.AddIdentity<ApplicationUser, UserRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-        
-        services.AddScoped<IApplicationDbContext,ApplicationDbContext>();
 
-        services.AddScoped<IUnitOfWork,UnitOfWork>();
+        services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 
-        services.AddScoped<IIdentityService,IdentityService>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddScoped<IIdentityService, IdentityService>();
 
         //services.AddScoped<IJwtTokenGenerator,JwtTokenGenerator>();
     }

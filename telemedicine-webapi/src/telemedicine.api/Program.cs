@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -10,7 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
     // Add services to the container.
     var environment = builder.Environment.IsDevelopment() ? "Development" : "Production";
     builder.Configuration.AddJsonFile($"appsettings.{environment}.json");
-                
+
+    builder.Services.AddApplicationServices();
+
     var connectionString=builder.Configuration.GetValue<string>("DefaultConnection");
     builder.Services.AddDbContext<ApplicationDbContext>(options=>options.UseSqlServer(connectionString));
 
@@ -18,10 +21,11 @@ var builder = WebApplication.CreateBuilder(args);
 
     var jwtSettings = new JwtSettings();
     builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);
-            
+
+    builder.Services.AddWebUIServices();
+
     builder.Services.RegisterServices();
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
-    builder.Services.AddWebUIServices();
     builder.Services.AddControllers();
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
