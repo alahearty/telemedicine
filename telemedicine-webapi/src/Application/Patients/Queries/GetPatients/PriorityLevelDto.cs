@@ -1,4 +1,4 @@
-﻿namespace telemedicine_webapi.Application.Patients.Queries.GetTodos;
+﻿namespace telemedicine_webapi.Application.Patients.Queries.GetPatients;
 
 public class PriorityLevelDto
 {

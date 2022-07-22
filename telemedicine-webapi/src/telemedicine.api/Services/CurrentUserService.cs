@@ -6,12 +6,12 @@ namespace telemedicine.api.Services;
 
 public class CurrentUserService : ICurrentUserService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
     public CurrentUserService(IHttpContextAccessor httpContextAccessor)
     {
-        _httpContextAccessor = httpContextAccessor;
+        int defaultId=default(int);
+        var isValidId=int.TryParse(httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Sid),out defaultId);
+        if(isValidId) UserId=defaultId;
     }
 
-    public string? UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+    public int UserId{get;}
 }

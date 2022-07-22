@@ -1,9 +1,9 @@
 ﻿using telemedicine_webapi.Application.Common.Mappings;
 using telemedicine_webapi.Domain.Entities;
 
-namespace telemedicine_webapi.Application.TodoItems.Queries.GetTodoItemsWithPagination;
+namespace telemedicine_webapi.Application.TodoItems.Queries;
 
-public class HospitalBriefDto : IMapFrom<TodoItem>
+public class TodoItemBriefDto : IMapFrom<TodoItem>
 {
     public int Id { get; set; }
 

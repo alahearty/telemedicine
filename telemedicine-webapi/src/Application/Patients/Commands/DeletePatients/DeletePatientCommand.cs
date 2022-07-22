@@ -1,37 +1,30 @@
-﻿using telemedicine_webapi.Application.Common.Exceptions;
-using telemedicine_webapi.Application.Common.Interfaces;
-using telemedicine_webapi.Domain.Entities;
+﻿using telemedicine_webapi.Application.Common.Interfaces;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.Patients.Commands.DeletePatients;
 
-public record DeleteHospitalCommand(int Id) : IRequest;
+public record DeletePatientCommand(int Id) : IRequest<BaseResponse>;
 
-public class DeleteTodoListCommandHandler : IRequestHandler<DeleteHospitalCommand>
+public class DeletePatientCommandHandler : IRequestHandler<DeletePatientCommand,BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public DeleteTodoListCommandHandler(IApplicationDbContext context)
+    public DeletePatientCommandHandler(IUnitOfWork context)
     {
         _context = context;
     }
 
-    public async Task<Unit> Handle(DeleteHospitalCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(DeletePatientCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.TodoLists
-            .Where(l => l.Id == request.Id)
-            .SingleOrDefaultAsync(cancellationToken);
+        var entity =  _context.TodoListRepository
+            .FirstOrDefault(l => l.Id == request.Id);
+            
+        if (entity == null)return OperationResult.NotSuccessful($"Patient with Id-{request.Id} not found");
+        _context.TodoListRepository.Delete(entity);
 
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoList), request.Id);
-        }
+        var commitResult=await _context.SaveChangesAsync(cancellationToken);
 
-        _context.TodoLists.Remove(entity);
-
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return Unit.Value;
+        return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("Unable to delete patient");
     }
 }

@@ -3,35 +3,30 @@ using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.Physicians.Commands.DeletePhysician;
 
-public record DeleteHospitalCommand(int Id) : IRequest;
+public record DeletePhysicianCommand(int Id) : IRequest<BaseResponse>;
 
-public class DeleteTodoListCommandHandler : IRequestHandler<DeleteHospitalCommand>
+public class DeletePhysicianCommandHandler : IRequestHandler<DeletePhysicianCommand,BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public DeleteTodoListCommandHandler(IApplicationDbContext context)
+    public DeletePhysicianCommandHandler(IUnitOfWork context)
     {
         _context = context;
     }
 
-    public async Task<Unit> Handle(DeleteHospitalCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(DeletePhysicianCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.TodoLists
-            .Where(l => l.Id == request.Id)
-            .SingleOrDefaultAsync(cancellationToken);
+        var entity = _context.PhysicianRepository.GetById(request.Id);
 
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoList), request.Id);
-        }
+        if (entity == null) return OperationResult.NotSuccessful($"Physician with Id-{request.Id} not found");
+        _context.PhysicianRepository.Delete(entity);
 
-        _context.TodoLists.Remove(entity);
+        var commitResult=await _context.SaveChangesAsync(cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return Unit.Value;
+        return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("Unable to delete physician");
     }
 }

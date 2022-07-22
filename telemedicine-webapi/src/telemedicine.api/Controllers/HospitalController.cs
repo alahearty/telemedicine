@@ -9,32 +9,29 @@ using telemedicine_webapi.Application.TodoItems.Queries.GetTodoItemsWithPaginati
 
 namespace telemedicine.api.Controllers;
 
-[Authorize]
+//[Authorize]
 public class HospitalController : ApiControllerBase
 {
-    [HttpGet]
-    public async Task<ActionResult<PaginatedList<HospitalDataDto>>> GetTodoItemsWithPagination([FromQuery] GetHospitaltemsWithPaginationQuery query)
-    {
-        return await Mediator.Send(query);
-    }
+    // [HttpGet]
+    // public async Task<IActionResult> GetTodoItemsWithPagination([FromQuery] GetHospitaltemsWithPaginationQuery query)
+    // {
+    //     var response= await Mediator.Send(query);
+    //     return Ok(response);
+    // }
 
     [HttpPost]
-    public async Task<ActionResult<int>> Create(CreateHospitalCommand command)
+    public async Task<IActionResult> Create(CreateHospitalCommand command)
     {
-        return await Mediator.Send(command);
+        var createAction= await Mediator.Send(command);
+        return Ok(createAction.Data);
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, UpdateHospitalCommand command)
+    [HttpPut()]
+    public async Task<IActionResult> Update([FromBody] UpdateHospitalCommand command)
     {
-        if (id != command.Id)
-        {
-            return BadRequest();
-        }
+        var updateAction=await Mediator.Send(command);
 
-        await Mediator.Send(command);
-
-        return NoContent();
+        return Ok(updateAction.Data);
     }
 
     //[HttpPut("[action]")]
@@ -51,10 +48,10 @@ public class HospitalController : ApiControllerBase
     //}
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        await Mediator.Send(new DeleteHospitalCommand(id));
+        var deleteAction=await Mediator.Send(new DeleteHospitalCommand(id));
 
-        return NoContent();
+        return Ok(deleteAction.Data);
     }
 }

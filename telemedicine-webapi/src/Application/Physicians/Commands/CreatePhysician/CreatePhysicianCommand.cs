@@ -1,33 +1,34 @@
 ﻿using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using MediatR;
+using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.Physicians.Commands.CreatePhysician;
 
-public record CreateHospitalCommand : IRequest<int>
+public record CreatePhysicianCommand : IRequest<BaseResponse>
 {
     public string? Title { get; init; }
 }
 
-public class CreateTodoListCommandHandler : IRequestHandler<CreateHospitalCommand, int>
+public class CreatePhysicianCommandHandler : IRequestHandler<CreatePhysicianCommand, BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public CreateTodoListCommandHandler(IApplicationDbContext context)
+    public CreatePhysicianCommandHandler(IUnitOfWork context)
     {
         _context = context;
     }
 
-    public async Task<int> Handle(CreateHospitalCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(CreatePhysicianCommand request, CancellationToken cancellationToken)
     {
-        var entity = new TodoList();
+        var entity = new Physician();
 
-        entity.Title = request.Title;
+        entity.FirstName = request.Title;
 
-        _context.TodoLists.Add(entity);
+        _context.PhysicianRepository.Add(entity);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        var commitResult=await _context.SaveChangesAsync(cancellationToken);
 
-        return entity.Id;
+        return commitResult.WasSuccesful?OperationResult.Successful(entity.Id):OperationResult.NotSuccessful("");
     }
 }

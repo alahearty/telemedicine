@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace telemedicine_webapi.Application.Patients.Commands.CreatePatients;
 
-public class CreateHospitalCommandValidator : AbstractValidator<CreateHospitalCommand>
+public class CreatePatientCommandValidator : AbstractValidator<CreatePatientCommand>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public CreateHospitalCommandValidator(IApplicationDbContext context)
+    public CreatePatientCommandValidator(IUnitOfWork context)
     {
         _context = context;
 
@@ -20,7 +20,6 @@ public class CreateHospitalCommandValidator : AbstractValidator<CreateHospitalCo
 
     public async Task<bool> BeUniqueTitle(string title, CancellationToken cancellationToken)
     {
-        return await _context.TodoLists
-            .AllAsync(l => l.Title != title, cancellationToken);
+        return await _context.TodoListRepository.Exists(l => l.Title != title);
     }
 }

@@ -3,36 +3,32 @@ using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using telemedicine_webapi.Domain.Events;
 using MediatR;
+using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.TodoItems.Commands.DeleteTodoItem;
 
-public record DeleteTodoItemCommand(int Id) : IRequest;
+public record DeleteTodoItemCommand(int Id) : IRequest<BaseResponse>;
 
-public class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemCommand>
+public class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemCommand,BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public DeleteTodoItemCommandHandler(IApplicationDbContext context)
+    public DeleteTodoItemCommandHandler(IUnitOfWork context)
     {
         _context = context;
     }
 
-    public async Task<Unit> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.TodoItems
-            .FindAsync(new object[] { request.Id }, cancellationToken);
+        var entity = _context.TodoItemRepository.GetById(request.Id);
+        if (entity == null)return OperationResult.NotSuccessful("Not found");
 
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoItem), request.Id);
-        }
-
-        _context.TodoItems.Remove(entity);
+        _context.TodoItemRepository.Delete(entity);
 
         entity.AddDomainEvent(new TodoItemDeletedEvent(entity));
 
-        await _context.SaveChangesAsync(cancellationToken);
+        var commitResult=await _context.SaveChangesAsync(cancellationToken);
 
-        return Unit.Value;
+        return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("Unable to delete");
     }
 }

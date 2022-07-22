@@ -1,28 +1,30 @@
 ﻿using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Security;
 using MediatR;
+using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.Physicians.Commands.PurgePhysician;
 
-[Authorize(Roles = "Administrator")]
-[Authorize(Policy = "CanPurge")]
-public record PurgePhysicianCommand : IRequest;
+// [Authorize(Roles = "Administrator")]
+// [Authorize(Policy = "CanPurge")]
+public record PurgePhysicianCommand : IRequest<BaseResponse>;
 
-public class PurgeTodoListsCommandHandler : IRequestHandler<PurgePhysicianCommand>
+public class PurgePhysicianCommandHandler : IRequestHandler<PurgePhysicianCommand,BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public PurgeTodoListsCommandHandler(IApplicationDbContext context)
+    public PurgePhysicianCommandHandler(IUnitOfWork context)
     {
         _context = context;
     }
 
-    public async Task<Unit> Handle(PurgePhysicianCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(PurgePhysicianCommand request, CancellationToken cancellationToken)
     {
-        _context.TodoLists.RemoveRange(_context.TodoLists);
+        var physicians=await _context.PhysicianRepository.GetAllAsync();
+        _context.PhysicianRepository.DeleteMany(physicians);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        var commitResult=await _context.SaveChangesAsync(cancellationToken);
 
-        return Unit.Value;
+        return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("Unable to purge physicians");
     }
 }

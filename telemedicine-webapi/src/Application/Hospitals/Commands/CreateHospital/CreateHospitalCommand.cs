@@ -1,33 +1,34 @@
-﻿using telemedicine_webapi.Application.Common.Interfaces;
-using MediatR;
+﻿using MediatR;
+using telemedicine_webapi.Application.Common.Interfaces;
+using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Domain.Entities;
 
 namespace telemedicine_webapi.Application.Hospitals.Commands.CreateHospital;
 
-public record CreateHospitalCommand : IRequest<int>
+public record CreateHospitalCommand : IRequest<BaseResponse>
 {
     public string? Name { get; init; }
 }
 
-public class CreateHospitalCommandHandler : IRequestHandler<CreateHospitalCommand, int>
+public class CreateHospitalCommandHandler : IRequestHandler<CreateHospitalCommand, BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateHospitalCommandHandler(IApplicationDbContext context)
+    public CreateHospitalCommandHandler(IUnitOfWork unitOfWork)
     {
-        _context = context;
+        _unitOfWork = unitOfWork;
     }
 
-    public async Task<int> Handle(CreateHospitalCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(CreateHospitalCommand request, CancellationToken cancellationToken)
     {
         var entity = new Hospital();
 
         entity.HospitalName = request.Name;
 
-        _context.Hospitals.Add(entity);
+        _unitOfWork.HospitalRepository.Add(entity);
 
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return entity.Id;
+        var commitResult=await _unitOfWork.SaveChangesAsync(cancellationToken);
+        if(commitResult.WasSuccesful) return OperationResult.Successful(entity.Id);
+        return OperationResult.NotSuccessful("Unable to save hospital");
     }
 }

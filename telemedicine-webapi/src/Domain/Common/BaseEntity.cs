@@ -7,7 +7,7 @@ public abstract class BaseEntity<T>
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public T Id { get; set; }
+    public T? Id { get; set; }
 
     private readonly List<BaseEvent> _domainEvents = new();
 

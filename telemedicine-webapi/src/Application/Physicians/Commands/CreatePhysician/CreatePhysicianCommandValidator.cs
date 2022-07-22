@@ -4,23 +4,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace telemedicine_webapi.Application.Physicians.Commands.CreatePhysician;
 
-public class CreateHospitalCommandValidator : AbstractValidator<CreateHospitalCommand>
+public class CreatePhysicianCommandValidator : AbstractValidator<CreatePhysicianCommand>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public CreateHospitalCommandValidator(IApplicationDbContext context)
+    public CreatePhysicianCommandValidator(IUnitOfWork context)
     {
         _context = context;
 
         RuleFor(v => v.Title)
             .NotEmpty().WithMessage("Title is required.")
             .MaximumLength(200).WithMessage("Title must not exceed 200 characters.")
-            .MustAsync(BeUniqueTitle).WithMessage("The specified title already exists.");
+            .MustAsync(BeUniqueEmail).WithMessage("The specified email already exists.");
     }
 
-    public async Task<bool> BeUniqueTitle(string title, CancellationToken cancellationToken)
+    public async Task<bool> BeUniqueEmail(string email, CancellationToken cancellationToken)
     {
-        return await _context.TodoLists
-            .AllAsync(l => l.Title != title, cancellationToken);
+        return await _context.PhysicianRepository.Exists(l => l.Email != email);
     }
 }

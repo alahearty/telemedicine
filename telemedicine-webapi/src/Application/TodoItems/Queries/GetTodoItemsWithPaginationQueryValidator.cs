@@ -1,10 +1,11 @@
 ﻿using FluentValidation;
+using telemedicine_webapi.Application.Hospitals.Queries.GetTodoItemsWithPagination;
 
-namespace telemedicine_webapi.Application.Hospitals.Queries.GetTodoItemsWithPagination;
+namespace telemedicine_webapi.Application.TodoItems.Queries;
 
-public class GetHospitaltemsWithPaginationQueryValidator : AbstractValidator<GetHospitaltemsWithPaginationQuery>
+public class GetTodoItemsWithPaginationQueryValidator : AbstractValidator<GetTodoItemsWithPaginationQuery>
 {
-    public GetHospitaltemsWithPaginationQueryValidator()
+    public GetTodoItemsWithPaginationQueryValidator()
     {
         RuleFor(x => x.ListId)
             .NotEmpty().WithMessage("ListId is required.");

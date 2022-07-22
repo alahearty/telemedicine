@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace telemedicine_webapi.Infrastructure.Persistence;
+namespace telemedicine_webapi.Infrastructure.Persistence.Context;
 
 public class ApplicationDbContextInitialiser
 {

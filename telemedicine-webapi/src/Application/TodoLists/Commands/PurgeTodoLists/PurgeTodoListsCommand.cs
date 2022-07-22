@@ -1,28 +1,30 @@
 ﻿using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Security;
 using MediatR;
+using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.TodoLists.Commands.PurgeTodoLists;
 
-[Authorize(Roles = "Administrator")]
-[Authorize(Policy = "CanPurge")]
-public record PurgeTodoListsCommand : IRequest;
+// [Authorize(Roles = "Administrator")]
+// [Authorize(Policy = "CanPurge")]
+public record PurgeTodoListsCommand : IRequest<BaseResponse>;
 
-public class PurgeTodoListsCommandHandler : IRequestHandler<PurgeTodoListsCommand>
+public class PurgeTodoListsCommandHandler : IRequestHandler<PurgeTodoListsCommand,BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public PurgeTodoListsCommandHandler(IApplicationDbContext context)
+    public PurgeTodoListsCommandHandler(IUnitOfWork context)
     {
         _context = context;
     }
 
-    public async Task<Unit> Handle(PurgeTodoListsCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(PurgeTodoListsCommand request, CancellationToken cancellationToken)
     {
-        _context.TodoLists.RemoveRange(_context.TodoLists);
+        var todoLists=await _context.TodoListRepository.GetAllAsync();
+        _context.TodoListRepository.DeleteMany(todoLists);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        var commitResult = await _context.SaveChangesAsync(cancellationToken);
 
-        return Unit.Value;
+        return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("Unable to delete all todo lists");
     }
 }

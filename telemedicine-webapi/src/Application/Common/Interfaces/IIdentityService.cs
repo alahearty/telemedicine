@@ -1,16 +1,20 @@
 ﻿using telemedicine_webapi.Application.Common.Models;
+using telemedicine_webapi.Domain.Enums;
 
 namespace telemedicine_webapi.Application.Common.Interfaces;
 
 public interface IIdentityService
 {
-    Task<string> GetUserNameAsync(string userId);
+    Task<BaseResponse> GetUserByEmailAsync(string email);
+    Task<string> GetUserNameAsync(int userId);
 
-    Task<bool> IsInRoleAsync(string userId, string role);
+    Task<string?> GetUserRoleAsync(string email);
 
-    Task<bool> AuthorizeAsync(string userId, string policyName);
+    Task<bool> IsInRoleAsync(int userId, string role);
 
-    Task<(Result Result, string UserId)> CreateUserAsync(string userName, string password);
+    Task<bool> AuthorizeAsync(int userId, string policyName);
 
-    Task<Result> DeleteUserAsync(string userId);
+    Task<BaseResponse> CreateUserAsync(string email, string password, string role);
+
+    Task<BaseResponse> DeleteUserAsync(int userId);
 }

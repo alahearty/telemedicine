@@ -3,35 +3,29 @@ using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.TodoLists.Commands.DeleteTodoList;
 
-public record DeleteTodoListCommand(int Id) : IRequest;
+public record DeleteTodoListCommand(int Id) : IRequest<BaseResponse>;
 
-public class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoListCommand>
+public class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoListCommand,BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public DeleteTodoListCommandHandler(IApplicationDbContext context)
+    public DeleteTodoListCommandHandler(IUnitOfWork context)
     {
         _context = context;
     }
 
-    public async Task<Unit> Handle(DeleteTodoListCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(DeleteTodoListCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.TodoLists
-            .Where(l => l.Id == request.Id)
-            .SingleOrDefaultAsync(cancellationToken);
+        var entity = _context.TodoListRepository.GetById(request.Id);
+        if (entity == null)return OperationResult.NotSuccessful("Not found");
+        _context.TodoListRepository.Delete(entity);
 
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoList), request.Id);
-        }
+        var commitResult=await _context.SaveChangesAsync(cancellationToken);
 
-        _context.TodoLists.Remove(entity);
-
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return Unit.Value;
+        return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("Unable to delete todo list");
     }
 }
