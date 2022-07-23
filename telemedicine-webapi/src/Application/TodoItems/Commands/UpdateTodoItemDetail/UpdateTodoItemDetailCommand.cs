@@ -3,10 +3,11 @@ using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using telemedicine_webapi.Domain.Enums;
 using MediatR;
+using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.TodoItems.Commands.UpdateTodoItemDetail;
 
-public record UpdateTodoItemDetailCommand : IRequest
+public record UpdateTodoItemDetailCommand : IRequest<BaseResponse>
 {
     public int Id { get; init; }
 
@@ -17,31 +18,27 @@ public record UpdateTodoItemDetailCommand : IRequest
     public string? Note { get; init; }
 }
 
-public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand>
+public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand,BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public UpdateTodoItemDetailCommandHandler(IApplicationDbContext context)
+    public UpdateTodoItemDetailCommandHandler(IUnitOfWork context)
     {
         _context = context;
     }
 
-    public async Task<Unit> Handle(UpdateTodoItemDetailCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(UpdateTodoItemDetailCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.TodoItems
-            .FindAsync(new object[] { request.Id }, cancellationToken);
+        var entity = _context.TodoItemRepository.GetById(request.Id);
 
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoItem), request.Id);
-        }
+        if (entity == null)return OperationResult.NotSuccessful("Not found");
 
         entity.ListId = request.ListId;
         entity.Priority = request.Priority;
         entity.Note = request.Note;
 
-        await _context.SaveChangesAsync(cancellationToken);
+        var commitResult=await _context.SaveChangesAsync(cancellationToken);
 
-        return Unit.Value;
+        return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("Unable to update");
     }
 }

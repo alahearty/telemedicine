@@ -6,55 +6,45 @@ using telemedicine_webapi.Application.TodoItems.Commands.UpdateTodoItemDetail;
 using telemedicine_webapi.Application.TodoItems.Queries.GetTodoItemsWithPagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using telemedicine_webapi.Application.Hospitals.Queries.GetTodoItemsWithPagination;
 
 namespace telemedicine.api.Controllers;
 
-[Authorize]
+//[Authorize]
 public class TodoItemsController : ApiControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<PaginatedList<HospitalBriefDto>>> GetTodoItemsWithPagination([FromQuery] GetTodoItemsWithPaginationQuery query)
+    public async Task<IActionResult> GetTodoItemsWithPagination([FromQuery] GetTodoItemsWithPaginationQuery query)
     {
-        return await Mediator.Send(query);
+        var response= await Mediator.Send(query);
+        return Ok(response);
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> Create(CreateTodoItemCommand command)
+    public async Task<IActionResult> Create(CreateTodoItemCommand command)
     {
-        return await Mediator.Send(command);
+        var response= await Mediator.Send(command);
+        return Ok(response);
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, UpdateTodoItemCommand command)
+    [HttpPut]
+    public async Task<IActionResult> Update(UpdateTodoItemCommand command)
     {
-        if (id != command.Id)
-        {
-            return BadRequest();
-        }
-
-        await Mediator.Send(command);
-
-        return NoContent();
+        var response=await Mediator.Send(command);
+        return Ok(response);
     }
 
     [HttpPut("[action]")]
-    public async Task<ActionResult> UpdateItemDetails(int id, UpdateTodoItemDetailCommand command)
+    public async Task<IActionResult> UpdateItemDetails(UpdateTodoItemDetailCommand command)
     {
-        if (id != command.Id)
-        {
-            return BadRequest();
-        }
-
-        await Mediator.Send(command);
-
-        return NoContent();
+        var response=await Mediator.Send(command);
+        return Ok(response);
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        await Mediator.Send(new DeleteTodoItemCommand(id));
-
-        return NoContent();
+        var response=await Mediator.Send(new DeleteTodoItemCommand(id));
+        return Ok(response);
     }
 }

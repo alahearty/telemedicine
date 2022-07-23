@@ -1,39 +1,33 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using telemedicine_webapi.Application.Common.Models;
-using telemedicine_webapi.Application.Hospitals.Commands.CreateHospital;
-using telemedicine_webapi.Application.Hospitals.Commands.DeleteHospital;
-using telemedicine_webapi.Application.Hospitals.Commands.UpdateHospital;
-using telemedicine_webapi.Application.Hospitals.Queries.GetTodoItemsWithPagination;
-using telemedicine_webapi.Application.TodoItems.Queries.GetTodoItemsWithPagination;
+﻿using Microsoft.AspNetCore.Mvc;
+using telemedicine_webapi.Application.Patients.Commands.CreatePatients;
+using telemedicine_webapi.Application.Patients.Commands.DeletePatients;
+using telemedicine_webapi.Application.Patients.Commands.UpdatePatients;
+using telemedicine_webapi.Application.Patients.Queries.GetPatients;
 namespace telemedicine.api.Controllers;
 
-[Authorize]
+////[Authorize]
 public class PatientController : ApiControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<PaginatedList<HospitalDataDto>>> GetTodoItemsWithPagination([FromQuery] GetHospitaltemsWithPaginationQuery query)
+    public async Task<IActionResult> GetPatientsWithPagination([FromQuery] GetPatientsQuery query)
     {
-        return await Mediator.Send(query);
+        var response= await Mediator.Send(query);
+        return Ok(response);
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> Create(CreateHospitalCommand command)
+    public async Task<IActionResult> Create([FromBody] CreatePatientCommand command)
     {
-        return await Mediator.Send(command);
+        var response= await Mediator.Send(command);
+        return Ok(response);
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, UpdateHospitalCommand command)
+    public async Task<IActionResult> Update([FromBody] UpdatePatientCommand command)
     {
-        if (id != command.Id)
-        {
-            return BadRequest();
-        }
+        var response=await Mediator.Send(command);
 
-        await Mediator.Send(command);
-
-        return NoContent();
+        return Ok(response.Data);
     }
 
     //[HttpPut("[action]")]
@@ -50,10 +44,10 @@ public class PatientController : ApiControllerBase
     //}
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        await Mediator.Send(new DeleteHospitalCommand(id));
+        var response=await Mediator.Send(new DeletePatientCommand(id));
 
-        return NoContent();
+        return Ok(response.Data);
     }
 }

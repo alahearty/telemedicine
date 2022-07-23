@@ -2,39 +2,35 @@
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using MediatR;
+using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.Physicians.Commands.UpdatePhysician;
 
-public record UpdateHospitalCommand : IRequest
+public record UpdatePhysicianCommand : IRequest<BaseResponse>
 {
     public int Id { get; init; }
 
-    public string? Title { get; init; }
+    public string? Email { get; init; }
 }
 
-public class UpdateTodoListCommandHandler : IRequestHandler<UpdateHospitalCommand>
+public class UpdatePhysicianCommandHandler : IRequestHandler<UpdatePhysicianCommand,BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public UpdateTodoListCommandHandler(IApplicationDbContext context)
+    public UpdatePhysicianCommandHandler(IUnitOfWork context)
     {
         _context = context;
     }
 
-    public async Task<Unit> Handle(UpdateHospitalCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(UpdatePhysicianCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.TodoLists
-            .FindAsync(new object[] { request.Id }, cancellationToken);
+        var entity = _context.PhysicianRepository.GetById(request.Id);
+        if (entity == null) return OperationResult.NotSuccessful($"Physician with Id-{request.Id} not found");
 
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoList), request.Id);
-        }
+        entity.FirstName = request.Email;
 
-        entity.Title = request.Title;
+        var commitResult=await _context.SaveChangesAsync(cancellationToken);
 
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return Unit.Value;
+        return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("Unable to update physician");
     }
 }

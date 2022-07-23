@@ -1,7 +1,7 @@
 ﻿using telemedicine_webapi.Application.Common.Mappings;
 using telemedicine_webapi.Domain.Entities;
 
-namespace telemedicine_webapi.Application.Hospitals.Queries.GetTodos;
+namespace telemedicine_webapi.Application.Hospitals.Queries.GetHospitals;
 
 public class TodoListDto : IMapFrom<TodoList>
 {

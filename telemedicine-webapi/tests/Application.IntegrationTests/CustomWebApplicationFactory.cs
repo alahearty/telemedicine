@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
+using telemedicine_webapi.Infrastructure.Persistence.Context;
 
 namespace telemedicine_webapi.Application.IntegrationTests;
 

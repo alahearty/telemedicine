@@ -1,22 +1,22 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using telemedicine_webapi.Application.Common.Interfaces;
-using telemedicine_webapi.Application.Common.Security;
 using telemedicine_webapi.Domain.Enums;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+//using Microsoft.EntityFrameworkCore;
+using telemedicine_webapi.Domain.Entities;
 
-namespace telemedicine_webapi.Application.Hospitals.Queries.GetTodos;
+namespace telemedicine_webapi.Application.Hospitals.Queries.GetHospitals;
 
-[Authorize]
+//[Authorize]
 public record GetHospitalsVmsQuery : IRequest<HospitalsVm>;
 
 public class GetHospitalsQueryHandler : IRequestHandler<GetHospitalsVmsQuery, HospitalsVm>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
     private readonly IMapper _mapper;
 
-    public GetHospitalsQueryHandler(IApplicationDbContext context, IMapper mapper)
+    public GetHospitalsQueryHandler(IUnitOfWork context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
@@ -24,6 +24,8 @@ public class GetHospitalsQueryHandler : IRequestHandler<GetHospitalsVmsQuery, Ho
 
     public async Task<HospitalsVm> Handle(GetHospitalsVmsQuery request, CancellationToken cancellationToken)
     {
+        var hospitals = await _context.HospitalRepository.GetAllAsync();
+
         return new HospitalsVm
         {
             PriorityLevels = Enum.GetValues(typeof(PriorityLevel))
@@ -31,11 +33,9 @@ public class GetHospitalsQueryHandler : IRequestHandler<GetHospitalsVmsQuery, Ho
                 .Select(p => new PriorityLevelDto { Value = (int)p, Name = p.ToString() })
                 .ToList(),
 
-            Lists = await _context.TodoLists
-                .AsNoTracking()
-                .ProjectTo<TodoListDto>(_mapper.ConfigurationProvider)
-                .OrderBy(t => t.Title)
-                .ToListAsync(cancellationToken)
+            Lists = hospitals.AsQueryable<Hospital>()
+                .ProjectTo<HospitalDto>(_mapper.ConfigurationProvider)
+                .ToList()
         };
     }
 }

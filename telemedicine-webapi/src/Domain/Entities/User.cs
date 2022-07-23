@@ -23,7 +23,7 @@ public class User : BaseAuditableEntity
     [Required]
     public string? Phone { get; set; }
     public string? Address { get; set; }
-    public byte[] Avatar { get; set; }
+    public byte[]? Avatar { get; set; }
     [Required]
     public AccountType AccountType { get; set; }
 }

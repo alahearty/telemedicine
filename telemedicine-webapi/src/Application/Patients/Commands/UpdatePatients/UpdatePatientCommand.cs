@@ -1,40 +1,35 @@
-﻿using telemedicine_webapi.Application.Common.Exceptions;
-using telemedicine_webapi.Application.Common.Interfaces;
-using telemedicine_webapi.Domain.Entities;
+﻿using telemedicine_webapi.Application.Common.Interfaces;
 using MediatR;
+using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.Patients.Commands.UpdatePatients;
 
-public record UpdatePatientCommand : IRequest
+public record UpdatePatientCommand : IRequest<BaseResponse>
 {
     public int Id { get; init; }
 
     public string? Name { get; init; }
 }
 
-public class UpdateTodoListCommandHandler : IRequestHandler<UpdatePatientCommand>
+public class UpdatePatientCommandHandler : IRequestHandler<UpdatePatientCommand,BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public UpdateTodoListCommandHandler(IApplicationDbContext context)
+    public UpdatePatientCommandHandler(IUnitOfWork context)
     {
         _context = context;
     }
 
-    public async Task<Unit> Handle(UpdatePatientCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(UpdatePatientCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.Hospitals
-            .FindAsync(new object[] { request.Id }, cancellationToken);
+        var entity = _context.PatientRepository.GetById(request.Id);
 
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(Hospital), request.Id);
-        }
+        if (entity == null)return OperationResult.NotSuccessful($"Patient with Id-{request.Id} not found");
 
-        entity.HospitalName = request.Name;
+        entity.FirstName = request.Name;
 
-        await _context.SaveChangesAsync(cancellationToken);
+        var commitResult=await _context.SaveChangesAsync(cancellationToken);
 
-        return Unit.Value;
+        return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("");
     }
 }

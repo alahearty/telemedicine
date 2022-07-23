@@ -1,14 +1,13 @@
 ﻿using telemedicine_webapi.Application.Common.Interfaces;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 
 namespace telemedicine_webapi.Application.Patients.Commands.UpdatePatients;
 
 public class UpdateHospitalCommandValidator : AbstractValidator<UpdatePatientCommand>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public UpdateHospitalCommandValidator(IApplicationDbContext context)
+    public UpdateHospitalCommandValidator(IUnitOfWork context)
     {
         _context = context;
 
@@ -20,8 +19,6 @@ public class UpdateHospitalCommandValidator : AbstractValidator<UpdatePatientCom
 
     public async Task<bool> BeUniqueTitle(UpdatePatientCommand model, string name, CancellationToken cancellationToken)
     {
-        return await _context.Patients
-            .Where(l => l.Id != model.Id)
-            .AllAsync(l => l.FirstName != name, cancellationToken);
+        return await _context.PatientRepository.Exists(l => l.Id != model.Id);
     }
 }

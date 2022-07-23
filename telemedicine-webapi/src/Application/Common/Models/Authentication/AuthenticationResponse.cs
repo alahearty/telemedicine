@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace telemedicine_webapi.Application.Common.Models.Authentication;
 
-public record AuthenticationResponse(Guid Id, string FirstName, string LastName, string Email, string Token);
+public record AuthenticationResponse(int Id, string Token);
 

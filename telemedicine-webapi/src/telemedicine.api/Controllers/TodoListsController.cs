@@ -26,29 +26,23 @@ public class TodoListsController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> Create(CreateTodoListCommand command)
+    public async Task<IActionResult> Create(CreateTodoListCommand command)
     {
-        return await Mediator.Send(command);
+        var response= await Mediator.Send(command);
+        return Ok(response);
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, UpdateTodoListCommand command)
+    [HttpPut]
+    public async Task<ActionResult> Update(UpdateTodoListCommand command)
     {
-        if (id != command.Id)
-        {
-            return BadRequest();
-        }
-
-        await Mediator.Send(command);
-
-        return NoContent();
+        var response=await Mediator.Send(command);
+        return Ok(response);
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        await Mediator.Send(new DeleteTodoListCommand(id));
-
-        return NoContent();
+        var response=await Mediator.Send(new DeleteTodoListCommand(id));
+        return Ok(response);
     }
 }

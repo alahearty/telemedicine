@@ -2,6 +2,6 @@
 
 namespace telemedicine_webapi.Infrastructure.Identity;
 
-public class ApplicationUser : IdentityUser
+public class ApplicationUser : IdentityUser<int>
 {
 }

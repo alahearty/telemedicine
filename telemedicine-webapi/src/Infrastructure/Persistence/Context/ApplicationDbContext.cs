@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using telemedicine_webapi.Infrastructure.Identity;
 using telemedicine_webapi.Infrastructure.Persistence.Interceptors;
@@ -8,20 +7,21 @@ using MediatR;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-namespace telemedicine_webapi.Infrastructure.Persistence;
+namespace telemedicine_webapi.Infrastructure.Persistence.Context;
 
-public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>, IApplicationDbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, UserRole, int>, IApplicationDbContext
 {
     private readonly IMediator _mediator;
     private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor;
 
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options,
-        IOptions<OperationalStoreOptions> operationalStoreOptions,
         IMediator mediator,
-        AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor)
-        : base(options, operationalStoreOptions)
+        AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor
+        /*IOptions<OperationalStoreOptions> operationalStoreOptions,*/)
+        : base(options/*, operationalStoreOptions*/)
     {
         _mediator = mediator;
         _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
@@ -34,7 +34,7 @@ public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>, 
     public DbSet<TelemedicinePayment> TelemedicinePayments => Set<TelemedicinePayment>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<ScheduleTime> ScheduleTimes => Set<ScheduleTime>();
-    public DbSet<PhysianPatientTransaction> PhysianPatientTransactions => Set<PhysianPatientTransaction>();
+    public DbSet<PhysicianPatientTransaction> PhysianPatientTransactions => Set<PhysicianPatientTransaction>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<TodoList> TodoLists => Set<TodoList>();
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();

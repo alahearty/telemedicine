@@ -1,37 +1,32 @@
 ﻿using telemedicine_webapi.Application.Common.Exceptions;
 using telemedicine_webapi.Application.Common.Interfaces;
-using telemedicine_webapi.Domain.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.Hospitals.Commands.DeleteHospital;
 
-public record DeleteHospitalCommand(int Id) : IRequest;
+public record DeleteHospitalCommand(int Id) : IRequest<BaseResponse>;
 
-public class DeleteHospitalCommandHandler : IRequestHandler<DeleteHospitalCommand>
+public class DeleteHospitalCommandHandler : IRequestHandler<DeleteHospitalCommand,BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public DeleteHospitalCommandHandler(IApplicationDbContext context)
+    public DeleteHospitalCommandHandler(IUnitOfWork context)
     {
         _context = context;
     }
 
-    public async Task<Unit> Handle(DeleteHospitalCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(DeleteHospitalCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.TodoLists
-            .Where(l => l.Id == request.Id)
-            .SingleOrDefaultAsync(cancellationToken);
+        var entity = _context.HospitalRepository.GetById(request.Id);
 
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoList), request.Id);
-        }
+        if (entity == null)return OperationResult.NotSuccessful($"Entity with id-{request.Id} not found");
 
-        _context.TodoLists.Remove(entity);
+        _context.HospitalRepository.Delete(entity);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        var commitResult=await _context.SaveChangesAsync(cancellationToken);
+        if(commitResult.WasSuccesful)return OperationResult.Successful();
 
-        return Unit.Value;
+        return OperationResult.NotSuccessful("unable to delete entity");
     }
 }

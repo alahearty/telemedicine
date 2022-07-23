@@ -1,28 +1,29 @@
-﻿using telemedicine_webapi.Application.Common.Interfaces;
-using telemedicine_webapi.Application.Common.Security;
-using MediatR;
+﻿using MediatR;
+using telemedicine_webapi.Application.Common.Interfaces;
+using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.Hospitals.Commands.PurgeHospital;
 
-[Authorize(Roles = "Administrator")]
-[Authorize(Policy = "CanPurge")]
-public record PurgeHospitalsCommand : IRequest;
+// [Authorize(Roles = "Administrator")]
+// [Authorize(Policy = "CanPurge")]
+public record PurgeHospitalsCommand : IRequest<BaseResponse>;
 
-public class PurgeHospitalsCommandHandler : IRequestHandler<PurgeHospitalsCommand>
+public class PurgeHospitalsCommandHandler : IRequestHandler<PurgeHospitalsCommand,BaseResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _context;
 
-    public PurgeHospitalsCommandHandler(IApplicationDbContext context)
+    public PurgeHospitalsCommandHandler(IUnitOfWork context)
     {
         _context = context;
     }
 
-    public async Task<Unit> Handle(PurgeHospitalsCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(PurgeHospitalsCommand request, CancellationToken cancellationToken)
     {
-        _context.Hospitals.RemoveRange(_context.Hospitals);
+        var hospitals=await _context.HospitalRepository.GetAllAsync();
+        _context.HospitalRepository.DeleteMany(hospitals);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        var commitResult=await _context.SaveChangesAsync(cancellationToken);
 
-        return Unit.Value;
+        return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("unable to delete hospitals");
     }
 }

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using telemedicine_webapi.Application.Common.Models.Authentication;
+﻿using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.Services;
 public interface IAuthService
 {
-    AuthenticationResult Login(string email, string password);
-    AuthenticationResult Register(string firstName, string lastName, string email, string password);
+    Task<BaseResponse> Login(string email, string password);
+    Task<BaseResponse> Register(string email, string firstName, string lastName, string password, string accountType);
 }

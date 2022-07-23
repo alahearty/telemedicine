@@ -1,38 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Application.Hospitals.Commands.CreateHospital;
 using telemedicine_webapi.Application.Hospitals.Commands.DeleteHospital;
 using telemedicine_webapi.Application.Hospitals.Commands.UpdateHospital;
-using telemedicine_webapi.Application.Hospitals.Queries.GetTodoItemsWithPagination;
-using telemedicine_webapi.Application.TodoItems.Queries.GetTodoItemsWithPagination;
 
 namespace telemedicine.api.Controllers;
 
 public class PhysicianController : ApiControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<PaginatedList<HospitalDataDto>>> GetTodoItemsWithPagination([FromQuery] GetHospitaltemsWithPaginationQuery query)
-    {
-        return await Mediator.Send(query);
-    }
+    // public async Task<IActionResult> GetPhysiciansWithPagination([FromQuery] GetPhysicianQuery query)
+    // {
+    //     return await Mediator.Send(query);
+    // }
 
     [HttpPost]
-    public async Task<ActionResult<int>> Create(CreateHospitalCommand command)
+    public async Task<IActionResult> Create([FromBody] CreateHospitalCommand command)
     {
-        return await Mediator.Send(command);
+        var response= await Mediator.Send(command);
+        return Ok(response.Data);
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, UpdateHospitalCommand command)
+    [HttpPut()]
+    public async Task<IActionResult> Update([FromBody] UpdateHospitalCommand command)
     {
-        if (id != command.Id)
-        {
-            return BadRequest();
-        }
-
-        await Mediator.Send(command);
-
-        return NoContent();
+        var response=await Mediator.Send(command);
+        return Ok(response.Data);
     }
 
     //[HttpPut("[action]")]
@@ -51,8 +43,7 @@ public class PhysicianController : ApiControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(int id)
     {
-        await Mediator.Send(new DeleteHospitalCommand(id));
-
-        return NoContent();
+        var response=await Mediator.Send(new DeleteHospitalCommand(id));
+        return Ok(response.Data);
     }
 }
