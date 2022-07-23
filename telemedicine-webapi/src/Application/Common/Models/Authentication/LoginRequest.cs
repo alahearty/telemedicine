@@ -6,5 +6,15 @@ using System.Threading.Tasks;
 
 namespace telemedicine_webapi.Application.Common.Models.Authentication;
 
-public record LoginRequest(string Email, string Password);
+public class LoginRequest
+{
+    public LoginRequest(string email, string password)
+    {
+        Email = email;
+        Password = password;
+    }
+
+    public string Email { get; set; }
+    public string Password { get; set; }
+}
 

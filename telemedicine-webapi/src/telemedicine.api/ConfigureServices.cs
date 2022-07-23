@@ -18,6 +18,8 @@ public static class ConfigureServices
 
         services.AddHttpContextAccessor();
 
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>();
 

@@ -24,17 +24,13 @@ public static class RegsterServicesExtension
 
     private static void AddInfrastructureServices(IServiceCollection services)
     {
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        
 
         services.AddIdentity<ApplicationUser, UserRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-        services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
-
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-        services.AddScoped<IIdentityService, IdentityService>();
+        
 
         //services.AddScoped<IJwtTokenGenerator,JwtTokenGenerator>();
     }

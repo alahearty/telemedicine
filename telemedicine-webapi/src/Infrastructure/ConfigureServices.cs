@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using telemedicine_webapi.Infrastructure.JWTAuthentication;
 using telemedicine_webapi.Infrastructure.Persistence.Context;
+using telemedicine_webapi.Infrastructure.Persistence.Repositories;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -16,7 +17,11 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+
+        var jwtSettings = new JwtSettings();
+        configuration.GetSection("JwtSettings").Bind(jwtSettings);
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<AuditableEntitySaveChangesInterceptor>();
 
         if (configuration.GetValue<bool>("UseInMemoryDatabase"))
@@ -27,22 +32,20 @@ public static class ConfigureServices
         {
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetValue<string>("DefaultConnection"), builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
         }
-        // if (configuration.GetValue<bool>("UseInMemoryDatabase"))
-        // {
-        //     services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("telemedicine_webapiDb"));
-        // }
-        // else
-        // {
-        //     services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
-        // }
 
-        // services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+        services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+
+        services.AddDefaultIdentity<ApplicationUser>()
+        .AddRoles<UserRole>()
+        .AddEntityFrameworkStores<ApplicationDbContext>();
 
         services.AddScoped<ApplicationDbContextInitialiser>();
 
-        // services.AddDefaultIdentity<ApplicationUser>()
-        //         .AddRoles<UserRole>()
-        //         .AddEntityFrameworkStores<ApplicationDbContext>();
+        services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddScoped<IIdentityService, IdentityService>();
 
         //services.AddIdentityServer().AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
