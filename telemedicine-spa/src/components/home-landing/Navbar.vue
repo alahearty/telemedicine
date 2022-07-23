@@ -6,10 +6,10 @@
       </div>
 
       <ul class="nav-links">
-        <li><a href="#">How it works</a></li>
-        <li><a href="#">Services</a></li>
-        <li><a href="#">Our Doctors</a></li>
-        <li><a href="#">Contact</a></li>
+        <li><a href="#departments">Departments</a></li>
+        <li><a href="#about">About us</a></li>
+        <li><a href="#doctors">Our Doctors</a></li>
+        <li><a href="#appointment">Appointment</a></li>
 
         <li><button @click="pushToAuth">Sign in</button></li>
       </ul>
@@ -28,16 +28,32 @@ export default {
       this.$router.push('/login')
     },
   },
+  mounted() {
+    // window.addEventListener('scroll', () => {
+    //   console.log('Scroll')
+    // })
+    console.log('Mounted')
+  },
 }
 </script>
 
 <style scoped>
 header {
+  position: relative;
+  /* box-shadow: 0 1.5rem 2.8rem rgb(47 46 65 / 8%); */
+  /* background-color: #fff; */
   position: fixed;
   width: 100%;
   z-index: 2;
-  padding-inline: 3rem;
+  padding-inline: var(--bg-padding-inline);
 }
+/* header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  filter: blur(4px);
+} */
 
 nav {
   display: flex;
