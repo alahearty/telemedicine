@@ -27,13 +27,16 @@ public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>, 
         _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
 
-    public DbSet<TodoList> TodoLists => Set<TodoList>();
-
     public DbSet<Hospital> Hospitals => Set<Hospital>();
     public DbSet<Patient> Patients => Set<Patient>();
-
     public DbSet<Physician> Physicians => Set<Physician>();
-
+    public DbSet<TelemedicineService> TelemedicineServices => Set<TelemedicineService>();
+    public DbSet<TelemedicinePayment> TelemedicinePayments => Set<TelemedicinePayment>();
+    public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<ScheduleTime> ScheduleTimes => Set<ScheduleTime>();
+    public DbSet<PhysianPatientTransaction> PhysianPatientTransactions => Set<PhysianPatientTransaction>();
+    public DbSet<Comment> Comments => Set<Comment>();
+    public DbSet<TodoList> TodoLists => Set<TodoList>();
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
     protected override void OnModelCreating(ModelBuilder builder)
