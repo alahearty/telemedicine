@@ -6,9 +6,9 @@
         <img src="@/assets/img/home-promo-bg.png" alt="background" />
       </div>
       <div class="content">
-        <h2>Eye Care with Top Professionals and In Budget.</h2>
+        <h2>Register to enjoy the Services rendered by Top Professionals and In Budget.</h2>
         <p>
-          We've built a healthcare system that puts your needs first. For us,
+          We've built a Telemedicine System that puts your needs first. For us,
           there is nothing more important than the health of you and your loved
           ones.
         </p>

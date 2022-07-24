@@ -1,6 +1,4 @@
 <template>
-  <AuthLayout>
-    <template v-slot:form>
       <form>
         <h1>Sign up</h1>
 
@@ -14,6 +12,10 @@
           <button class="submit-button">
             Create
             <span class="material-symbols-outlined"> arrow_right_alt </span>
+          </button>
+          <button class="submit-button">
+            Back
+            <span class="material-symbols-outlined"> arrow_left_alt </span>
           </button>
         </div>
 
@@ -39,19 +41,23 @@
           </p>
         </div>
       </form>
-    </template>
-  </AuthLayout>
 </template>
 
 <script>
-import AuthLayout from '@/components/layout/AuthLayout.vue'
+import AuthLayout from '@/Layout/AuthLayout.vue'
 import GoogleIcon from '@/components/icons/GoogleIcon.vue'
 import FacebookIcon from '@/components/icons/FacebookIcon.vue'
+import Layout from '@/Layout/AuthLayout.vue'
 
 export default {
   name: 'Signup',
   components: { GoogleIcon, FacebookIcon, AuthLayout },
+
+  created() {
+    this.$emit(`update:layout`,Layout);
+  },
 }
+
 </script>
 
 <style></style>

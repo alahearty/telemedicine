@@ -7,7 +7,7 @@
       <Departments />
       <Promo />
       <AboutUs />
-      <Appointment />
+      <Service />
     </main>
 
     <Footer />
@@ -17,7 +17,7 @@
 <script>
 import Navbar from '@/components/home-landing/Navbar.vue'
 import Footer from '@/components/home-landing/Footer.vue'
-import Appointment from '@/components/home-landing/AppointmentSection.vue'
+import Service from '@/components/home-landing/ServicesSection.vue'
 import AboutUs from '@/components/home-landing/AboutUsSection.vue'
 import Departments from '@/components/home-landing/Departments.vue'
 import Hero from '@/components/home-landing/HeroSection.vue'
@@ -28,7 +28,7 @@ export default {
   components: {
     Navbar,
     Footer,
-    Appointment,
+    Service,
     Hero,
     AboutUs,
     Departments,

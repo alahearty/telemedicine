@@ -9,8 +9,8 @@
           You can get the care you need 24/7 – be it online or in person. You
           will be treated by caring specialist doctors.
         </p>
-        <a href="#appointment">
-          <button class="hero-cta">Make an appointment</button>
+        <a href="#service">
+          <button class="hero-cta">Check Our Services</button>
         </a>
       </div>
 

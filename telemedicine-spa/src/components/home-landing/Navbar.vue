@@ -9,9 +9,10 @@
         <li><a href="#departments">Departments</a></li>
         <li><a href="#about">About us</a></li>
         <li><a href="#doctors">Our Doctors</a></li>
-        <li><a href="#appointment">Appointment</a></li>
+        <li><a href="#service">Our Services</a></li>
 
-        <li><button @click="pushToAuth">Sign in</button></li>
+        <li><button @click="pushToRegister">Register</button></li>
+        <li><button @click="pushToLogin">Login</button></li>
       </ul>
     </nav>
   </header>
@@ -22,9 +23,14 @@ import TelemedicineLogo from '@/components/icons/TelemedicineHomeLogo.vue'
 
 export default {
   name: 'Navbar',
+
   components: { TelemedicineLogo },
+
   methods: {
-    pushToAuth() {
+    pushToRegister() {
+      this.$router.push('/signup')
+    },
+    pushToLogin() {
       this.$router.push('/login')
     },
   },
@@ -81,10 +87,10 @@ nav svg {
 
 .nav-links {
   display: flex;
-  width: 570px;
+  width: 720px;
   justify-content: space-between;
   align-items: center;
-  gap: 1.5rem;
+  gap: 0.1rem;
 }
 
 .nav-links button {
@@ -92,7 +98,7 @@ nav svg {
   border: 1px solid #283779;
   border-radius: 50px;
   height: 45px;
-  width: 100px;
+  width: 80px;
   transition: all 300ms ease;
   color: #283779;
 }

@@ -4,8 +4,7 @@
       <ol class="inline-flex items-center space-x-1 md:space-x-3">
         <li class="inline-flex items-center">
           <a
-            href="#"
-            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+            href="#" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           >
             <svg class="mr-2 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -182,14 +181,15 @@
 
 <script>
 import { Icon } from '@iconify/vue'
-import Partners from '@/components/dashboard/Partners.vue'
+import Partners from '@/components/account-dashboard/Partners.vue'
 import WalletIcon from '@/components/icons/WalletIcon.vue'
 import BagIcon from '../../components/icons/BagIcon.vue'
 import UserIcon from '@/components/icons/UserIcon.vue'
 import TrendIcon from '@/components/icons/TrendIcon.vue'
-import DataTable from '@/components/dashboard/DataTable.vue'
-import ChartComponent from '@/components/dashboard/ChartComponent.vue'
-import Card from '@/components/dashboard/Card.vue'
+import DataTable from '@/components/account-dashboard/DataTable.vue'
+import ChartComponent from '@/components/account-dashboard/ChartComponent.vue'
+import Card from '@/components/account-dashboard/Card.vue'
+import Layout from '@/Layout/AdminLayout.vue'
 
 export default {
   name: 'Dashboard',
@@ -343,6 +343,7 @@ export default {
     DataTable,
     ChartComponent,
     Card,
+    Layout
   },
   computed: {
     seriesBar() {
@@ -357,8 +358,8 @@ export default {
   },
 
   methods: {
-    fetchProducts() {
-      this.$store.dispatch('fetchProducts')
+    fetchServices() {
+      this.$store.dispatch('fetchfetchServices')
     },
 
     fetchRevenues() {
@@ -374,7 +375,6 @@ export default {
         this.transactions = this.$store.state.transaction
       })
     },
-
     fetchUSERSs() {
       this.$store.dispatch('fetchUsers').then(() => {
         this.labels = this.$store.state.user
@@ -383,15 +383,14 @@ export default {
   },
 
   mounted() {
-    this.fetchProducts()
+    this.fetchServices()
     this.fetchRevenues()
     this.fetchTransactions()
     this.fetchVisitors()
     this.fetchUSERSs()
   },
   created() {
-    const isUserAuthenticated = false
-    if (!isUserAuthenticated) this.$router.push('/login')
+    this.$emit(`update:layout`,Layout);
   },
 }
 </script>

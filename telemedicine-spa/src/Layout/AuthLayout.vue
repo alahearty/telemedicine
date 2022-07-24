@@ -1,8 +1,8 @@
 <template>
   <main class="auth-wrapper">
     <div class="form-container">
-      <slot name="form"></slot>
-      <div class="image-bg" />
+      <slot/>
+    <div class="image-bg" />
     </div>
   </main>
 </template>

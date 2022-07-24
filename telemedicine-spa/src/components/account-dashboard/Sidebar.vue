@@ -3,7 +3,7 @@
   <nav class="sidebar bg-white dark:bg-gray-800">
     <!-- sidebar head -->
     <div class="sidebar-head p-4">
-      <router-link to="/" exact>
+      <router-link to="/dashboard" exact>
         <h2 class="text-2xl font-normal text-gray-800 dark:text-gray-500" translate="no">
           Analytics Dashboard<span class="text-primary">.</span>
           <span class="bg-gray-700 absolute mt-2 dark:block hidden rounded-md py-1 px-2 text-xs text-gray-200">Dark mode</span>
@@ -30,9 +30,21 @@
       <p class="font-medium text-gray-400 dark:text-gray-600">Menu</p>
       <div class="wrap-item mt-4 dark:text-gray-500">
         <div class="item">
-          <router-link to="/" exact class="w-full flex text-left rounded-md box-border p-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <router-link to="/dashboard" exact class="w-full flex text-left rounded-md box-border p-3 hover:bg-gray-100 dark:hover:bg-gray-700">
             <span class="mr-3 text-xl"><Icon icon="bxs:dashboard" /></span>
             <span class="w-full"> Dashboard </span>
+          </router-link>
+        </div>
+        <div class="item">
+          <router-link to="/account" exact class="w-full flex text-left rounded-md box-border p-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <span class="mr-3 text-xl"><Icon icon="bxs:dashboard" /></span>
+            <span class="w-full"> Account Management</span>
+          </router-link>
+        </div>
+        <div class="item">
+          <router-link to="/hospital" exact class="w-full flex text-left rounded-md box-border p-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <span class="mr-3 text-xl"><Icon icon="bxs:dashboard" /></span>
+            <span class="w-full"> Hospital Management</span>
           </router-link>
         </div>
       </div>
