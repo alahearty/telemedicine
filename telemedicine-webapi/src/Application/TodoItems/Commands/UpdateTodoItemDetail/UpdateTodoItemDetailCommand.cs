@@ -29,7 +29,7 @@ public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItem
 
     public async Task<BaseResponse> Handle(UpdateTodoItemDetailCommand request, CancellationToken cancellationToken)
     {
-        var entity = _context.TodoItemRepository.GetById(request.Id);
+        var entity = await _context.TodoItemRepository.GetByIdAsync(request.Id);
 
         if (entity == null)return OperationResult.NotSuccessful("Not found");
 

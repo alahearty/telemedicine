@@ -20,7 +20,7 @@ public class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoListComman
 
     public async Task<BaseResponse> Handle(DeleteTodoListCommand request, CancellationToken cancellationToken)
     {
-        var entity = _context.TodoListRepository.GetById(request.Id);
+        var entity = await _context.TodoListRepository.GetByIdAsync(request.Id);
         if (entity == null)return OperationResult.NotSuccessful("Not found");
         _context.TodoListRepository.Delete(entity);
 

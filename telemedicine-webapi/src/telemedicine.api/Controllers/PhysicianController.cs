@@ -1,27 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using telemedicine_webapi.Application.Hospitals.Commands.CreateHospital;
-using telemedicine_webapi.Application.Hospitals.Commands.DeleteHospital;
-using telemedicine_webapi.Application.Hospitals.Commands.UpdateHospital;
+using telemedicine_webapi.Application.Physicians.Commands.CreatePhysician;
+using telemedicine_webapi.Application.Physicians.Commands.DeletePhysician;
+using telemedicine_webapi.Application.Physicians.Commands.UpdatePhysician;
 
 namespace telemedicine.api.Controllers;
 
 public class PhysicianController : ApiControllerBase
 {
-    [HttpGet]
-    // public async Task<IActionResult> GetPhysiciansWithPagination([FromQuery] GetPhysicianQuery query)
-    // {
-    //     return await Mediator.Send(query);
-    // }
+    //[HttpGet]
+    //public async Task<IActionResult> GetPhysiciansWithPagination([FromQuery] GetPhysicianQuery query)
+    //{
+    //    return await Mediator.Send(query);
+    //}
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateHospitalCommand command)
+    public async Task<IActionResult> Create([FromBody] CreatePhysicianCommand command)
     {
         var response= await Mediator.Send(command);
         return Ok(response.Data);
     }
 
     [HttpPut()]
-    public async Task<IActionResult> Update([FromBody] UpdateHospitalCommand command)
+    public async Task<IActionResult> Update([FromBody] UpdatePhysicianCommand command)
     {
         var response=await Mediator.Send(command);
         return Ok(response.Data);
@@ -43,7 +43,7 @@ public class PhysicianController : ApiControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(int id)
     {
-        var response=await Mediator.Send(new DeleteHospitalCommand(id));
+        var response=await Mediator.Send(new DeletePhysicianCommand(id));
         return Ok(response.Data);
     }
 }

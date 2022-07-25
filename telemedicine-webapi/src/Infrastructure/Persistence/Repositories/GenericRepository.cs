@@ -43,10 +43,10 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity<i
         return result;
     }
 
-    public T? FirstOrDefault(Expression<Func<T, bool>> expression)
+    public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> expression)
     {
         var result = entities.FirstOrDefault(expression);
-        return result;
+        return await Task.FromResult(result!);
     }
 
     public async Task<IEnumerable<T>> GetAllAsync()
@@ -55,10 +55,10 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity<i
         return result;
     }
 
-    public T? GetById(int id)
+    public async Task<T> GetByIdAsync(int id)
     {
         var result = entities.Find(id);
-        return result;
+        return await Task.FromResult(result!);
     }
 
     public void Update(T entity)

@@ -17,8 +17,8 @@ public class DeletePatientCommandHandler : IRequestHandler<DeletePatientCommand,
 
     public async Task<BaseResponse> Handle(DeletePatientCommand request, CancellationToken cancellationToken)
     {
-        var entity =  _context.TodoListRepository
-            .FirstOrDefault(l => l.Id == request.Id);
+        var entity =  await _context.TodoListRepository
+            .FirstOrDefaultAsync(l => l.Id == request.Id);
             
         if (entity == null)return OperationResult.NotSuccessful($"Patient with Id-{request.Id} not found");
         _context.TodoListRepository.Delete(entity);

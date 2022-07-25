@@ -8,6 +8,7 @@ namespace telemedicine_webapi.Application.Hospitals.Commands.CreateHospital;
 public record CreateHospitalCommand : IRequest<BaseResponse>
 {
     public string? Name { get; init; }
+    public string? Location { get; init; }
 }
 
 public class CreateHospitalCommandHandler : IRequestHandler<CreateHospitalCommand, BaseResponse>
@@ -24,6 +25,7 @@ public class CreateHospitalCommandHandler : IRequestHandler<CreateHospitalComman
         var entity = new Hospital();
 
         entity.HospitalName = request.Name;
+        entity.Address = request.Location;
 
         _unitOfWork.HospitalRepository.Add(entity);
 

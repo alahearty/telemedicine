@@ -10,8 +10,8 @@ public interface IGenericRepository<T>
     void DeleteMany(IEnumerable<T> entities);
     void Update(T entity);
     Task<bool> Exists(Expression<Func<T, bool>> expression);
-    T? GetById(int id);
+    Task<T> GetByIdAsync(int id);
     Task<IEnumerable<T>> GetAllAsync();
     Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression);
-    T? FirstOrDefault(Expression<Func<T, bool>> expression);
+    Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> expression);
 }

@@ -1,5 +1,4 @@
-﻿using telemedicine_webapi.Application.Common.Exceptions;
-using telemedicine_webapi.Application.Common.Interfaces;
+﻿using telemedicine_webapi.Application.Common.Interfaces;
 using MediatR;
 using telemedicine_webapi.Application.Common.Models;
 
@@ -18,14 +17,14 @@ public class DeleteHospitalCommandHandler : IRequestHandler<DeleteHospitalComman
 
     public async Task<BaseResponse> Handle(DeleteHospitalCommand request, CancellationToken cancellationToken)
     {
-        var entity = _context.HospitalRepository.GetById(request.Id);
+        var entity = await _context.HospitalRepository.GetByIdAsync(request.Id);
 
-        if (entity == null)return OperationResult.NotSuccessful($"Entity with id-{request.Id} not found");
+        if (entity == null) return OperationResult.NotSuccessful($"Entity with id-{request.Id} not found");
 
         _context.HospitalRepository.Delete(entity);
 
-        var commitResult=await _context.SaveChangesAsync(cancellationToken);
-        if(commitResult.WasSuccesful)return OperationResult.Successful();
+        var commitResult = await _context.SaveChangesAsync(cancellationToken);
+        if (commitResult.WasSuccesful) return OperationResult.Successful();
 
         return OperationResult.NotSuccessful("unable to delete entity");
     }

@@ -2,15 +2,16 @@
 using AutoMapper.QueryableExtensions;
 using MediatR;
 using telemedicine_webapi.Application.Common.Interfaces;
+using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Domain.Entities;
 using telemedicine_webapi.Domain.Enums;
 
 namespace telemedicine_webapi.Application.Patients.Queries.GetPatients;
 
 //[Authorize]
-public record GetPatientsQuery : IRequest<PatientFileRecordsVm>;
+public record GetPatientsQuery : IRequest<BaseResponse>;
 
-public class GetPatientsQueryHandler : IRequestHandler<GetPatientsQuery, PatientFileRecordsVm>
+public class GetPatientsQueryHandler : IRequestHandler<GetPatientsQuery, BaseResponse>
 {
     private readonly IUnitOfWork _context;
     private readonly IMapper _mapper;
@@ -21,19 +22,10 @@ public class GetPatientsQueryHandler : IRequestHandler<GetPatientsQuery, Patient
         _mapper = mapper;
     }
 
-    public async Task<PatientFileRecordsVm> Handle(GetPatientsQuery request, CancellationToken cancellationToken)
+    public async Task<BaseResponse> Handle(GetPatientsQuery request, CancellationToken cancellationToken)
     {
         var patients=await _context.PatientRepository.GetAllAsync();
-        return new PatientFileRecordsVm
-        {
-            PriorityLevels = Enum.GetValues(typeof(PriorityLevel))
-                .Cast<PriorityLevel>()
-                .Select(p => new PriorityLevelDto { Value = (int)p, Name = p.ToString() })
-                .ToList(),
-
-             Lists = patients.AsQueryable<Patient>()
-                .ProjectTo<PatientFileRecordListDto>(_mapper.ConfigurationProvider)
-                .ToList()
-        };
+        var patientDtos = _mapper.Map<List<PatientDto>>(patients);
+        return OperationResult.Successful(patientDtos);
     }
 }

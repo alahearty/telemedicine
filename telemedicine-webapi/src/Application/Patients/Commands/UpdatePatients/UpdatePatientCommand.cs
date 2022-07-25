@@ -22,7 +22,7 @@ public class UpdatePatientCommandHandler : IRequestHandler<UpdatePatientCommand,
 
     public async Task<BaseResponse> Handle(UpdatePatientCommand request, CancellationToken cancellationToken)
     {
-        var entity = _context.PatientRepository.GetById(request.Id);
+        var entity = await _context.PatientRepository.GetByIdAsync(request.Id);
 
         if (entity == null)return OperationResult.NotSuccessful($"Patient with Id-{request.Id} not found");
 

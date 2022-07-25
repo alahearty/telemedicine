@@ -20,7 +20,7 @@ public class DeletePhysicianCommandHandler : IRequestHandler<DeletePhysicianComm
 
     public async Task<BaseResponse> Handle(DeletePhysicianCommand request, CancellationToken cancellationToken)
     {
-        var entity = _context.PhysicianRepository.GetById(request.Id);
+        var entity = await _context.PhysicianRepository.GetByIdAsync(request.Id);
 
         if (entity == null) return OperationResult.NotSuccessful($"Physician with Id-{request.Id} not found");
         _context.PhysicianRepository.Delete(entity);

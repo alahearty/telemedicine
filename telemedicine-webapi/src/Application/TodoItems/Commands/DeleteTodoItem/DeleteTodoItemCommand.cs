@@ -20,14 +20,14 @@ public class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemComman
 
     public async Task<BaseResponse> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
     {
-        var entity = _context.TodoItemRepository.GetById(request.Id);
-        if (entity == null)return OperationResult.NotSuccessful("Not found");
+        var entity = await _context.TodoItemRepository.GetByIdAsync(request.Id);
+        if (entity == null) return OperationResult.NotSuccessful("Not found");
 
         _context.TodoItemRepository.Delete(entity);
 
         entity.AddDomainEvent(new TodoItemDeletedEvent(entity));
 
-        var commitResult=await _context.SaveChangesAsync(cancellationToken);
+        var commitResult = await _context.SaveChangesAsync(cancellationToken);
 
         return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("Unable to delete");
     }

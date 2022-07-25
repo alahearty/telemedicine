@@ -1,24 +1,20 @@
-﻿using telemedicine_webapi.Application.Common.Models;
-using telemedicine_webapi.Application.TodoItems.Commands.CreateTodoItem;
+﻿using telemedicine_webapi.Application.TodoItems.Commands.CreateTodoItem;
 using telemedicine_webapi.Application.TodoItems.Commands.DeleteTodoItem;
 using telemedicine_webapi.Application.TodoItems.Commands.UpdateTodoItem;
 using telemedicine_webapi.Application.TodoItems.Commands.UpdateTodoItemDetail;
-using telemedicine_webapi.Application.TodoItems.Queries.GetTodoItemsWithPagination;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using telemedicine_webapi.Application.Hospitals.Queries.GetTodoItemsWithPagination;
 
 namespace telemedicine.api.Controllers;
 
 //[Authorize]
 public class TodoItemsController : ApiControllerBase
 {
-    [HttpGet]
-    public async Task<IActionResult> GetTodoItemsWithPagination([FromQuery] GetTodoItemsWithPaginationQuery query)
-    {
-        var response= await Mediator.Send(query);
-        return Ok(response);
-    }
+    //[HttpGet]
+    //public async Task<IActionResult> GetTodoItemsWithPagination([FromQuery] GetTodoItemsWithPaginationQuery query)
+    //{
+    //    var response= await Mediator.Send(query);
+    //    return Ok(response);
+    //}
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateTodoItemCommand command)

@@ -5,7 +5,7 @@ using telemedicine_webapi.Application.Common.Mappings;
 using telemedicine_webapi.Application.Common.Models;
 using MediatR;
 using telemedicine_webapi.Domain.Entities;
-using telemedicine_webapi.Application.TodoItems.Queries.GetTodoItemsWithPagination;
+//using telemedicine_webapi.Application.TodoItems.Queries.GetTodoItemsWithPagination;
 
 namespace telemedicine_webapi.Application.TodoItems.Queries;
 
