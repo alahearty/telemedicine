@@ -37,7 +37,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 :root {
   --max-width: 1080px;
   --max-width-md: var(--max-width-md);

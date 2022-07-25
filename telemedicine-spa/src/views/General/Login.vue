@@ -1,4 +1,5 @@
 <template>
+  <layout>
       <form @submit="handleSubmit">
         <h1>Log in</h1>
         <p class="subtitle">Log in to your account</p>
@@ -43,17 +44,17 @@
           </p>
         </div>
       </form>
+    </layout>
 </template>
 
 <script>
-import AuthLayout from '@/Layout/AuthLayout.vue'
 import GoogleIcon from '@/components/icons/GoogleIcon.vue'
 import FacebookIcon from '@/components/icons/FacebookIcon.vue'
 import Layout from '@/Layout/AuthLayout.vue'
 
 export default {
   name: 'Login',
-  components: { GoogleIcon, FacebookIcon, AuthLayout },
+  components: { GoogleIcon, FacebookIcon, Layout },
   data() {
     return {
       email: '',
@@ -70,9 +71,10 @@ export default {
     }
   },
   created() {
-    this.$emit(`update:layout`,Layout);
+    
   },
 }
 </script>
 
-<style></style>
+<style scoped>
+</style>
