@@ -1,8 +1,8 @@
 <template>
   <main class="auth-wrapper">
     <div class="form-container">
-      <slot/>
-    <div class="image-bg" />
+      <slot />
+      <div class="image-bg" />
     </div>
   </main>
 </template>
@@ -25,7 +25,7 @@ main.auth-wrapper {
 .form-container {
   width: 100%;
   max-width: 700px;
-  height: 500px;
+  height: 520px;
   overflow-y: scroll;
   background-color: #fff;
   border-radius: 12px;
@@ -74,19 +74,26 @@ main.auth-wrapper {
   background-position: center;
 }
 
-.form-container input {
+.form-container input,
+.form-container select {
   width: 100%;
-  padding: 0.7em 1em;
+  padding: 0.5em 1em;
   font-size: 0.875rem;
   margin-bottom: 0.7rem;
   border: 1px solid #cad6e4;
   border-radius: 5px;
 }
 
+.form-container select {
+  padding-inline: 0.7em;
+  color: #00000090;
+}
+
 .buttons-container {
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
 }
 
@@ -98,10 +105,9 @@ main.auth-wrapper {
 }
 
 .submit-button {
-  padding: 1em 2em;
+  padding: 0.7em 1.5em;
   background-color: rgb(4, 101, 134);
   color: #fff;
-  margin-left: auto;
   font-size: 0.875rem;
   border-radius: 5px;
   display: flex;

@@ -1,9 +1,9 @@
 <template>
   <!-- App -->
-  <div class="flex bg-packed font-lexend dark:bg-gray-900">
+  <div class="flex bg-packed font-lexend dark:bg-gray-900 pt-16">
     <div class="flex-auto w-full overflow-auto h-screen" id="body-scroll">
       <Header />
-      <slot/>
+      <slot />
       <Footer />
     </div>
   </div>
