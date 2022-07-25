@@ -4,7 +4,7 @@ using telemedicine.api.Services;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Infrastructure.Persistence;
 using telemedicine_webapi.Infrastructure.Persistence.Context;
-using telemedicine_webapi.WebUI.Filters;
+using telemedicine.api.Filters;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

@@ -55,10 +55,21 @@ var builder = WebApplication.CreateBuilder(args);
                 });
             });
 
+    //builder.Services.AddCors(options =>
+    //{
+    //    options.AddPolicy("CorsPolicy",
+    //    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+    //});
     builder.Services.AddCors(options =>
     {
-        options.AddPolicy("CorsPolicy",
-        builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+        options.AddDefaultPolicy(builder =>
+        {
+            builder.WithOrigins("http://localhost:44341/chat-hub")
+            .AllowAnyHeader()
+            .AllowCredentials()
+            //.AllowAnyOrigin()
+            .AllowAnyMethod();
+        });
     });
 }
 
