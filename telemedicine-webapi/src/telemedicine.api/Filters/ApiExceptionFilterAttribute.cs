@@ -2,8 +2,9 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Http;
 
-namespace telemedicine_webapi.WebUI.Filters;
+namespace telemedicine.api.Filters;
 
 public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 {

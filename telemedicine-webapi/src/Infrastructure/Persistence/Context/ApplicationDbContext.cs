@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace telemedicine_webapi.Infrastructure.Persistence.Context;
 
-public class ApplicationDbContext : IdentityDbContext<IdentityUser<Guid>, IdentityRole<Guid>,Guid>, IApplicationDbContext
+public class ApplicationDbContext : IdentityDbContext<IdentityUser<Guid>, IdentityRole<Guid>, Guid>, IApplicationDbContext
 {
     private readonly IMediator _mediator;
     private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor;
@@ -27,7 +28,6 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser<Guid>, Identi
         _mediator = mediator;
         _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
-
     public DbSet<Hospital> Hospitals => Set<Hospital>();
     public DbSet<Patient> Patients => Set<Patient>();
     public DbSet<Physician> Physicians => Set<Physician>();
@@ -37,14 +37,18 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser<Guid>, Identi
     public DbSet<ScheduleTime> ScheduleTimes => Set<ScheduleTime>();
     public DbSet<PhysicianPatientTransaction> PhysianPatientTransactions => Set<PhysicianPatientTransaction>();
     public DbSet<Comment> Comments => Set<Comment>();
+    public DbSet<Message> Messages => Set<Message>();
     public DbSet<TodoList> TodoLists => Set<TodoList>();
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
         base.OnModelCreating(builder);
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        builder.Entity<Message>()
+                .HasOne(x => x.AppUser)
+                .WithMany(x => x.Messages)
+                .HasForeignKey(x => x.SenderUserId);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

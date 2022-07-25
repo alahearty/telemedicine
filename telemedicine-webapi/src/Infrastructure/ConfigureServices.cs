@@ -11,6 +11,7 @@ using telemedicine_webapi.Infrastructure.JWTAuthentication;
 using telemedicine_webapi.Infrastructure.Persistence.Context;
 using telemedicine_webapi.Infrastructure.Persistence.Repositories;
 using telemedicine_webapi.Application.Services;
+using telemedicine_webapi.Infrastructure.Common;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -20,11 +21,12 @@ public static class ConfigureServices
     {
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
+        var sqlserverConnection = new StaticFiles();
         var jwtSettings = new JwtSettings();
         configuration.GetSection("JwtSettings").Bind(jwtSettings);
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<AuditableEntitySaveChangesInterceptor>();
-
+        configuration.GetSection(StaticFiles.SettingName).Bind(sqlserverConnection);
         if (configuration.GetValue<bool>("UseInMemoryDatabase"))
         {
             services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("telemedicine_webapiDb"));

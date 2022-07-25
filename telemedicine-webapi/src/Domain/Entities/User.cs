@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Entities;
 
 namespace telemedicine_webapi.Domain.Entities;
 public class User : BaseAuditableEntity
@@ -23,10 +25,13 @@ public class User : BaseAuditableEntity
     public string? Phone { get; set; }
     public string? Address { get; set; }
     public byte[]? Avatar { get; set; }
-
     public virtual int GetAge()
     {
         var age = DateTime.Now.Subtract(Birth);
         return (int)age.TotalDays / 365;
     }
+    [Required]
+    public AccountType AccountType { get; set; }
+    public virtual IEnumerable<Message> Messages => _messages;
+    private readonly ICollection<Message> _messages = new Collection<Message>();
 }
