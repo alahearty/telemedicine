@@ -1,5 +1,5 @@
 <template>
-  <h1>Book appointment</h1>
+  <h1>Medical Feedback</h1>
 </template>
 
 <script>
