@@ -5,6 +5,8 @@ import router from "./router";
 import { Icon } from "@iconify/vue";
 import VueApexCharts from "vue3-apexcharts";
 import PerfectScrollbar from "vue3-perfect-scrollbar";
+import PrimeVue from 'primevue/config';
+import Dialog from 'primevue/dialog';
 
 import "vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css";
 import "./assets/tailwind.css";
@@ -15,6 +17,8 @@ const app = createApp(App);
 app.use(store)
 app.use(router, Icon);
 app.use(VueApexCharts);
+app.use(PrimeVue);
+app.component('Dialog', Dialog);
 app.use(PerfectScrollbar);
 app.mount("#app");
 

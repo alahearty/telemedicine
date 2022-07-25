@@ -1,21 +1,21 @@
 <template>
-  <!-- <AppLayout /> -->
-  <router-view />
+  <component :is="layout">
+    <router-view v-model:layout.sync="layout"/>
+  </component>
 </template>
 
 <script>
-// vue Components
-import AppLayout from '@/components/layout/AppLayout.vue'
-import AuthLayout from '@/components/layout/AuthLayout.vue'
-// npm-js
 import Scrollbar from 'smooth-scrollbar'
 
 export default {
   name: 'App',
-  components: {
-    AppLayout,
-    AuthLayout,
+
+  data(){
+    return{
+      layout:`div`
+    }
   },
+
   mounted() {
     Scrollbar.init(document.querySelector('#body-scroll'))
 
@@ -34,5 +34,8 @@ export default {
 <style>
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+}
+* {
+  scroll-behavior: smooth;
 }
 </style>

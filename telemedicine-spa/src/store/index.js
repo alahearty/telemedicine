@@ -1,11 +1,11 @@
 import { createStore } from 'vuex'
 import axios from 'axios'
 
-const BASE_URL = "https://localhost:7145/api/Analytics";
+const BASE_URL = "https://localhost:7231/api/Analytics/";
 
 export default createStore({
     state: {
-        products: [],
+        services: [],
         revenue: [],
         visitor: [],
         transaction: [],
@@ -14,7 +14,7 @@ export default createStore({
     },
     
     getters: {
-      getProducts: (state) => state.products,
+      getServices: (state) => state.services,
       getRevenue: (state) => state.revenue,
       getVisitor: (state) => state.visitor,
       getTransaction: (state) => state.transaction,
@@ -35,10 +35,10 @@ export default createStore({
                 console.log(error)
             }
         },
-         async fetchProducts({ commit }) {
+         async fetchServices({ commit }) {
           try {
-            const data = await axios.get(`${BASE_URL}/Products`)
-              commit('SET_PRODUCTS', data.data)
+            const data = await axios.get(`${BASE_URL}/Service`)
+              commit('SET_SERVICE', data.data)
             }
             catch (error) {
                 alert(error)
@@ -67,14 +67,6 @@ export default createStore({
                 reject(error)
               })
           })
-          // try {
-          //   const data = await axios.get(`${BASE_URL}/Visitor`)
-          //     commit('SET_VISITOR', data.data)
-          //   }
-          //   catch (error) {
-          //       alert(error)
-          //       console.log(error)
-          //   }
         },
         
         async fetchAllTransaction({ commit }) {
@@ -103,8 +95,8 @@ export default createStore({
       SET_USERS(state, user) {
           state.user = user
       },
-      SET_PRODUCTS(state, products) {
-          state.products = products
+      SET_SERVICE(state, services) {
+          state.services = services
       },
       SET_REVENUE(state, revenue) {
           state.revenue = revenue

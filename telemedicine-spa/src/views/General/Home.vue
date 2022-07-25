@@ -3,24 +3,11 @@
     <Navbar />
 
     <main>
-      <div class="hero">
-        <article class="hero-content">
-          <div class="hero-text-container">
-            <h1>
-              We're <span>determined</span> for your <span>better life.</span>
-            </h1>
-            <p>
-              You can get the care you need 24/7 – be it online or in person.
-              You will be treated by caring specialist doctors.
-            </p>
-            <button class="hero-cta">Make an appointment</button>
-          </div>
-
-          <div class="hero-img">
-            <img src="@/assets/img/home-hero.png" />
-          </div>
-        </article>
-      </div>
+      <Hero />
+      <Departments />
+      <Promo />
+      <AboutUs />
+      <Service />
     </main>
 
     <Footer />
@@ -30,10 +17,23 @@
 <script>
 import Navbar from '@/components/home-landing/Navbar.vue'
 import Footer from '@/components/home-landing/Footer.vue'
+import Service from '@/components/home-landing/ServicesSection.vue'
+import AboutUs from '@/components/home-landing/AboutUsSection.vue'
+import Departments from '@/components/home-landing/Departments.vue'
+import Hero from '@/components/home-landing/HeroSection.vue'
+import Promo from '@/components/home-landing/PromoSection.vue'
 
 export default {
   name: 'Home',
-  components: { Navbar, Footer },
+  components: {
+    Navbar,
+    Footer,
+    Service,
+    Hero,
+    AboutUs,
+    Departments,
+    Promo,
+  },
 }
 </script>
 
@@ -41,9 +41,25 @@ export default {
 :root {
   --max-width: 1080px;
   --max-width-md: var(--max-width-md);
+  --bg-padding-inline: 3rem;
 }
 body {
   overflow: auto;
+}
+body::-webkit-scrollbar {
+  width: 12px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: rgb(177, 177, 177);
+  border: 2px solid #fff;
+  border-radius: 8px;
+}
+body::-webkit-scrollbar-track {
+  background: #fff;
+}
+body::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(124, 124, 124);
 }
 .home {
   font-family: 'Mulish', sans-serif;
@@ -51,77 +67,19 @@ body {
   position: relative;
 }
 
+main > section {
+  min-height: 100vh;
+  padding-top: 5rem;
+  padding-bottom: 3rem;
+}
+
 .home button {
   font-family: 'Mulish', sans-serif;
 }
 
-.home .hero {
-  width: 100%;
-  min-height: 100vh;
-  background-image: url('@/assets/img/home-hero-bg1.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  padding-inline: 3rem;
-}
-.home .hero-content {
-  display: flex;
-  max-width: var(--max-width);
-  margin-inline: auto;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 2rem;
-}
-.hero-content .hero-text-container {
-  flex: 0.45;
-}
-
-.hero-content h1 {
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 300;
-  line-height: 120%;
-  color: #283779;
-  margin-bottom: 1rem;
-}
-.hero-content h1 span {
-  font-weight: 700;
-}
-.hero-content p {
-  font-size: 1.125rem;
-  line-height: 130%;
-  color: #1b71a1;
-  margin-bottom: 2.5rem;
-}
-.hero-content .hero-cta {
-  padding: 0.975rem 3.5rem;
-  font-size: 1rem;
-  background: #283779;
-  color: #fff;
-  border-radius: 50px;
-  font-weight: 700;
-}
-.hero-content .hero-img {
-  flex: 0.5;
-}
-
-@media (max-width: 800px) {
-  .home .hero-content {
-    max-width: var(--max-width-md);
-    flex-direction: column-reverse;
-    text-align: center;
-    margin-top: 7rem;
-  }
-  .hero-content .hero-img {
-    max-width: 100%;
-  }
-  .hero-content .hero-text-container {
-    padding-block: 4rem;
-  }
-  .hero-content h1 {
-    font-size: clamp(2rem, 6vw, 3rem);
+@media (max-width: 520px) {
+  :root {
+    --bg-padding-inline: 1rem;
   }
 }
 </style>

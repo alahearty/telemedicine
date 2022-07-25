@@ -1,6 +1,4 @@
 <template>
-  <AuthLayout>
-    <template v-slot:form>
       <form @submit="handleSubmit">
         <h1>Log in</h1>
         <p class="subtitle">Log in to your account</p>
@@ -45,14 +43,13 @@
           </p>
         </div>
       </form>
-    </template>
-  </AuthLayout>
 </template>
 
 <script>
-import AuthLayout from '@/components/layout/AuthLayout.vue'
+import AuthLayout from '@/Layout/AuthLayout.vue'
 import GoogleIcon from '@/components/icons/GoogleIcon.vue'
 import FacebookIcon from '@/components/icons/FacebookIcon.vue'
+import Layout from '@/Layout/AuthLayout.vue'
 
 export default {
   name: 'Login',
@@ -66,8 +63,14 @@ export default {
   methods: {
     handleSubmit(e) {
       e.preventDefault()
-      if (this.email.trim()) alert(this.email)
-    },
+      if (this.email.trim()) this.$router.push('/dashboard')
+    // const isUserAuthenticated = false
+    // if (!isUserAuthenticated) this.$router.push('/login')
+    // },
+    }
+  },
+  created() {
+    this.$emit(`update:layout`,Layout);
   },
 }
 </script>

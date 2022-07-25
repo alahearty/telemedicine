@@ -29,7 +29,7 @@ public class AnalyticsController : ApiControllerBase
         return Ok(revenue);
     }
 
-    [HttpGet("Visitors")]
+    [HttpGet("Visitor")]
     public IActionResult GetVisitor()
     {
         var visitor = new { name = "Visitor", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 } };
