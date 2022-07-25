@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace telemedicine_webapi.Infrastructure.Migrations
 {
-    public partial class Initial : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -214,7 +214,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Gender = table.Column<int>(type: "int", nullable: false),
                     Birth = table.Column<DateTime>(type: "Date", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -222,9 +221,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     Avatar = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     AccountType = table.Column<int>(type: "int", nullable: false),
                     Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Patronimic = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeviceId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Patient_IsArchive = table.Column<bool>(type: "bit", nullable: true),
                     License = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MedicalSpecialization = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsArchive = table.Column<bool>(type: "bit", nullable: true),

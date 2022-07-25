@@ -4,8 +4,6 @@ using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.Hospitals.Commands.PurgeHospital;
 
-// [Authorize(Roles = "Administrator")]
-// [Authorize(Policy = "CanPurge")]
 public record PurgeHospitalsCommand : IRequest<BaseResponse>;
 
 public class PurgeHospitalsCommandHandler : IRequestHandler<PurgeHospitalsCommand,BaseResponse>
@@ -19,11 +17,11 @@ public class PurgeHospitalsCommandHandler : IRequestHandler<PurgeHospitalsComman
 
     public async Task<BaseResponse> Handle(PurgeHospitalsCommand request, CancellationToken cancellationToken)
     {
-        var hospitals=await _context.HospitalRepository.GetAllAsync();
+        var hospitals = await _context.HospitalRepository.GetAllAsync();
         _context.HospitalRepository.DeleteMany(hospitals);
 
-        var commitResult=await _context.SaveChangesAsync(cancellationToken);
+        var commitResult = await _context.SaveChangesAsync(cancellationToken);
 
-        return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("unable to delete hospitals");
+        return commitResult.WasSuccesful ? OperationResult.Successful() : OperationResult.NotSuccessful("unable to delete hospitals");
     }
 }

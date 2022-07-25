@@ -678,10 +678,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -696,16 +692,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.Patient", b =>
                 {
                     b.HasBaseType("telemedicine_webapi.Domain.Entities.User");
-
-                    b.Property<Guid>("DeviceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsArchive")
-                        .HasColumnType("bit")
-                        .HasColumnName("Patient_IsArchive");
-
-                    b.Property<string>("Patronimic")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("Patient");
                 });

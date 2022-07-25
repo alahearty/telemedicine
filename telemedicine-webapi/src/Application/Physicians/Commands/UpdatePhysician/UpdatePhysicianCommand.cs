@@ -24,7 +24,7 @@ public class UpdatePhysicianCommandHandler : IRequestHandler<UpdatePhysicianComm
 
     public async Task<BaseResponse> Handle(UpdatePhysicianCommand request, CancellationToken cancellationToken)
     {
-        var entity = _context.PhysicianRepository.GetById(request.Id);
+        var entity = await _context.PhysicianRepository.GetByIdAsync(request.Id);
         if (entity == null) return OperationResult.NotSuccessful($"Physician with Id-{request.Id} not found");
 
         entity.FirstName = request.Email;

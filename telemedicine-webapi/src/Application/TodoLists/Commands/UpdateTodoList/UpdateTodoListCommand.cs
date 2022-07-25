@@ -24,12 +24,12 @@ public class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoListComman
 
     public async Task<BaseResponse> Handle(UpdateTodoListCommand request, CancellationToken cancellationToken)
     {
-        var entity =  _context.TodoListRepository.GetById(request.Id);
-        if (entity == null)return OperationResult.NotSuccessful("Not found");
+        var entity = await _context.TodoListRepository.GetByIdAsync(request.Id);
+        if (entity == null) return OperationResult.NotSuccessful("Not found");
 
         entity.Title = request.Title;
 
-        var commitResult=await _context.SaveChangesAsync(cancellationToken);
+        var commitResult = await _context.SaveChangesAsync(cancellationToken);
 
         return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("Unable to update todo list");
     }

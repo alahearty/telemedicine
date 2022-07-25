@@ -12,8 +12,8 @@ using telemedicine_webapi.Infrastructure.Persistence.Context;
 namespace telemedicine_webapi.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220725092752_Initial")]
-    partial class Initial
+    [Migration("20220725162258_Initial Migration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -680,10 +680,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -698,16 +694,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.Patient", b =>
                 {
                     b.HasBaseType("telemedicine_webapi.Domain.Entities.User");
-
-                    b.Property<Guid>("DeviceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsArchive")
-                        .HasColumnType("bit")
-                        .HasColumnName("Patient_IsArchive");
-
-                    b.Property<string>("Patronimic")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("Patient");
                 });

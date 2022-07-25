@@ -24,7 +24,7 @@ public class UpdateHospitalCommandHandler : IRequestHandler<UpdateHospitalComman
 
     public async Task<BaseResponse> Handle(UpdateHospitalCommand request, CancellationToken cancellationToken)
     {
-        var entity =  _context.HospitalRepository.GetById(request.Id);
+        var entity =  await _context.HospitalRepository.GetByIdAsync(request.Id);
 
         if (entity == null) return OperationResult.NotSuccessful($"Hospital with Id-{request.Id} not found");
 

@@ -18,7 +18,6 @@ public class User : BaseAuditableEntity
     [Required]
     public string? Email { get; set; }
     [Required]
-    public string? Password { get; set; }
     public Gender Gender { get; set; }
     [Column(TypeName = "Date")]
     public DateTime Birth { get; set; }
@@ -26,6 +25,11 @@ public class User : BaseAuditableEntity
     public string? Phone { get; set; }
     public string? Address { get; set; }
     public byte[]? Avatar { get; set; }
+    public virtual int GetAge()
+    {
+        var age = DateTime.Now.Subtract(Birth);
+        return (int)age.TotalDays / 365;
+    }
     [Required]
     public AccountType AccountType { get; set; }
     public virtual IEnumerable<Message> Messages => _messages;
