@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using telemedicine.api.Extensions;
+using telemedicine.api.Services;
 using telemedicine_webapi.Infrastructure.JWTAuthentication;
 using telemedicine_webapi.Infrastructure.Persistence.Context;
 
@@ -74,6 +74,7 @@ var app = builder.Build();
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
+    await app.SeedData();
 
     app.Run();
 }

@@ -61,4 +61,12 @@ public class OperationResult
             NotSuccesful = false,
         }.SetError(error);
     }
+
+    public static BaseResponse NotSuccessful(List<string> errors)
+    {
+        return new BaseResponse
+        {
+            NotSuccesful = false,
+        }.SetErrors(errors);
+    }
 }

@@ -11,14 +11,16 @@ namespace telemedicine_webapi.Infrastructure.Identity;
 
 public class IdentityService : IIdentityService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
+    private readonly UserManager<IdentityUser<Guid>> _userManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+    private readonly IUserClaimsPrincipalFactory<IdentityUser<Guid>> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
 
-    public IdentityService(UserManager<ApplicationUser> userManager, IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
+    public IdentityService(UserManager<IdentityUser<Guid>> userManager, RoleManager<IdentityRole<Guid>> roleManager, IUserClaimsPrincipalFactory<IdentityUser<Guid>> userClaimsPrincipalFactory,
         IAuthorizationService authorizationService)
     {
         _userManager = userManager;
+        _roleManager = roleManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
     }
@@ -30,11 +32,18 @@ public class IdentityService : IIdentityService
         return user !=null? OperationResult.Successful(user):OperationResult.NotSuccessful($"User with Id-{email} not found");
     }
 
-    public async Task<string> GetUserNameAsync(int userId)
+    public async Task<string> GetUserNameAsync(Guid userId)
     {
         var user = await _userManager.Users.FirstAsync(u => u.Id == userId);
 
         return user.UserName;
+    }
+
+    public async Task<BaseResponse> GetRoleAsync(string roleName)
+    {
+        var role=await _roleManager.FindByNameAsync(roleName);
+        if(role != null)return OperationResult.Successful(role);
+        return OperationResult.NotSuccessful("Not Found");
     }
 
     public async Task<string?> GetUserRoleAsync(string email)
@@ -44,29 +53,34 @@ public class IdentityService : IIdentityService
         return roles?.FirstOrDefault();
     }
 
-    public async Task<BaseResponse> CreateUserAsync(string email, string password, string role)
+    public async Task<BaseResponse> CreateUserAsync(string email, string password, string roleName)
     {
-        var user=new ApplicationUser
+        var result = new IdentityResult();
+        var user=new IdentityUser<Guid>
         {
             Email=email,
-            UserName=email,
+            UserName=email
         };
 
-        await _userManager.AddToRoleAsync(user, role);
+        var role = await _roleManager.FindByNameAsync(roleName);
+        if (role == null) return OperationResult.NotSuccessful("Role not Found");
 
-        var result = await _userManager.CreateAsync(user,password);
-        
+        result = await _userManager.CreateAsync(user,password);
+        if (!result.Succeeded) return OperationResult.NotSuccessful(String.Concat(result.Errors));
+
+        result = await _userManager.AddToRoleAsync(user, role.ToString());
+
         return result.Succeeded?OperationResult.Successful(user):OperationResult.NotSuccessful("unable to create user");
     }
 
-    public async Task<bool> IsInRoleAsync(int userId, string role)
+    public async Task<bool> IsInRoleAsync(Guid userId, string role)
     {
         var user = _userManager.Users.SingleOrDefault(u => u.Id == userId);
 
         return user != null && await _userManager.IsInRoleAsync(user, role);
     }
 
-    public async Task<bool> AuthorizeAsync(int userId, string policyName)
+    public async Task<bool> AuthorizeAsync(Guid userId, string policyName)
     {
         var user = _userManager.Users.SingleOrDefault(u => u.Id == userId);
 
@@ -82,14 +96,14 @@ public class IdentityService : IIdentityService
         return result.Succeeded;
     }
 
-    public async Task<BaseResponse> DeleteUserAsync(int userId)
+    public async Task<BaseResponse> DeleteUserAsync(Guid userId)
     {
         var user = _userManager.Users.SingleOrDefault(u => u.Id == userId);
 
         return user != null ? await DeleteUserAsync(user) : OperationResult.NotSuccessful($"User with Id-{userId} not found");
     }
 
-    private async Task<BaseResponse> DeleteUserAsync(ApplicationUser user)
+    private async Task<BaseResponse> DeleteUserAsync(IdentityUser<Guid> user)
     {
         var result = await _userManager.DeleteAsync(user);
 

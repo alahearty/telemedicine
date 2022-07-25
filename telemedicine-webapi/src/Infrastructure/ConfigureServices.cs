@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using telemedicine_webapi.Infrastructure.JWTAuthentication;
 using telemedicine_webapi.Infrastructure.Persistence.Context;
 using telemedicine_webapi.Infrastructure.Persistence.Repositories;
+using telemedicine_webapi.Application.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -35,8 +36,10 @@ public static class ConfigureServices
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
-        services.AddDefaultIdentity<ApplicationUser>()
-        .AddRoles<UserRole>()
+        services.AddScoped<IApplicationDbContextInitialiser, ApplicationDbContextInitialiser>();
+
+        services.AddDefaultIdentity<IdentityUser<Guid>>()
+        .AddRoles<IdentityRole<Guid>>()
         .AddEntityFrameworkStores<ApplicationDbContext>();
 
         services.AddScoped<ApplicationDbContextInitialiser>();
@@ -46,6 +49,8 @@ public static class ConfigureServices
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IIdentityService, IdentityService>();
+
+        services.AddScoped<IAuthService, AuthService>();
 
         //services.AddIdentityServer().AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 

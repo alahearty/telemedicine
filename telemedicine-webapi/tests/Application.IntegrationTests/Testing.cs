@@ -20,7 +20,7 @@ public partial class Testing
     private static IConfiguration _configuration = null!;
     private static IServiceScopeFactory _scopeFactory = null!;
     private static Checkpoint _checkpoint = null!;
-    private static int _currentUserId;
+    private static Guid _currentUserId;
 
     [OneTimeSetUp]
     public void RunBeforeAnyTests()
@@ -44,7 +44,7 @@ public partial class Testing
         return await mediator.Send(request);
     }
 
-    public static int GetCurrentUserId()
+    public static Guid GetCurrentUserId()
     {
         return _currentUserId;
     }
@@ -97,7 +97,7 @@ public partial class Testing
     {
         await _checkpoint.Reset(_configuration.GetConnectionString("DefaultConnection"));
 
-        _currentUserId = 0;
+        _currentUserId = Guid.Empty;
     }
 
     public static async Task<TEntity?> FindAsync<TEntity>(params object[] keyValues)

@@ -6,14 +6,14 @@ using Microsoft.Extensions.Logging;
 
 namespace telemedicine_webapi.Infrastructure.Persistence.Context;
 
-public class ApplicationDbContextInitialiser
+public class ApplicationDbContextInitialiser:IApplicationDbContextInitialiser
 {
     private readonly ILogger<ApplicationDbContextInitialiser> _logger;
     private readonly ApplicationDbContext _context;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<UserRole> _roleManager;
+    private readonly UserManager<IdentityUser<Guid>> _userManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
 
-    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<UserRole> roleManager)
+    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context, UserManager<IdentityUser<Guid>> userManager, RoleManager<IdentityRole<Guid>> roleManager)
     {
         _logger = logger;
         _context = context;
@@ -50,34 +50,49 @@ public class ApplicationDbContextInitialiser
         }
     }
 
-    public async Task TrySeedAsync()
+    private async Task TrySeedAsync()
     {
         // Default roles
-        var administratorRole = new UserRole {Name= "Administrator" };
-        var physicianRole = new UserRole {Name= "Physician" };
-        var patientRole = new UserRole {Name= "Patient" };
+        var administratorRole = new IdentityRole<Guid> { Name = "Administrator" };
+        var physicianRole = new IdentityRole<Guid> { Name = "Physician" };
+        var patientRole = new IdentityRole<Guid> { Name = "Patient" };
+
+        var result = new IdentityResult();
 
         if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
         {
-            await _roleManager.CreateAsync(administratorRole);
+            result = await _roleManager.CreateAsync(administratorRole);
 
-            var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost" };
+            var administrator = new IdentityUser<Guid> { UserName = "administrator@localhost", Email = "administrator@localhost"};
 
             if (_userManager.Users.All(u => u.UserName != administrator.UserName))
             {
-                await _userManager.CreateAsync(administrator, "Administrator1!");
-                await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name });
+                result = await _userManager.CreateAsync(administrator, "Administrator1!");
+                result = await _userManager.AddToRoleAsync(administrator, administratorRole.ToString());
             }
         }
 
         if (_roleManager.Roles.All(r => r.Name != patientRole.Name))
         {
-            await _roleManager.CreateAsync(patientRole);
+            result = await _roleManager.CreateAsync(patientRole);
         }
         
         if (_roleManager.Roles.All(r => r.Name != physicianRole.Name))
         {
-            await _roleManager.CreateAsync(physicianRole);
+            result = await _roleManager.CreateAsync(physicianRole);
+        }
+
+        var item1 = new TodoItem { Title = "Make a todo list 📃", Id = 1 };
+        var item2 = new TodoItem { Title = "Check off the first item ✅", Id = 2 };
+        var item3 = new TodoItem { Title = "Realise you've already done two things on the list! 🤯", Id = 3 };
+        var item4 = new TodoItem { Title = "Reward yourself with a nice, long nap 🏆", Id = 4 };
+
+        if (!_context.TodoItems.Any())
+        {
+            _context.TodoItems.Add(item1);
+            _context.TodoItems.Add(item2);
+            _context.TodoItems.Add(item3);
+            _context.TodoItems.Add(item4);
         }
 
         // Default data
@@ -87,16 +102,9 @@ public class ApplicationDbContextInitialiser
             _context.TodoLists.Add(new TodoList
             {
                 Title = "Todo List",
-                Items =
-                {
-                    new TodoItem { Title = "Make a todo list 📃" },
-                    new TodoItem { Title = "Check off the first item ✅" },
-                    new TodoItem { Title = "Realise you've already done two things on the list! 🤯"},
-                    new TodoItem { Title = "Reward yourself with a nice, long nap 🏆" },
-                }
-            });
-
-            await _context.SaveChangesAsync();
+                Items = { item1, item2, item3, item4 }
+            });          
         }
+        await _context.SaveChangesAsync();
     }
 }

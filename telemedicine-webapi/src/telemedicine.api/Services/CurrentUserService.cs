@@ -8,10 +8,10 @@ public class CurrentUserService : ICurrentUserService
 {
     public CurrentUserService(IHttpContextAccessor httpContextAccessor)
     {
-        int defaultId=default(int);
-        var isValidId=int.TryParse(httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Sid),out defaultId);
+        Guid defaultId=default(Guid);
+        var isValidId=Guid.TryParse(httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Sid),out defaultId);
         if(isValidId) UserId=defaultId;
     }
 
-    public int UserId{get;}
+    public Guid UserId{get;}
 }
