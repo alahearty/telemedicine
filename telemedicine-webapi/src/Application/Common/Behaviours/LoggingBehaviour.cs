@@ -23,7 +23,7 @@ public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where T
         var userId = _currentUserService.UserId;
         string userName = string.Empty;
 
-        if (userId > 0)
+        if (userId != Guid.Empty)
         {
             userName = await _identityService.GetUserNameAsync(userId);
         }

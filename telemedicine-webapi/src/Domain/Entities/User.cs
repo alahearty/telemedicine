@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Models;
+using Domain.Entities;
 
 namespace telemedicine_webapi.Domain.Entities;
 public class User : BaseAuditableEntity

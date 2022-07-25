@@ -40,7 +40,7 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
             var userId = _currentUserService.UserId;
             var userName = string.Empty;
 
-            if (userId > 0)
+            if (userId != Guid.Empty)
             {
                 userName = await _identityService.GetUserNameAsync(userId);
             }

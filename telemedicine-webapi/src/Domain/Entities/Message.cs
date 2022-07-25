@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Domain.Models
+namespace Domain.Entities
 {
-    public class Message
+    public class Message : BaseAuditableEntity
     {
-        public Guid Id { get; set; }
         public string MessageText { get; set; }
         public DateTime Time => DateTime.UtcNow;
-        public Guid SenderUserId { get; set; }
+        public int SenderUserId { get; set; }
         public string ReceiverUserName { get; set; }
         public User AppUser { get; set; }
     }

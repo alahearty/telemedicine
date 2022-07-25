@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Domain.Models;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace telemedicine_webapi.Infrastructure.Persistence.Context;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser, UserRole, int>, IApplicationDbContext
+public class ApplicationDbContext : IdentityDbContext<IdentityUser<Guid>, IdentityRole<Guid>, Guid>, IApplicationDbContext
 {
     private readonly IMediator _mediator;
     private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor;
@@ -27,7 +28,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, UserRole,
         _mediator = mediator;
         _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
-
     public DbSet<Hospital> Hospitals => Set<Hospital>();
     public DbSet<Patient> Patients => Set<Patient>();
     public DbSet<Physician> Physicians => Set<Physician>();
