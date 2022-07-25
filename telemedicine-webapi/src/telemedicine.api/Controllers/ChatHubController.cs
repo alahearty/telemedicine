@@ -1,14 +1,8 @@
 ﻿using Application.SignalRHub;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace ChatApi.Controllers
+namespace telemedicine.api.Controllers
 {
     [ApiController]
     [Route("chat-hub")]
@@ -16,7 +10,7 @@ namespace ChatApi.Controllers
     {
         private readonly IHubContext<ChatHub, IChatHub> _hubContext;
         private readonly IChatHubConnection _chatHubConnection;
-        private string userConnectionId;
+        private string? userConnectionId;
 
         public ChatHubController(IHubContext<ChatHub, IChatHub> hubContext, IChatHubConnection chatHubConnection)
         {
