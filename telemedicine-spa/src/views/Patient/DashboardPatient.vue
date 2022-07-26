@@ -1,28 +1,33 @@
 <template>
-    <section>
-        <Breadcrumb :home="home" :model="items" />
-    </section>
-    <slot></slot>
+  <section>
+    <Breadcrumb :home="home" :model="items">
+      <template #item="{ item }">
+        <a :href="item.url">{{ item.label }}</a>
+      </template>
+    </Breadcrumb>
+  </section>
+  <slot />
 </template>
+
 <script>
 import Layout from '@/Layout/AdminLayout.vue'
 export default {
-name: 'DashboardPatient',
+  name: 'DashboardPatient',
   data() {
     return {
-        home: {icon: 'pi pi-home', to: '/DashboardPatient'},
-        items: [
-            {label: 'Apply Services'},
-            {label: 'Proceed Payment'},
-            {label: 'Chat Session'},
-            {label: 'Dcotor Feedback'},
-        ]
+      home: { icon: 'pi pi-home', to: '/DashboardPatient' },
+      items: [
+        { label: 'Apply Services', url: '/' },
+        { label: 'Proceed Payment', url: '/payment' },
+        { label: 'Chat Session', url: '/chat' },
+        { label: 'Doctor Feedback', url: '/feedback' },
+      ],
     }
   },
   components: {
-    Layout
+    Layout,
   },
- methods: {
+  methods: {
     fetchServices() {
       this.$store.dispatch('fetchfetchServices')
     },
@@ -47,16 +52,18 @@ name: 'DashboardPatient',
     },
   },
 
-//   mounted() {
-//     this.fetchServices()
-//     this.fetchRevenues()
-//     this.fetchTransactions()
-//     this.fetchVisitors()
-//     this.fetchUSERSs()
-//   },
+  //   mounted() {
+  //     this.fetchServices()
+  //     this.fetchRevenues()
+  //     this.fetchTransactions()
+  //     this.fetchVisitors()
+  //     this.fetchUSERSs()
+  //   },
 
   created() {
-    this.$emit(`update:layout`,Layout);
+    this.$emit(`update:layout`, Layout)
   },
 }
 </script>
+
+<style scoped></style>

@@ -1,182 +1,188 @@
 <template>
-  <div class="dashboard p-4">
-    <nav class="flex mt-5" aria-label="Breadcrumb">
-      <ol class="inline-flex items-center space-x-1 md:space-x-3">
-        <li class="inline-flex items-center">
-          <a
-            href="#" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-          >
-            <svg class="mr-2 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
-              ></path>
-            </svg>
-            Dashboard
-          </a>
-        </li>
-      </ol>
-    </nav>
-    <!-- end nav -->
-    <div class="mt-5 w-full">
-      <h1 class="text-2xl text-gray-900 dark:text-gray-200 font-medium">
-        Admin Dashboard
-      </h1>
-    </div>
-    <!-- grid wrapper card -->
-    <div
-      class="wrapper-card grid lg:grid-cols-4 grid-cols-1 md:grid-cols-2 gap-2 mt-5"
-    >
-      <!-- card  -->
-      <card total="Rp.2 300 908" totalPayout="Total Payouts">
-        <div
-          class="bg-red-200 rounded-full w-14 h-14 text-lg p-3 text-red-600 mx-auto"
-        >
-          <span class="">
-            <wallet-icon />
-          </span>
-        </div>
-      </card>
-
-      <!-- end card -->
-      <Card total="256" totalPayout="Total Payins">
-        <div
-          class="bg-orange-200 rounded-full w-14 h-14 text-lg p-3 text-orange-600 mx-auto"
-        >
-          <span class="">
-            <bag-icon />
-          </span>
-        </div>
-      </Card>
-      <!-- end card -->
-      <Card total="3569" totalPayout="Total Patients">
-        <div
-          class="bg-green-200 rounded-full w-14 h-14 text-lg p-3 text-green-600 mx-auto"
-        >
-          <span class="">
-            <user-icon />
-          </span>
-        </div>
-      </Card>
-      <!-- end card -->
-      <Card total="7230" totalPayout="Total Visit">
-        <div
-          class="bg-purple-200 rounded-full w-14 h-14 text-lg p-3 text-purple-600 mx-auto"
-        >
-          <span class="">
-            <trend-icon />
-          </span>
-        </div>
-      </Card>
-      <!-- end card -->
-    </div>
-    <!-- end wrapper card -->
-    <div class="mt-2 lg:flex block lg:gap-2">
+  <AdminLayout v-if="user.accountType === 'admin'">
+    <div class="dashboard p-4">
+      <nav class="flex mt-5" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+          <li class="inline-flex items-center">
+            <a
+              href="#"
+              class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+            >
+              <svg class="mr-2 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+                ></path>
+              </svg>
+              Dashboard
+            </a>
+          </li>
+        </ol>
+      </nav>
+      <!-- end nav -->
+      <div class="mt-5 w-full">
+        <h1 class="text-2xl text-gray-900 dark:text-gray-200 font-medium">
+          Admin Dashboard
+        </h1>
+      </div>
+      <!-- grid wrapper card -->
       <div
-        class="bg-white dark:bg-gray-800 p-5 w-full rounded-md box-border shadow"
+        class="wrapper-card grid lg:grid-cols-4 grid-cols-1 md:grid-cols-2 gap-2 mt-5"
       >
-        <chart-component
-          title="Total Services"
-          subtitle=" your services chart per-year"
-          total="27.9%"
-          report=" Services Report"
-        >
-          <span class="float-right">
-            <h2 class="text-green-500 -mt-12 flex">
-              <span class="mr-2"> 87.9% </span
-              ><span>
-                <Icon icon="akar-icons:arrow-up" />
-              </span>
-            </h2>
-          </span>
-          <br />
-          <apexchart
-            width="100%"
-            height="380"
-            type="area"
-            :options="optionsArea"
-            :series="seriesArea"
-          ></apexchart>
-        </chart-component>
-      </div>
-
-      <div
-        class="bg-white dark:bg-gray-800 p-5 lg:w-96 lg:mt-0 mt-4 shadow rounded-md w-full"
-      >
-        <Partners />
-      </div>
-    </div>
-    <div class="mt-2 lg:flex block lg:gap-2">
-      <div class="chart">
-        <chart-component
-          title="5,780"
-          subtitle="This Week New Patients "
-          total="27.9%"
-          report="Patient Report"
-        >
-          <apexchart
-            width="100%"
-            height="380"
-            type="bar"
-            :options="optionsBar"
-            :series="seriesBar"
-          ></apexchart>
-        </chart-component>
-      </div>
-      <div class="chart">
-        <chart-component
-          title=" 355"
-          subtitle="This Week Doctors"
-          total="47.9%"
-          report="Doctor Report"
-        >
-          <apexchart
-            width="100%"
-            height="380"
-            type="area"
-            :options="optionsBar"
-            :series="seriesBar"
-          ></apexchart>
-        </chart-component>
-      </div>
-      <div class="chart">
-        <chart-component
-          title="475"
-          subtitle="This Week User Signups"
-          total=""
-          report="User Report"
-        >
-          <apexchart
-            width="100%"
-            height="380"
-            type="pie"
-            :options="optionsDonut"
-            :series="seriesDonut"
-            class="p-3"
-          ></apexchart>
-        </chart-component>
-      </div>
-    </div>
-    <div>
-      <data-table
-        :headers="transactionHeaders"
-        :items="transactions"
-        title="Latest Transactions"
-        subtitle="This is a list of latest transactions"
-      >
-        <template #cell(statusTransaction)="{ data }">
-          <span
-            class="status"
-            :class="{
-              completed: data === 'completed',
-              progress: data === 'progress',
-            }"
+        <!-- card  -->
+        <card total="Rp.2 300 908" totalPayout="Total Payouts">
+          <div
+            class="bg-red-200 rounded-full w-14 h-14 text-lg p-3 text-red-600 mx-auto"
           >
-            {{ data }}
-          </span>
-        </template>
-      </data-table>
+            <span class="">
+              <wallet-icon />
+            </span>
+          </div>
+        </card>
+
+        <!-- end card -->
+        <Card total="256" totalPayout="Total Payins">
+          <div
+            class="bg-orange-200 rounded-full w-14 h-14 text-lg p-3 text-orange-600 mx-auto"
+          >
+            <span class="">
+              <bag-icon />
+            </span>
+          </div>
+        </Card>
+        <!-- end card -->
+        <Card total="3569" totalPayout="Total Patients">
+          <div
+            class="bg-green-200 rounded-full w-14 h-14 text-lg p-3 text-green-600 mx-auto"
+          >
+            <span class="">
+              <user-icon />
+            </span>
+          </div>
+        </Card>
+        <!-- end card -->
+        <Card total="7230" totalPayout="Total Visit">
+          <div
+            class="bg-purple-200 rounded-full w-14 h-14 text-lg p-3 text-purple-600 mx-auto"
+          >
+            <span class="">
+              <trend-icon />
+            </span>
+          </div>
+        </Card>
+        <!-- end card -->
+      </div>
+      <!-- end wrapper card -->
+      <div class="mt-2 lg:flex block lg:gap-2">
+        <div
+          class="bg-white dark:bg-gray-800 p-5 w-full rounded-md box-border shadow"
+        >
+          <chart-component
+            title="Total Services"
+            subtitle=" your services chart per-year"
+            total="27.9%"
+            report=" Services Report"
+          >
+            <span class="float-right">
+              <h2 class="text-green-500 -mt-12 flex">
+                <span class="mr-2"> 87.9% </span
+                ><span>
+                  <Icon icon="akar-icons:arrow-up" />
+                </span>
+              </h2>
+            </span>
+            <br />
+            <apexchart
+              width="100%"
+              height="380"
+              type="area"
+              :options="optionsArea"
+              :series="seriesArea"
+            ></apexchart>
+          </chart-component>
+        </div>
+
+        <div
+          class="bg-white dark:bg-gray-800 p-5 lg:w-96 lg:mt-0 mt-4 shadow rounded-md w-full"
+        >
+          <Partners />
+        </div>
+      </div>
+      <div class="mt-2 lg:flex block lg:gap-2">
+        <div class="chart">
+          <chart-component
+            title="5,780"
+            subtitle="This Week New Patients "
+            total="27.9%"
+            report="Patient Report"
+          >
+            <apexchart
+              width="100%"
+              height="380"
+              type="bar"
+              :options="optionsBar"
+              :series="seriesBar"
+            ></apexchart>
+          </chart-component>
+        </div>
+        <div class="chart">
+          <chart-component
+            title=" 355"
+            subtitle="This Week Doctors"
+            total="47.9%"
+            report="Doctor Report"
+          >
+            <apexchart
+              width="100%"
+              height="380"
+              type="area"
+              :options="optionsBar"
+              :series="seriesBar"
+            ></apexchart>
+          </chart-component>
+        </div>
+        <div class="chart">
+          <chart-component
+            title="475"
+            subtitle="This Week User Signups"
+            total=""
+            report="User Report"
+          >
+            <apexchart
+              width="100%"
+              height="380"
+              type="pie"
+              :options="optionsDonut"
+              :series="seriesDonut"
+              class="p-3"
+            ></apexchart>
+          </chart-component>
+        </div>
+      </div>
+      <div>
+        <data-table
+          :headers="transactionHeaders"
+          :items="transactions"
+          title="Latest Transactions"
+          subtitle="This is a list of latest transactions"
+        >
+          <template #cell(statusTransaction)="{ data }">
+            <span
+              class="status"
+              :class="{
+                completed: data === 'completed',
+                progress: data === 'progress',
+              }"
+            >
+              {{ data }}
+            </span>
+          </template>
+        </data-table>
+      </div>
     </div>
-  </div>
+  </AdminLayout>
+  <UserLayout v-else>
+    <DashboardPatient />
+  </UserLayout>
 </template>
 
 <script>
@@ -189,12 +195,18 @@ import TrendIcon from '@/components/icons/TrendIcon.vue'
 import DataTable from '@/components/account-dashboard/DataTable.vue'
 import ChartComponent from '@/components/account-dashboard/ChartComponent.vue'
 import Card from '@/components/account-dashboard/Card.vue'
-import Layout from '@/Layout/AdminLayout.vue'
+import AdminLayout from '@/Layout/AdminLayout.vue'
+import UserLayout from '@/Layout/UserLayout.vue'
+import DashboardPatient from '@/views/Patient/DashboardPatient.vue'
 
 export default {
   name: 'Dashboard',
   data() {
     return {
+      // Temporary user
+      user: {
+        accountType: 'user',
+      },
       optionsArea: {
         xaxis: {
           categories: [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022],
@@ -343,7 +355,9 @@ export default {
     DataTable,
     ChartComponent,
     Card,
-    Layout
+    AdminLayout,
+    UserLayout,
+    DashboardPatient,
   },
   computed: {
     seriesBar() {
@@ -390,7 +404,7 @@ export default {
     this.fetchUSERSs()
   },
   created() {
-    this.$emit(`update:layout`,Layout);
+    // this.$emit(`update:layout`, AdminLayout)
   },
 }
 </script>

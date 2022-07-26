@@ -1,9 +1,14 @@
 <template>
   <!-- this header -->
-  <header class="bg-white dark:bg-gray-800 p-2 border-b-2 dark:border-gray-700 fixed top-0 left-0 right-0">
+  <header
+    class="bg-white dark:bg-gray-800 p-2 border-b-2 dark:border-gray-700 fixed top-0 left-0 right-0"
+  >
     <div class="wrap-header flex items-center justify-between flex-wrap">
       <div class="flex flex-no-shrink items-center">
-        <button class="text-gray-500 lg:hidden ml-3 block" @click="sidebarToggle">
+        <button
+          class="text-gray-500 lg:hidden ml-3 block"
+          @click="sidebarToggle"
+        >
           <svg
             aria-hidden="true"
             role="img"
@@ -121,7 +126,9 @@
               <li>
                 <a
                   href="#"
-                  class="block py-2 px-4 hover:bg-primary hover:text-white">Github</a>
+                  class="block py-2 px-4 hover:bg-primary hover:text-white"
+                  >Github</a
+                >
               </li>
             </ul>
             <div class="py-1">
@@ -139,96 +146,94 @@
 </template>
 
 <script>
-  import { Icon } from "@iconify/vue";
-  export default {
-    data() {
-      return {
-        menu: false,
-      };
+import { Icon } from '@iconify/vue'
+export default {
+  data() {
+    return {
+      menu: false,
+    }
+  },
+  components: {
+    Icon,
+  },
+  methods: {
+    menuToggle: function () {
+      this.menu = !this.menu
     },
-    components: {
-      Icon,
+    menuToggleBlur: function () {
+      this.menu = false
     },
-    methods: {
-      menuToggle: function () {
-        this.menu = !this.menu;
-      },
-      menuToggleBlur: function () {
-        this.menu = false;
-      },
-      sidebarToggle: function () {
-        document.querySelector(".flex-sidebar").classList.remove("hidden");
-      },
+    sidebarToggle: function () {
+      document.querySelector('.flex-sidebar').classList.remove('hidden')
     },
-    mounted() {
-      var themeToggleDarkIcon = document.getElementById(
-        "theme-toggle-dark-icon"
-      );
-      var themeToggleLightIcon = document.getElementById(
-        "theme-toggle-light-icon"
-      );
+  },
+  mounted() {
+    var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon')
+    var themeToggleLightIcon = document.getElementById(
+      'theme-toggle-light-icon'
+    )
 
-      // Change the icons inside the button based on previous settings
-      if (
-        localStorage.getItem("color-theme") === "dark" ||
-        !("color-theme" in localStorage)
-      ) {
-        document.documentElement.classList.add("dark");
-        themeToggleLightIcon.classList.remove("hidden");
-      } else {
-        document.documentElement.classList.remove("dark");
-        themeToggleDarkIcon.classList.remove("hidden");
-      }
+    // Change the icons inside the button based on previous settings
+    if (
+      localStorage.getItem('color-theme') === 'dark' ||
+      !('color-theme' in localStorage)
+    ) {
+      document.documentElement.classList.add('dark')
+      themeToggleLightIcon.classList.remove('hidden')
+    } else {
+      document.documentElement.classList.remove('dark')
+      themeToggleDarkIcon.classList.remove('hidden')
+    }
 
-      // // if set via local storage previously
-      // if (!localStorage.getItem("color-theme")) {
-      //   if (localStorage.getItem("color-theme") === "light") {
-      //     document.documentElement.classList.add("dark");
-      //     localStorage.setItem("color-theme", "dark");
-      //   } else {
-      //     document.documentElement.classList.remove("dark");
-      //     localStorage.setItem("color-theme", "light");
-      //   }
+    // // if set via local storage previously
+    // if (!localStorage.getItem("color-theme")) {
+    //   if (localStorage.getItem("color-theme") === "light") {
+    //     document.documentElement.classList.add("dark");
+    //     localStorage.setItem("color-theme", "dark");
+    //   } else {
+    //     document.documentElement.classList.remove("dark");
+    //     localStorage.setItem("color-theme", "light");
+    //   }
 
-      // if NOT set via local storage previously
-      // } else {
-      //   if (document.documentElement.classList.contains("dark")) {
-      //     document.documentElement.classList.remove("dark");
-      //     localStorage.setItem("color-theme", "light");
-      //   } else {
-      //     document.documentElement.classList.add("dark");
-      //     localStorage.setItem("color-theme", "dark");
-      //   }
-      // }
+    // if NOT set via local storage previously
+    // } else {
+    //   if (document.documentElement.classList.contains("dark")) {
+    //     document.documentElement.classList.remove("dark");
+    //     localStorage.setItem("color-theme", "light");
+    //   } else {
+    //     document.documentElement.classList.add("dark");
+    //     localStorage.setItem("color-theme", "dark");
+    //   }
+    // }
 
-      var themeToggleBtn = document.getElementById("theme-toggle");
+    var themeToggleBtn = document.getElementById('theme-toggle')
 
-      themeToggleBtn.addEventListener("click", function () {
-        // toggle icons inside button
-        themeToggleDarkIcon.classList.toggle("hidden");
-        themeToggleLightIcon.classList.toggle("hidden");
+    themeToggleBtn.addEventListener('click', function () {
+      // toggle icons inside button
+      themeToggleDarkIcon.classList.toggle('hidden')
+      themeToggleLightIcon.classList.toggle('hidden')
 
-        // if set via local storage previously
-        if (localStorage.getItem("color-theme")) {
-          if (localStorage.getItem("color-theme") === "light") {
-            document.documentElement.classList.add("dark");
-            localStorage.setItem("color-theme", "dark");
-          } else {
-            document.documentElement.classList.remove("dark");
-            localStorage.setItem("color-theme", "light");
-          }
-
-          // if NOT set via local storage previously
+      // if set via local storage previously
+      if (localStorage.getItem('color-theme')) {
+        if (localStorage.getItem('color-theme') === 'light') {
+          document.documentElement.classList.add('dark')
+          localStorage.setItem('color-theme', 'dark')
         } else {
-          if (document.documentElement.classList.contains("dark")) {
-            document.documentElement.classList.remove("dark");
-            localStorage.setItem("color-theme", "light");
-          } else {
-            document.documentElement.classList.add("dark");
-            localStorage.setItem("color-theme", "dark");
-          }
+          document.documentElement.classList.remove('dark')
+          localStorage.setItem('color-theme', 'light')
         }
-      });
-    },
-  };
+
+        // if NOT set via local storage previously
+      } else {
+        if (document.documentElement.classList.contains('dark')) {
+          document.documentElement.classList.remove('dark')
+          localStorage.setItem('color-theme', 'light')
+        } else {
+          document.documentElement.classList.add('dark')
+          localStorage.setItem('color-theme', 'dark')
+        }
+      }
+    })
+  },
+}
 </script>
