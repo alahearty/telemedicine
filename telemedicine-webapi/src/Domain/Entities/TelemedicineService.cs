@@ -8,6 +8,6 @@ namespace telemedicine_webapi.Domain.Entities;
 public class TelemedicineService : BaseAuditableEntity
 {
     public virtual string? ServiceName { get; set; }
-    public virtual double Amount { get; set; }
+    public virtual decimal Cost { get; set; }
     public virtual string? Description { get; set; }
 }

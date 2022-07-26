@@ -1,12 +1,8 @@
 ﻿using System.Reflection;
 using telemedicine_webapi.Domain.Entities;
-using telemedicine_webapi.Infrastructure.Identity;
 using telemedicine_webapi.Infrastructure.Persistence.Interceptors;
-using Duende.IdentityServer.EntityFramework.Options;
 using MediatR;
-using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -34,7 +30,6 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser<Guid>, Identi
     public DbSet<TelemedicineService> TelemedicineServices => Set<TelemedicineService>();
     public DbSet<TelemedicinePayment> TelemedicinePayments => Set<TelemedicinePayment>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
-    public DbSet<ScheduleTime> ScheduleTimes => Set<ScheduleTime>();
     public DbSet<PhysicianPatientTransaction> PhysianPatientTransactions => Set<PhysicianPatientTransaction>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<Message> Messages => Set<Message>();

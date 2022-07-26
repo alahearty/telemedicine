@@ -71,7 +71,7 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false),
                     ServiceName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Amount = table.Column<double>(type: "float", nullable: false),
+                    Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -223,7 +223,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     License = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MedicalSpecialization = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsArchive = table.Column<bool>(type: "bit", nullable: true),
                     HospitalId = table.Column<int>(type: "int", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -237,6 +236,29 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         name: "FK_User_Hospitals_HospitalId",
                         column: x => x.HospitalId,
                         principalTable: "Hospitals",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TelemedicinePayments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    ServiceId = table.Column<int>(type: "int", nullable: true),
+                    AmountPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    IsPaid = table.Column<bool>(type: "bit", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TelemedicinePayments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TelemedicinePayments_TelemedicineServices_ServiceId",
+                        column: x => x.ServiceId,
+                        principalTable: "TelemedicineServices",
                         principalColumn: "Id");
                 });
 
@@ -268,15 +290,43 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Appointments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    PatientId = table.Column<int>(type: "int", nullable: true),
+                    TelemedicineServiceId = table.Column<int>(type: "int", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ScheduleEndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Appointments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Appointments_TelemedicineServices_TelemedicineServiceId",
+                        column: x => x.TelemedicineServiceId,
+                        principalTable: "TelemedicineServices",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Appointments_User_PatientId",
+                        column: x => x.PatientId,
+                        principalTable: "User",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "HealthAnalysisReport",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false),
-                    Temp = table.Column<double>(type: "float", nullable: false),
-                    HeartRate = table.Column<int>(type: "int", nullable: false),
+                    Temp = table.Column<double>(type: "float", nullable: true),
+                    HeartRate = table.Column<int>(type: "int", nullable: true),
                     Pressure = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastMeasurement = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PatientId = table.Column<int>(type: "int", nullable: false),
+                    PatientId = table.Column<int>(type: "int", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -289,8 +339,7 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         name: "FK_HealthAnalysisReport_User_PatientId",
                         column: x => x.PatientId,
                         principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -318,53 +367,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PatientPhysician",
-                columns: table => new
-                {
-                    DoctorsId = table.Column<int>(type: "int", nullable: false),
-                    PatientsId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PatientPhysician", x => new { x.DoctorsId, x.PatientsId });
-                    table.ForeignKey(
-                        name: "FK_PatientPhysician_User_DoctorsId",
-                        column: x => x.DoctorsId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_PatientPhysician_User_PatientsId",
-                        column: x => x.PatientsId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ScheduleTimes",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    StartScheduleTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    EndScheduleTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PhysicianId = table.Column<int>(type: "int", nullable: true),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ScheduleTimes", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ScheduleTimes_User_PhysicianId",
-                        column: x => x.PhysicianId,
-                        principalTable: "User",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Comments",
                 columns: table => new
                 {
@@ -373,7 +375,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PhysicianId = table.Column<int>(type: "int", nullable: true),
                     HealthAnalysisReportId = table.Column<int>(type: "int", nullable: true),
-                    PatientId = table.Column<int>(type: "int", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -388,46 +389,8 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         principalTable: "HealthAnalysisReport",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Comments_User_PatientId",
-                        column: x => x.PatientId,
-                        principalTable: "User",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_Comments_User_PhysicianId",
                         column: x => x.PhysicianId,
-                        principalTable: "User",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Appointments",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    PatientId = table.Column<int>(type: "int", nullable: true),
-                    TelemedicineServiceId = table.Column<int>(type: "int", nullable: true),
-                    AppointmentScheduleId = table.Column<int>(type: "int", nullable: true),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Appointments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Appointments_ScheduleTimes_AppointmentScheduleId",
-                        column: x => x.AppointmentScheduleId,
-                        principalTable: "ScheduleTimes",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Appointments_TelemedicineServices_TelemedicineServiceId",
-                        column: x => x.TelemedicineServiceId,
-                        principalTable: "TelemedicineServices",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Appointments_User_PatientId",
-                        column: x => x.PatientId,
                         principalTable: "User",
                         principalColumn: "Id");
                 });
@@ -439,7 +402,7 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     Id = table.Column<int>(type: "int", nullable: false),
                     PhysicianId = table.Column<int>(type: "int", nullable: true),
                     PatientId = table.Column<int>(type: "int", nullable: true),
-                    ServiceId = table.Column<int>(type: "int", nullable: true),
+                    PaymentId = table.Column<int>(type: "int", nullable: true),
                     CommentId = table.Column<int>(type: "int", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -455,9 +418,9 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         principalTable: "Comments",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_PhysianPatientTransactions_TelemedicineServices_ServiceId",
-                        column: x => x.ServiceId,
-                        principalTable: "TelemedicineServices",
+                        name: "FK_PhysianPatientTransactions_TelemedicinePayments_PaymentId",
+                        column: x => x.PaymentId,
+                        principalTable: "TelemedicinePayments",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_PhysianPatientTransactions_User_PatientId",
@@ -470,34 +433,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         principalTable: "User",
                         principalColumn: "Id");
                 });
-
-            migrationBuilder.CreateTable(
-                name: "TelemedicinePayments",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    PaymentId = table.Column<int>(type: "int", nullable: true),
-                    Remark = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsPaid = table.Column<bool>(type: "bit", nullable: true),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TelemedicinePayments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TelemedicinePayments_PhysianPatientTransactions_PaymentId",
-                        column: x => x.PaymentId,
-                        principalTable: "PhysianPatientTransactions",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Appointments_AppointmentScheduleId",
-                table: "Appointments",
-                column: "AppointmentScheduleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_PatientId",
@@ -554,11 +489,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                 column: "HealthAnalysisReportId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_PatientId",
-                table: "Comments",
-                column: "PatientId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Comments_PhysicianId",
                 table: "Comments",
                 column: "PhysicianId");
@@ -574,11 +504,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                 column: "SenderUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PatientPhysician_PatientsId",
-                table: "PatientPhysician",
-                column: "PatientsId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_PhysianPatientTransactions_CommentId",
                 table: "PhysianPatientTransactions",
                 column: "CommentId");
@@ -589,24 +514,19 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PhysianPatientTransactions_PaymentId",
+                table: "PhysianPatientTransactions",
+                column: "PaymentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PhysianPatientTransactions_PhysicianId",
                 table: "PhysianPatientTransactions",
                 column: "PhysicianId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PhysianPatientTransactions_ServiceId",
-                table: "PhysianPatientTransactions",
-                column: "ServiceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ScheduleTimes_PhysicianId",
-                table: "ScheduleTimes",
-                column: "PhysicianId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TelemedicinePayments_PaymentId",
+                name: "IX_TelemedicinePayments_ServiceId",
                 table: "TelemedicinePayments",
-                column: "PaymentId");
+                column: "ServiceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TodoItems_ListId",
@@ -643,16 +563,10 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                 name: "Messages");
 
             migrationBuilder.DropTable(
-                name: "PatientPhysician");
-
-            migrationBuilder.DropTable(
-                name: "TelemedicinePayments");
+                name: "PhysianPatientTransactions");
 
             migrationBuilder.DropTable(
                 name: "TodoItems");
-
-            migrationBuilder.DropTable(
-                name: "ScheduleTimes");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -661,19 +575,19 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "PhysianPatientTransactions");
+                name: "Comments");
+
+            migrationBuilder.DropTable(
+                name: "TelemedicinePayments");
 
             migrationBuilder.DropTable(
                 name: "TodoLists");
 
             migrationBuilder.DropTable(
-                name: "Comments");
+                name: "HealthAnalysisReport");
 
             migrationBuilder.DropTable(
                 name: "TelemedicineServices");
-
-            migrationBuilder.DropTable(
-                name: "HealthAnalysisReport");
 
             migrationBuilder.DropTable(
                 name: "User");

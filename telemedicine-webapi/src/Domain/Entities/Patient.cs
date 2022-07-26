@@ -7,7 +7,5 @@ namespace telemedicine_webapi.Domain.Entities;
 
 public class Patient : User
 {
-    public virtual ICollection<Physician> Doctors { get; set; } = new HashSet<Physician>();
-    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
-    public virtual ICollection<HealthAnalysisReport> Analyzes { get; set; } = new List<HealthAnalysisReport>();
+    public virtual ICollection<HealthAnalysisReport> Comments { get; set; } = new List<HealthAnalysisReport>();
 }

@@ -19,7 +19,6 @@ public class UnitOfWork : IUnitOfWork
         PatientRepository = new GenericRepository<Patient>(context);
         PhysicianRepository = new GenericRepository<Physician>(context);
         PhysicianPatientTransactionRepository = new GenericRepository<PhysicianPatientTransaction>(context);
-        ScheduleTimeRepository = new GenericRepository<ScheduleTime>(context);
         TelemedicinePaymentRepository = new GenericRepository<TelemedicinePayment>(context);
         TelemedicineServiceRepository = new GenericRepository<TelemedicineService>(context);
         TodoItemRepository = new GenericRepository<TodoItem>(context);
@@ -34,7 +33,6 @@ public class UnitOfWork : IUnitOfWork
     public IGenericRepository<Patient> PatientRepository { get; }
     public IGenericRepository<Physician> PhysicianRepository { get; }
     public IGenericRepository<PhysicianPatientTransaction> PhysicianPatientTransactionRepository { get; }
-    public IGenericRepository<ScheduleTime> ScheduleTimeRepository { get; }
     public IGenericRepository<TelemedicinePayment> TelemedicinePaymentRepository { get; }
     public IGenericRepository<TelemedicineService> TelemedicineServiceRepository { get; }
     public IGenericRepository<TodoItem> TodoItemRepository { get; }

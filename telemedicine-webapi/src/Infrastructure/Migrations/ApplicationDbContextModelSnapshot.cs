@@ -258,27 +258,9 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("PatientPhysician", b =>
-                {
-                    b.Property<int>("DoctorsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PatientsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("DoctorsId", "PatientsId");
-
-                    b.HasIndex("PatientsId");
-
-                    b.ToTable("PatientPhysician");
-                });
-
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.Appointment", b =>
                 {
                     b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("AppointmentScheduleId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Created")
@@ -296,12 +278,16 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.Property<int?>("PatientId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("ScheduleEndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<int?>("TelemedicineServiceId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppointmentScheduleId");
 
                     b.HasIndex("PatientId");
 
@@ -333,9 +319,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PatientId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("PhysicianId")
                         .HasColumnType("int");
 
@@ -345,8 +328,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("HealthAnalysisReportId");
-
-                    b.HasIndex("PatientId");
 
                     b.HasIndex("PhysicianId");
 
@@ -364,11 +345,8 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("HeartRate")
+                    b.Property<int?>("HeartRate")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("LastMeasurement")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime2");
@@ -376,13 +354,13 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PatientId")
+                    b.Property<int?>("PatientId")
                         .HasColumnType("int");
 
                     b.Property<string>("Pressure")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Temp")
+                    b.Property<double?>("Temp")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
@@ -443,10 +421,10 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.Property<int?>("PatientId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PhysicianId")
+                    b.Property<int?>("PaymentId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ServiceId")
+                    b.Property<int?>("PhysicianId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -455,44 +433,11 @@ namespace telemedicine_webapi.Infrastructure.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.HasIndex("PhysicianId");
+                    b.HasIndex("PaymentId");
 
-                    b.HasIndex("ServiceId");
+                    b.HasIndex("PhysicianId");
 
                     b.ToTable("PhysianPatientTransactions");
-                });
-
-            modelBuilder.Entity("telemedicine_webapi.Domain.Entities.ScheduleTime", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("EndScheduleTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("LastModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("PhysicianId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("StartScheduleTime")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PhysicianId");
-
-                    b.ToTable("ScheduleTimes");
                 });
 
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.TelemedicinePayment", b =>
@@ -500,13 +445,16 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("AmountPaid")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("IsPaid")
+                    b.Property<bool>("IsPaid")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastModified")
@@ -515,15 +463,12 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PaymentId")
+                    b.Property<int?>("ServiceId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Remark")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PaymentId");
+                    b.HasIndex("ServiceId");
 
                     b.ToTable("TelemedicinePayments");
                 });
@@ -533,8 +478,8 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
-                    b.Property<double>("Amount")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
@@ -703,9 +648,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.Property<int?>("HospitalId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsArchive")
-                        .HasColumnType("bit");
-
                     b.Property<string>("License")
                         .HasColumnType("nvarchar(max)");
 
@@ -779,27 +721,8 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PatientPhysician", b =>
-                {
-                    b.HasOne("telemedicine_webapi.Domain.Entities.Physician", null)
-                        .WithMany()
-                        .HasForeignKey("DoctorsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("telemedicine_webapi.Domain.Entities.Patient", null)
-                        .WithMany()
-                        .HasForeignKey("PatientsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.Appointment", b =>
                 {
-                    b.HasOne("telemedicine_webapi.Domain.Entities.ScheduleTime", "AppointmentSchedule")
-                        .WithMany()
-                        .HasForeignKey("AppointmentScheduleId");
-
                     b.HasOne("telemedicine_webapi.Domain.Entities.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId");
@@ -807,8 +730,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.HasOne("telemedicine_webapi.Domain.Entities.TelemedicineService", "TelemedicineService")
                         .WithMany()
                         .HasForeignKey("TelemedicineServiceId");
-
-                    b.Navigation("AppointmentSchedule");
 
                     b.Navigation("Patient");
 
@@ -821,10 +742,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         .WithMany("Comments")
                         .HasForeignKey("HealthAnalysisReportId");
 
-                    b.HasOne("telemedicine_webapi.Domain.Entities.Patient", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("PatientId");
-
                     b.HasOne("telemedicine_webapi.Domain.Entities.Physician", "Physician")
                         .WithMany()
                         .HasForeignKey("PhysicianId");
@@ -836,13 +753,9 @@ namespace telemedicine_webapi.Infrastructure.Migrations
 
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.HealthAnalysisReport", b =>
                 {
-                    b.HasOne("telemedicine_webapi.Domain.Entities.Patient", "Patient")
-                        .WithMany("Analyzes")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
+                    b.HasOne("telemedicine_webapi.Domain.Entities.Patient", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("PatientId");
                 });
 
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.PhysicianPatientTransaction", b =>
@@ -855,39 +768,30 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("PatientId");
 
+                    b.HasOne("telemedicine_webapi.Domain.Entities.TelemedicinePayment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId");
+
                     b.HasOne("telemedicine_webapi.Domain.Entities.Physician", "Physician")
                         .WithMany()
                         .HasForeignKey("PhysicianId");
-
-                    b.HasOne("telemedicine_webapi.Domain.Entities.TelemedicineService", "Service")
-                        .WithMany()
-                        .HasForeignKey("ServiceId");
 
                     b.Navigation("Comment");
 
                     b.Navigation("Patient");
 
-                    b.Navigation("Physician");
-
-                    b.Navigation("Service");
-                });
-
-            modelBuilder.Entity("telemedicine_webapi.Domain.Entities.ScheduleTime", b =>
-                {
-                    b.HasOne("telemedicine_webapi.Domain.Entities.Physician", "Physician")
-                        .WithMany()
-                        .HasForeignKey("PhysicianId");
+                    b.Navigation("Payment");
 
                     b.Navigation("Physician");
                 });
 
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.TelemedicinePayment", b =>
                 {
-                    b.HasOne("telemedicine_webapi.Domain.Entities.PhysicianPatientTransaction", "Payment")
+                    b.HasOne("telemedicine_webapi.Domain.Entities.TelemedicineService", "Service")
                         .WithMany()
-                        .HasForeignKey("PaymentId");
+                        .HasForeignKey("ServiceId");
 
-                    b.Navigation("Payment");
+                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.TodoItem", b =>
@@ -955,8 +859,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
 
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.Patient", b =>
                 {
-                    b.Navigation("Analyzes");
-
                     b.Navigation("Comments");
                 });
 #pragma warning restore 612, 618

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace telemedicine_webapi.Domain.Entities;
 public class TelemedicinePayment : BaseAuditableEntity
 {
-    public virtual PhysicianPatientTransaction? Payment { get; set; }
-    public virtual string? Remark { get; set; }
-    public virtual bool? IsPaid { get; set; }
+    public virtual TelemedicineService? Service { get; set; }
+    public virtual decimal AmountPaid { get; set; }
+    public virtual bool IsPaid { get; set; }
 }
