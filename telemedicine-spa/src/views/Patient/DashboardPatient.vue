@@ -1,14 +1,16 @@
 <template>
-  <section>
-    <Breadcrumb :home="home" :model="items">
-      <template #item="{ item }">
-        <a @click="handleRouteClick(item.url)">{{ item.label }}</a>
-      </template>
-    </Breadcrumb>
-  </section>
-  <main>
-    <router-view />
-  </main>
+  <div class="patient-dashboard">
+    <section>
+      <Breadcrumb :home="home" :model="items">
+        <template #item="{ item }">
+          <a @click="handleRouteClick(item.url)">{{ item.label }}</a>
+        </template>
+      </Breadcrumb>
+    </section>
+    <main>
+      <router-view />
+    </main>
+  </div>
 </template>
 
 <script>
@@ -72,8 +74,13 @@ export default {
 </script>
 
 <style scoped>
+.patient-dashboard {
+  display: flex;
+  flex-direction: column;
+}
 main {
   padding: 1rem 1.5rem;
+  flex: 1;
 }
 a {
   cursor: pointer;
