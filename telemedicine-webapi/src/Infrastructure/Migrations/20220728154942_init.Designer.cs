@@ -12,8 +12,8 @@ using telemedicine_webapi.Infrastructure.Persistence.Context;
 namespace telemedicine_webapi.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220726130111_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20220728154942_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

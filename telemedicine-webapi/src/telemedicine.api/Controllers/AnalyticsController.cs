@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using telemedicine_webapi.Domain.Enums;
 
 namespace telemedicine.api.Controllers;
 
+[Authorize(Roles = "ADMIN")]
 [ApiController]
 [Route("api/[controller]")]
 public class AnalyticsController : ApiControllerBase
@@ -29,7 +32,7 @@ public class AnalyticsController : ApiControllerBase
         return Ok(revenue);
     }
 
-    [HttpGet("Visitor")]
+    [HttpGet("Visitor")]// no. of active users
     public IActionResult GetVisitor()
     {
         var visitor = new { name = "Visitor", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 } };

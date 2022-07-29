@@ -2,149 +2,148 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
-namespace telemedicine.api.Controllers
+namespace telemedicine.api.Controllers;
+
+[ApiController]
+[Route("chat-hub")]
+public class ChatHubController : ControllerBase
 {
-    [ApiController]
-    [Route("chat-hub")]
-    public class ChatHubController : ControllerBase
+    private readonly IHubContext<ChatHub, IChatHub> _hubContext;
+    private readonly IChatHubConnection _chatHubConnection;
+    private string? userConnectionId;
+
+    public ChatHubController(IHubContext<ChatHub, IChatHub> hubContext, IChatHubConnection chatHubConnection)
     {
-        private readonly IHubContext<ChatHub, IChatHub> _hubContext;
-        private readonly IChatHubConnection _chatHubConnection;
-        private string? userConnectionId;
-
-        public ChatHubController(IHubContext<ChatHub, IChatHub> hubContext, IChatHubConnection chatHubConnection)
+        _hubContext = hubContext;
+        _chatHubConnection = chatHubConnection;
+        //userConnectionId = _chatHubConnection.GetConnectionId();
+    }
+    [HttpPost("publish-to-all")]
+    public async Task<IActionResult> SendMessageToAllConnectedClient(string userName, string message)
+    {
+        try
         {
-            _hubContext = hubContext;
-            _chatHubConnection = chatHubConnection;
-            //userConnectionId = _chatHubConnection.GetConnectionId();
+            await _hubContext.Clients.All.ReceiveMessage(userName, message);
         }
-        [HttpPost("publish-to-all")]
-        public async Task<IActionResult> SendMessageToAllConnectedClient(string userName, string message)
+        catch (Exception ex)
         {
-            try
-            {
-                await _hubContext.Clients.All.ReceiveMessage(userName, message);
-            }
-            catch (Exception ex)
-            {
 
-                return BadRequest();
-            }
-            return Ok();
+            return BadRequest();
         }
+        return Ok();
+    }
 
-        [HttpPost("send-to-user")]
-        public async Task<IActionResult> SendMessageToConnectedClient(string receiverConnectionId, string userName, string message)
+    [HttpPost("send-to-user")]
+    public async Task<IActionResult> SendMessageToConnectedClient(string receiverConnectionId, string userName, string message)
+    {
+        try
         {
-            try
-            {
-                await _hubContext.Clients.Client(receiverConnectionId).ReceiveMessage(userName, message);
-            }
-            catch (Exception)
-            {
-
-                return BadRequest();
-            }
-            return Ok();
+            await _hubContext.Clients.Client(receiverConnectionId).ReceiveMessage(userName, message);
         }
-
-        [HttpPost("send-file")]
-        public async Task<IActionResult> SendFileToConnectedClient(string receiverConnectionId, [FromForm] FileDocument choseFile)
+        catch (Exception)
         {
-            foreach (var file in choseFile.Files)
+
+            return BadRequest();
+        }
+        return Ok();
+    }
+
+    [HttpPost("send-file")]
+    public async Task<IActionResult> SendFileToConnectedClient(string receiverConnectionId, [FromForm] FileDocument choseFile)
+    {
+        foreach (var file in choseFile.Files)
+        {
+            if (file.Length > 0)
             {
-                if (file.Length > 0)
+                using (var memoryStream = new MemoryStream())
                 {
-                    using (var memoryStream = new MemoryStream())
+                    await file.CopyToAsync(memoryStream);
+                    var fileMessage = new FileMessage
                     {
-                        await file.CopyToAsync(memoryStream);
-                        var fileMessage = new FileMessage
-                        {
-                            FileHeader = $"data: {file.ContentType} ;base64",
-                            FileBinary = memoryStream.ToArray()
-                        };
+                        FileHeader = $"data: {file.ContentType} ;base64",
+                        FileBinary = memoryStream.ToArray()
+                    };
 
-                        try
-                        {
-                            await _hubContext.Clients.User(receiverConnectionId).ReceiveFileMessage(fileMessage);
-                        }
-                        catch (Exception)
-                        {
+                    try
+                    {
+                        await _hubContext.Clients.User(receiverConnectionId).ReceiveFileMessage(fileMessage);
+                    }
+                    catch (Exception)
+                    {
 
-                            return BadRequest();
-                        }
+                        return BadRequest();
                     }
                 }
             }
-
-            return Ok();
         }
 
-        [HttpPost("join-group")]
-        public async Task<IActionResult> JoinGroup(string groupName)
+        return Ok();
+    }
+
+    [HttpPost("join-group")]
+    public async Task<IActionResult> JoinGroup(string groupName)
+    {
+        try
         {
-            try
-            {
-                await _hubContext.Groups.AddToGroupAsync(userConnectionId, groupName);
+            await _hubContext.Groups.AddToGroupAsync(userConnectionId, groupName);
 
-            }
-            catch (Exception)
-            {
-
-                return BadRequest();
-            }
-            return Ok();
         }
-
-        [HttpPut("remove-cleint")]
-        public async Task<IActionResult> RemoveCleintFromGroup(string groupName, string cleintId)
+        catch (Exception)
         {
-            try
-            {
-                await _hubContext.Groups.RemoveFromGroupAsync(cleintId, groupName);
-            }
-            catch (Exception)
-            {
 
-                return BadRequest();
-            }
-            return Ok();
+            return BadRequest();
         }
+        return Ok();
+    }
 
-        [HttpPut("exit-group")]
-        public async Task<IActionResult> RemoveFromGroup(string groupName)
+    [HttpPut("remove-cleint")]
+    public async Task<IActionResult> RemoveCleintFromGroup(string groupName, string cleintId)
+    {
+        try
         {
-            try
-            {
-                await _hubContext.Groups.RemoveFromGroupAsync(userConnectionId, groupName);
-
-            }
-            catch (Exception)
-            {
-
-                return BadRequest();
-            }
-            return Ok();
+            await _hubContext.Groups.RemoveFromGroupAsync(cleintId, groupName);
         }
-        [HttpPost("publish-to-group")]
-        public async Task<IActionResult> SendMessageToGroup(string groupName, string user, string message)
+        catch (Exception)
         {
-            try
-            {
-                await _hubContext.Clients.Group(groupName).ReceiveMessageFromGroup(user, message);
 
-            }
-            catch (Exception)
-            {
-
-                return BadRequest();
-            }
-            return Ok();
+            return BadRequest();
         }
-        [HttpGet("connectionId")]
-        public IActionResult GetConnectionId()
+        return Ok();
+    }
+
+    [HttpPut("exit-group")]
+    public async Task<IActionResult> RemoveFromGroup(string groupName)
+    {
+        try
         {
-            return Ok(userConnectionId);
+            await _hubContext.Groups.RemoveFromGroupAsync(userConnectionId, groupName);
+
         }
+        catch (Exception)
+        {
+
+            return BadRequest();
+        }
+        return Ok();
+    }
+    [HttpPost("publish-to-group")]
+    public async Task<IActionResult> SendMessageToGroup(string groupName, string user, string message)
+    {
+        try
+        {
+            await _hubContext.Clients.Group(groupName).ReceiveMessageFromGroup(user, message);
+
+        }
+        catch (Exception)
+        {
+
+            return BadRequest();
+        }
+        return Ok();
+    }
+    [HttpGet("connectionId")]
+    public IActionResult GetConnectionId()
+    {
+        return Ok(userConnectionId);
     }
 }
