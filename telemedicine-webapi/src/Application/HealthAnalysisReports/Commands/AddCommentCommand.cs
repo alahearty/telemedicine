@@ -3,8 +3,8 @@ using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Domain.Entities;
 
-namespace telemedicine_webapi.Application.HealthAnalysisReports;
-public class AddCommentCommand:IRequest<BaseResponse>
+namespace telemedicine_webapi.Application.HealthAnalysisReports.Commands;
+public class AddCommentCommand : IRequest<BaseResponse>
 {
     public int HealthReportId { get; set; }
     public string? Title { get; set; }
@@ -28,7 +28,8 @@ public class AddCommentCommandHandler : IRequestHandler<AddCommentCommand, BaseR
         var physician = await _context.PhysicianRepository.GetByIdAsync(request.PhysicianId);
         if (physician == null) return OperationResult.NotSuccessful("Physician not found");
 
-        var comment = new Comment {
+        var comment = new Comment
+        {
             Created = DateTime.UtcNow,
             CreatedBy = null,
             Description = request.Description,

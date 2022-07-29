@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using telemedicine_webapi.Application.Common.Mappings;
 using telemedicine_webapi.Domain.Entities;
 
-namespace telemedicine_webapi.Application.HealthAnalysisReports;
-public class HealthAnalysisReportDto:IMapFrom<HealthAnalysisReport>
+namespace telemedicine_webapi.Application.HealthAnalysisReports.Queries;
+public class HealthAnalysisReportDto : IMapFrom<HealthAnalysisReport>
 {
     public DateTime When { get; set; }
     public int PatientId { get; set; }

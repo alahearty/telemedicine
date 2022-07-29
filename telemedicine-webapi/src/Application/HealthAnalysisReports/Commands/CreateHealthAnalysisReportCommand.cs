@@ -3,7 +3,7 @@ using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Domain.Entities;
 
-namespace telemedicine_webapi.Application.HealthAnalysisReports;
+namespace telemedicine_webapi.Application.HealthAnalysisReports.Commands;
 public record CreateHealthAnalysisReportCommand : IRequest<BaseResponse>
 {
     public int Patientid { get; set; }
