@@ -5,13 +5,22 @@ using telemedicine_webapi.Application.Patients.Commands.UpdatePatients;
 using telemedicine_webapi.Application.Patients.Queries.GetPatients;
 namespace telemedicine.api.Controllers;
 
-////[Authorize]
+//[Authorize]
 public class PatientController : ApiControllerBase
 {
-    [HttpGet]
-    public async Task<IActionResult> GetPatientsWithPagination([FromQuery] GetPatientsQuery query)
+    [HttpGet("all")]
+    public async Task<IActionResult> GetPatients()
     {
+        var query = new GetPatientsQuery();
         var response= await Mediator.Send(query);
+        return Ok(response);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetPatient(int id)
+    {
+        var query = new GetPatientQuery(id);
+        var response = await Mediator.Send(query);
         return Ok(response);
     }
 
@@ -30,23 +39,18 @@ public class PatientController : ApiControllerBase
         return Ok(response.Data);
     }
 
-    //[HttpPut("[action]")]
-    //public async Task<ActionResult> UpdateItemDetails(int id, UpdateTodoItemDetailCommand command)
-    //{
-    //    if (id != command.Id)
-    //    {
-    //        return BadRequest();
-    //    }
-
-    //    await Mediator.Send(command);
-
-    //    return NoContent();
-    //}
-
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
         var response=await Mediator.Send(new DeletePatientCommand(id));
+
+        return Ok(response.Data);
+    }
+
+    [HttpDelete("purge")]
+    public async Task<IActionResult> PurgePatient()
+    {
+        var response = await Mediator.Send(new PurgePatientCommand());
 
         return Ok(response.Data);
     }

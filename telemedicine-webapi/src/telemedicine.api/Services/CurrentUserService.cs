@@ -8,10 +8,15 @@ public class CurrentUserService : ICurrentUserService
 {
     public CurrentUserService(IHttpContextAccessor httpContextAccessor)
     {
-        Guid defaultId=default(Guid);
-        var isValidId=Guid.TryParse(httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Sid),out defaultId);
-        if(isValidId) UserId=defaultId;
+        Guid.TryParse(httpContextAccessor.HttpContext?.User?
+            .Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Sid)?.Value, out var id);
+        UserId = id;
+
+        Email = httpContextAccessor.HttpContext?.User?
+            .Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Email)?.Value!;
     }
 
-    public Guid UserId{get;}
+    public Guid UserId{ get; }
+
+    public string Email { get;}
 }
