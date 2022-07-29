@@ -2,11 +2,13 @@
   <section>
     <Breadcrumb :home="home" :model="items">
       <template #item="{ item }">
-        <a :href="item.url">{{ item.label }}</a>
+        <a @click="handleRouteClick(item.url)">{{ item.label }}</a>
       </template>
     </Breadcrumb>
   </section>
-  <slot />
+  <main>
+    <router-view />
+  </main>
 </template>
 
 <script>
@@ -17,7 +19,7 @@ export default {
     return {
       home: { icon: 'pi pi-home', to: '/DashboardPatient' },
       items: [
-        { label: 'Apply Services', url: '/' },
+        { label: 'Book service', url: '/book-service' },
         { label: 'Proceed Payment', url: '/payment' },
         { label: 'Chat Session', url: '/chat' },
         { label: 'Doctor Feedback', url: '/feedback' },
@@ -28,6 +30,9 @@ export default {
     Layout,
   },
   methods: {
+    handleRouteClick(link) {
+      this.$router.push(link)
+    },
     fetchServices() {
       this.$store.dispatch('fetchfetchServices')
     },
@@ -66,4 +71,11 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+main {
+  padding: 1rem 1.5rem;
+}
+a {
+  cursor: pointer;
+}
+</style>
