@@ -4,8 +4,8 @@ using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Domain.Entities;
 
-namespace telemedicine_webapi.Application.TelemedicineServices;
-public class CreateTelemedicineServiceCommand:IRequest<BaseResponse>
+namespace telemedicine_webapi.Application.TelemedicineServices.Commands;
+public class CreateTelemedicineServiceCommand : IRequest<BaseResponse>
 {
     [Required]
     public virtual string? ServiceName { get; set; }
@@ -40,7 +40,7 @@ public class CreateTelemedicineServiceHandler : IRequestHandler<CreateTelemedici
         _context.TelemedicineServiceRepository.Add(telmedService);
         var commitResult = await _context.SaveChangesAsync();
 
-        return commitResult.WasSuccesful ? OperationResult.Successful(telmedService.Id) 
+        return commitResult.WasSuccesful ? OperationResult.Successful(telmedService.Id)
             : OperationResult.NotSuccessful("Unable to save");
     }
 }

@@ -33,6 +33,8 @@ public class ScheduleAppointmentCommandHandler : IRequestHandler<ScheduleAppoint
         var isValidPaymentToken = ValidatePaymentToken(request.paymentToken);
         if (!isValidPaymentToken) return OperationResult.NotSuccessful("Payment token is invalid");
 
+        _memoryCache.Remove("paymentToken");
+
         var patient = await _context.PatientRepository.FirstOrDefaultAsync(user => user.Email == _user.Email!);
 
         var appointment = new Appointment

@@ -7,8 +7,8 @@ using MediatR;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Models;
 
-namespace telemedicine_webapi.Application.HealthAnalysisReports;
-public record GetHealthAnalysisReportByPatientIdQuery(int patientId):IRequest<BaseResponse>;
+namespace telemedicine_webapi.Application.HealthAnalysisReports.Queries;
+public record GetHealthAnalysisReportByPatientIdQuery(int patientId) : IRequest<BaseResponse>;
 
 public class GetHealthAnalysisReportByPatientIdQueryHandler : IRequestHandler<GetHealthAnalysisReportByPatientIdQuery, BaseResponse>
 {
