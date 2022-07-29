@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using telemedicine_webapi.Domain.Enums;
 
 namespace telemedicine.api.Controllers;
 
