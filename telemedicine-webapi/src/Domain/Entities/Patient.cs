@@ -7,5 +7,16 @@ namespace telemedicine_webapi.Domain.Entities;
 
 public class Patient : User
 {
-    public virtual ICollection<HealthAnalysisReport> Comments { get; set; } = new List<HealthAnalysisReport>();
+    public virtual void AddHealthAnalysisReport(HealthAnalysisReport healthAnalysisReport)
+    {
+        healthAnalysisReport.Patient=this;
+        HealthAnalysisReports.Add(healthAnalysisReport);
+    }
+    
+    public virtual void RemoveHealthAnalysisReport(HealthAnalysisReport healthAnalysisReport)
+    {
+        HealthAnalysisReports.Remove(healthAnalysisReport);
+    }
+
+    public virtual ICollection<HealthAnalysisReport> HealthAnalysisReports { get; set; } = new List<HealthAnalysisReport>();
 }

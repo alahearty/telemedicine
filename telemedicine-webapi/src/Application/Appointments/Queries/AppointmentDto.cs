@@ -2,8 +2,8 @@
 using telemedicine_webapi.Application.Common.Mappings;
 using telemedicine_webapi.Domain.Entities;
 
-namespace telemedicine_webapi.Application.Appointments;
-public class AppointmentDto:IMapFrom<Appointment>
+namespace telemedicine_webapi.Application.Appointments.Queries;
+public class AppointmentDto : IMapFrom<Appointment>
 {
     public int Id { get; set; }
     public virtual string? ServiceName { get; set; }

@@ -59,6 +59,7 @@ public static class ConfigureServices
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
+        services.AddMemoryCache();
 
         //services.AddAuthentication().AddIdentityServerJwt();
 

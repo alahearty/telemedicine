@@ -4,15 +4,15 @@ using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Domain.Entities;
 
-namespace telemedicine_webapi.Application.Appointments;
-public record GetAppointmentsQuery:IRequest<BaseResponse>;
+namespace telemedicine_webapi.Application.Appointments.Queries;
+public record GetAppointmentsQuery : IRequest<BaseResponse>;
 
 public class GetAppointmentsQueryHandler : IRequestHandler<GetAppointmentsQuery, BaseResponse>
 {
     private readonly IUnitOfWork _context;
     private readonly IMapper _mapper;
 
-    public GetAppointmentsQueryHandler(IUnitOfWork context,IMapper mapper)
+    public GetAppointmentsQueryHandler(IUnitOfWork context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;

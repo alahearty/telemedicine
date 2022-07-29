@@ -14,4 +14,4 @@ public class Appointment : BaseAuditableEntity
     public DateTime? ScheduleEndTime { get; set; }
 }
 
-public enum ScheduleStatus { Active, NotAttended, Attended}
+public enum ScheduleStatus { Active, NotAttended, Attended, Cancelled}

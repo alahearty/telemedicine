@@ -8,7 +8,7 @@ using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.HealthAnalysisReports;
-internal record GetHealthAnalysisReportByPatientIdQuery(int patientId):IRequest<BaseResponse>;
+public record GetHealthAnalysisReportByPatientIdQuery(int patientId):IRequest<BaseResponse>;
 
 public class GetHealthAnalysisReportByPatientIdQueryHandler : IRequestHandler<GetHealthAnalysisReportByPatientIdQuery, BaseResponse>
 {
