@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using telemedicine_webapi.Domain.Enums;
 using Microsoft.Extensions.Options;
 using telemedicine_webapi.Infrastructure.JWTAuthentication;
+using telemedicine_webapi.Domain.Entities;
 
 namespace telemedicine_webapi.Infrastructure.Identity;
 
@@ -108,5 +109,12 @@ public class IdentityService : IIdentityService
         var result = await _userManager.DeleteAsync(user);
 
         return result.Succeeded?OperationResult.Successful():OperationResult.NotSuccessful("Unable to delete user");
+    }
+
+    public async Task<BaseResponse<List<IdentityUser<Guid>>>> GetAllUsersAsync()
+    {
+        var result = _userManager.Users.ToList();
+
+        return (BaseResponse<List<IdentityUser<Guid>>>)await Task.FromResult(OperationResult.Successful(result));
     }
 }

@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using telemedicine_webapi.Application.Admin.Queries.GetTelemedicinePayment;
+using telemedicine_webapi.Application.Admin.Queries.GetTelemedicineService;
+using telemedicine_webapi.Application.Admin.Queries.GetUsers;
 
 namespace telemedicine.api.Controllers;
 
@@ -8,27 +11,32 @@ namespace telemedicine.api.Controllers;
 [Route("api/[controller]")]
 public class AnalyticsController : ApiControllerBase
 {
-    [HttpGet("Service")]
-    public IActionResult GetServices()
+    [HttpGet("Services")]
+    public async Task<IActionResult> GetServices()
     {
         //To be Replaced
-        var services = new List<dynamic>()
-        {
-            new { name = "Consultation 1", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 }},
-            new { name = "Consultation 2", data = new int[]  {20, 34, 45, 55, 79, 87, 90, 98 } }
-        };
-        return Ok(services);
+        //var services = new List<dynamic>()
+        //{
+        //    new { name = "Consultation 1", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 }},
+        //    new { name = "Consultation 2", data = new int[]  {20, 34, 45, 55, 79, 87, 90, 98 } }
+        //};
+
+        var response = await Mediator.Send(new GetTelemedicineServiceQuery());
+        return Ok(response);
     }
 
-    [HttpGet("Revenue")]
-    public IActionResult GetRevenue()
-    {
-        var revenue = new List<dynamic>()
-        {
-            new { name = "Revenue", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 }},
-            new { name = "Revenue (Previous period)", data = new int[]  {20, 34, 45, 55, 79, 87, 90, 98 } }
-        };
-        return Ok(revenue);
+    [HttpGet("payments")]
+    public async Task<IActionResult> GetRevenue()
+    { 
+        
+        var response = await Mediator.Send(new GetTelemedicinePaymentQuery());
+        return Ok(response);
+        //var revenue = new List<dynamic>()
+        //{
+        //    new { name = "Revenue", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 }},
+        //    new { name = "Revenue (Previous period)", data = new int[]  {20, 34, 45, 55, 79, 87, 90, 98 } }
+        //};
+        //return Ok(revenue);
     }
 
     [HttpGet("Visitor")]// no. of active users
@@ -64,15 +72,17 @@ public class AnalyticsController : ApiControllerBase
     }
 
     [HttpGet("User")]
-    public IActionResult GetUsers()
+    public async Task<IActionResult> GetUsers()
     {
-        var user = new List<dynamic>()
-        {
-            new { role = "admin"},
-            new { title = "SuperAdmin"},
-            new { title = "User"},
-            new { title = "Customer"}
-        };
-        return Ok(user);
+        var response = await Mediator.Send(new GetUsersQuery());
+        return Ok(response);
+        //var user = new List<dynamic>()
+        //{
+        //    new { role = "admin"},
+        //    new { title = "SuperAdmin"},
+        //    new { title = "User"},
+        //    new { title = "Customer"}
+        //};
+        //return Ok(user);
     }
 }
