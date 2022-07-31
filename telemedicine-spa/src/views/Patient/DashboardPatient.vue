@@ -21,6 +21,7 @@ export default {
     return {
       home: { icon: 'pi pi-home', to: '/DashboardPatient' },
       items: [
+        { label: 'Update Record', url: '/update-record' },
         { label: 'Book service', url: '/book-service' },
         { label: 'Proceed Payment', url: '/payment' },
         { label: 'Chat Session', url: '/chat' },

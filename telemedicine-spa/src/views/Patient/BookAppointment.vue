@@ -42,13 +42,13 @@ export default {
         {
           id: 2,
           title: 'Neurology',
-          cost: '$500',
+          cost: '$200',
           description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
         },
         {
           id: 3,
           title: 'Cardiac care',
-          cost: '$1000',
+          cost: '$300',
           description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
         },
         {
@@ -66,13 +66,13 @@ export default {
         {
           id: 6,
           title: 'Eye care',
-          cost: '$983',
+          cost: '$383',
           description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
         },
         {
           id: 7,
           title: 'Cardiac care',
-          cost: '$795',
+          cost: '$395',
           description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
         },
         {
@@ -84,7 +84,7 @@ export default {
         {
           id: 9,
           title: 'Tooth care',
-          cost: '$920',
+          cost: '$220',
           description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
         },
       ],
