@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import store from './store'
+import store from './store/admin'
 import router from './router'
 import { Icon } from '@iconify/vue'
 import VueApexCharts from 'vue3-apexcharts'
