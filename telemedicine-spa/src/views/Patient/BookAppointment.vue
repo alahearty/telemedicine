@@ -21,7 +21,7 @@
       </div>
     </article>
   </div>
-  <button class="payment-btn" @click="pushToPayment">
+  <button :disabled="!selected" class="payment-btn" @click="pushToPayment">
     Continue to payment
   </button>
 </template>
@@ -182,5 +182,14 @@ button.payment-btn {
 }
 .payment-btn:hover {
   box-shadow: 5px 7px 4px -2px #3830a34d;
+}
+.payment-btn:disabled {
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+.payment-btn:disabled:hover {
+  box-shadow: 0 0 0 0;
 }
 </style>
