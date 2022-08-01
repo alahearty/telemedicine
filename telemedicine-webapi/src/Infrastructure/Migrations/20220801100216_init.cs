@@ -323,9 +323,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false),
-                    Temp = table.Column<double>(type: "float", nullable: true),
-                    HeartRate = table.Column<int>(type: "int", nullable: true),
-                    Pressure = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PatientId = table.Column<int>(type: "int", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
