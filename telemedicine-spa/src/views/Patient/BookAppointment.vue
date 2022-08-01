@@ -126,7 +126,7 @@ article.active {
   box-shadow: 5px 7px 4px -2px rgba(194, 194, 194, 0.75);
 }
 article:hover {
-  background-color: #c7d2fe;
+  /* background-color: #c7d2fe; */
   box-shadow: 5px 7px 4px -2px rgba(194, 194, 194, 0.75);
 }
 article:hover .select-btn {
