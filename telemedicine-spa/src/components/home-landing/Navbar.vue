@@ -10,9 +10,11 @@
         <li><a href="#about">About us</a></li>
         <li><a href="#doctors">Our Doctors</a></li>
         <li><a href="#service">Our Services</a></li>
+      </ul>
 
+      <ul class="nav-auth">
         <li><button @click="pushToRegister">Register</button></li>
-        <li><button @click="pushToLogin">Login</button></li>
+        <li><button class="login-btn" @click="pushToLogin">Login</button></li>
       </ul>
     </nav>
   </header>
@@ -45,29 +47,17 @@ export default {
 
 <style scoped>
 header {
-  position: relative;
-  /* box-shadow: 0 1.5rem 2.8rem rgb(47 46 65 / 8%); */
-  /* background-color: #fff; */
-  position: fixed;
+  position: absolute;
   width: 100%;
   z-index: 2;
   padding-inline: var(--bg-padding-inline);
 }
-/* header::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  filter: blur(4px);
-} */
-
 nav {
   display: flex;
-  justify-content: space-between;
   padding: 1rem 0;
   color: #1b71a1;
   align-items: center;
-  max-width: 1080px;
+  max-width: var(--max-width);
   margin-inline: auto;
 }
 
@@ -87,28 +77,50 @@ nav svg {
 
 .nav-links {
   display: flex;
-  width: 720px;
+  width: 450px;
   justify-content: space-between;
   align-items: center;
   gap: 0.1rem;
+  margin-left: auto;
 }
 
-.nav-links button {
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: 2rem;
+}
+.nav-auth button {
   font-weight: 600;
   border: 1px solid #283779;
   border-radius: 50px;
-  height: 45px;
-  width: 80px;
+  /* height: 45px; */
+  padding: 0.4rem 1rem;
   transition: all 300ms ease;
   color: #283779;
 }
-.nav-links button:hover {
+.nav-auth button:hover {
   background-color: #283779;
   color: #fff;
 }
 
-@media (max-width: 920px) {
+.nav-auth button.login-btn {
+  background-color: #283779;
+  color: #fff;
+}
+
+@media (max-width: 970px) {
   .nav-links {
+    display: none;
+  }
+  .nav-auth {
+    /* display: none; */
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 450px) {
+  .nav-auth {
     display: none;
   }
 }

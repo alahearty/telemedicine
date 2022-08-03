@@ -345,9 +345,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("HeartRate")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime2");
 
@@ -356,12 +353,6 @@ namespace telemedicine_webapi.Infrastructure.Migrations
 
                     b.Property<int?>("PatientId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Pressure")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double?>("Temp")
-                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
@@ -753,9 +744,11 @@ namespace telemedicine_webapi.Infrastructure.Migrations
 
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.HealthAnalysisReport", b =>
                 {
-                    b.HasOne("telemedicine_webapi.Domain.Entities.Patient", null)
-                        .WithMany("Comments")
+                    b.HasOne("telemedicine_webapi.Domain.Entities.Patient", "Patient")
+                        .WithMany("HealthAnalysisReports")
                         .HasForeignKey("PatientId");
+
+                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.PhysicianPatientTransaction", b =>
@@ -859,7 +852,7 @@ namespace telemedicine_webapi.Infrastructure.Migrations
 
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.Patient", b =>
                 {
-                    b.Navigation("Comments");
+                    b.Navigation("HealthAnalysisReports");
                 });
 #pragma warning restore 612, 618
         }

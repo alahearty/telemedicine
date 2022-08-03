@@ -35,4 +35,10 @@
         <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Admin\Commands\" />
+      <Folder Include="HealthAnalysisReports\Commands\" />
+      <Folder Include="HealthAnalysisReports\Queries\" />
+    </ItemGroup>
+
 </Project>

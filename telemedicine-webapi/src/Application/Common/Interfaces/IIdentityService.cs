@@ -1,4 +1,6 @@
-﻿using telemedicine_webapi.Application.Common.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using telemedicine_webapi.Application.Common.Models;
+using telemedicine_webapi.Domain.Entities;
 
 namespace telemedicine_webapi.Application.Common.Interfaces;
 
@@ -10,6 +12,7 @@ public interface IIdentityService
     Task<string?> GetUserRoleAsync(string email);
 
     Task<BaseResponse> GetRoleAsync(string roleName);
+    Task<BaseResponse<List<IdentityUser<Guid>>>> GetAllUsersAsync();
 
     Task<bool> IsInRoleAsync(Guid userId, string role);
 

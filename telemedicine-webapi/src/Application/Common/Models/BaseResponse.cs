@@ -26,6 +26,11 @@ public class BaseResponse
     public bool NotSuccesful { get; internal set; }
 }
 
+public class BaseResponse<T>: BaseResponse
+{
+    public new T? Data { get; set; }
+}
+
 public class OperationResult
 {
     public static BaseResponse Successful()

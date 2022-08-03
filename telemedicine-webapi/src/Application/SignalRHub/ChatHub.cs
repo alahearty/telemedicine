@@ -39,16 +39,27 @@ namespace Application.SignalRHub
         {
             await Clients.Group(groupName).ReceiveMessageFromGroup(user, message);
         }
-        //public override async Task OnConnectedAsync()
-        //{
-        //    await Clients.All.UserConnected(Context.ConnectionId);
-        //    await base.OnConnectedAsync();
-        //}
-        //public override async Task OnDisconnectedAsync(Exception exception)
-        //{
-        //    await Clients.Caller.UserDisconnected(Context.ConnectionId);
-        //    await base.OnDisconnectedAsync(exception);
-        //}
+        public async Task SendFileToConnectedClient(string receiverConnectionId, FileDocument choseFile)
+        {
+            foreach (var file in choseFile.Files)
+            {
+                if (file.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await file.CopyToAsync(memoryStream);
+                        var fileMessage = new FileMessage
+                        {
+                            FileHeader = $"data: {file.ContentType} ;base64",
+                            FileBinary = memoryStream.ToArray()
+                        };
+
+                        await Clients.Client(receiverConnectionId).ReceiveFileMessage(fileMessage);
+                    }
+                }
+            }
+
+        }
         public string GetConnectionId()
         {
             return Context.ConnectionId;

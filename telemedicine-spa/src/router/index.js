@@ -6,6 +6,10 @@ import Signup from '@/views/General/Signup.vue'
 import Home from '@/views/General/Home.vue'
 import PageNotFound from '@/views/NotFound.vue'
 import DoctorFeedback from '@/views/Patient/DoctorFeedback.vue'
+import BookAppointment from '@/views/Patient/BookAppointment.vue'
+import Patient from '@/views/Patient/Patient.vue'
+import Payment from '@/views/Patient/Payment.vue'
+import Chat from '@/views/Patient/Chat.vue'
 
 var appname = ' - Analytics Dashboard'
 
@@ -22,6 +26,13 @@ const routes = [
     name: 'Dashboard',
     component: Dashboard,
     meta: { title: 'Dashboard ' + appname },
+    children: [
+      { path: '/update-record', component: Patient }, 
+      { path: '/book-service', component: BookAppointment },
+      { path: '/payment', component: Payment },
+      { path: '/chat', component: Chat },
+      { path: '/feedback', component: DoctorFeedback },
+    ],
   },
   {
     path: '/login',
