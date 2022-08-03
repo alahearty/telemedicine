@@ -17,6 +17,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
+    [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var requestResult = await _authenticationService.Register(request.Email, request.Password, request.AccountType);

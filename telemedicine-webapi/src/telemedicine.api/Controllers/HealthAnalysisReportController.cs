@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using telemedicine.api.Services.Authorization;
 using telemedicine_webapi.Application.HealthAnalysisReports.Commands;
 using telemedicine_webapi.Application.HealthAnalysisReports.Queries;
 
 namespace telemedicine.api.Controllers;
 
+[Permit("Physician, Administrator")]
 public class HealthAnalysisReportController:ApiControllerBase
 {
     [HttpPost("create")]

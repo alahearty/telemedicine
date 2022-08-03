@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using telemedicine.api.Services.Authorization;
 using telemedicine_webapi.Application.Patients.Commands.CreatePatients;
 using telemedicine_webapi.Application.Patients.Commands.DeletePatients;
 using telemedicine_webapi.Application.Patients.Commands.UpdatePatients;
@@ -8,6 +10,7 @@ namespace telemedicine.api.Controllers;
 //[Authorize]
 public class PatientController : ApiControllerBase
 {
+    [Permit("Administrator")]
     [HttpGet("all")]
     public async Task<IActionResult> GetPatients()
     {
@@ -24,6 +27,7 @@ public class PatientController : ApiControllerBase
         return Ok(response);
     }
 
+    [Permit("Patient")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePatientCommand command)
     {
@@ -31,6 +35,7 @@ public class PatientController : ApiControllerBase
         return Ok(response);
     }
 
+    [Permit("Patient")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update([FromBody] UpdatePatientCommand command)
     {
@@ -39,6 +44,7 @@ public class PatientController : ApiControllerBase
         return Ok(response.Data);
     }
 
+    [Permit("Administrator")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -47,6 +53,7 @@ public class PatientController : ApiControllerBase
         return Ok(response.Data);
     }
 
+    [Permit("Administrator")]
     [HttpDelete("purge")]
     public async Task<IActionResult> PurgePatient()
     {

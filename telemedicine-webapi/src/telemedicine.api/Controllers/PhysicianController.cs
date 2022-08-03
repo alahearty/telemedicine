@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using telemedicine.api.Services.Authorization;
 using telemedicine_webapi.Application.Physicians.Commands.CreatePhysician;
 using telemedicine_webapi.Application.Physicians.Commands.DeletePhysician;
 using telemedicine_webapi.Application.Physicians.Commands.PurgePhysician;
@@ -16,7 +18,8 @@ public class PhysicianController : ApiControllerBase
         var response = await Mediator.Send(query);
         return Ok(response);
     }
-    
+
+    [Permit("Administrator")]
     [HttpGet("all")]
     public async Task<IActionResult> GetPhysicians()
     {
@@ -25,6 +28,7 @@ public class PhysicianController : ApiControllerBase
         return Ok(response);
     }
 
+    [Permit("Administrator, Physician")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePhysicianCommand command)
     {
@@ -32,6 +36,7 @@ public class PhysicianController : ApiControllerBase
         return Ok(response.Data);
     }
 
+    [Permit("Physician")]
     [HttpPut()]
     public async Task<IActionResult> Update([FromBody] UpdatePhysicianCommand command)
     {
@@ -39,6 +44,7 @@ public class PhysicianController : ApiControllerBase
         return Ok(response.Data);
     }
 
+    [Permit("Administrator")]
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(int id)
     {
@@ -46,6 +52,7 @@ public class PhysicianController : ApiControllerBase
         return Ok(response.Data);
     }
 
+    [Permit("Administrator")]
     [HttpDelete("purge")]
     public async Task<IActionResult> PurgePhysician()
     {

@@ -9,7 +9,7 @@ public class CurrentUserService : ICurrentUserService
     public CurrentUserService(IHttpContextAccessor httpContextAccessor)
     {
         Guid.TryParse(httpContextAccessor.HttpContext?.User?
-            .Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Sid)?.Value, out var id);
+            .Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value, out var id);
         UserId = id;
 
         Email = httpContextAccessor.HttpContext?.User?

@@ -1,24 +1,18 @@
-using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 using telemedicine.api.Services;
-using telemedicine_webapi.Infrastructure.JWTAuthentication;
-using telemedicine_webapi.Infrastructure.Persistence.Context;
+using telemedicine.api.Services.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 {
     // Add services to the container.
     // Add services to the container.
-    builder.Services.AddApplicationServices();
     var environment = builder.Environment.IsDevelopment() ? "Development" : "Production";
     builder.Configuration.AddJsonFile($"appsettings.{environment}.json");
 
     builder.Services.AddApplicationServices();
     builder.Services.AddInfrastructureServices(builder.Configuration);
     builder.Services.AddWebUIServices();
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
-    builder.Services.AddControllers();
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
 
@@ -32,7 +26,7 @@ var builder = WebApplication.CreateBuilder(args);
                 swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey,
+                    Type = SecuritySchemeType.Http,
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
@@ -53,13 +47,14 @@ var builder = WebApplication.CreateBuilder(args);
                         new string[]{ }
                     }
                 });
-            });
+    });
 
-    //builder.Services.AddCors(options =>
-    //{
-    //    options.AddPolicy("CorsPolicy",
-    //    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-    //});
+    builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+    builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+    builder.Services.AddAuthorization();
+
+    builder.Services.AddControllers();
+
     builder.Services.AddCors(options =>
     {
         options.AddDefaultPolicy(builder =>
@@ -84,6 +79,7 @@ var app = builder.Build();
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseStatusCodePages();
     app.MapControllers();
     await app.SeedData();
 

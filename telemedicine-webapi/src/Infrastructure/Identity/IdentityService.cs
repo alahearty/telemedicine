@@ -66,7 +66,8 @@ public class IdentityService : IIdentityService
         if (role == null) return OperationResult.NotSuccessful("Role not Found");
 
         result = await _userManager.CreateAsync(user,password);
-        if (!result.Succeeded) return OperationResult.NotSuccessful(String.Concat(result.Errors));
+        var error1 = result.Errors.Select(error => error.Description);
+        if (!result.Succeeded) return OperationResult.NotSuccessful(result.Errors.Select(error => error.Description));
 
         result = await _userManager.AddToRoleAsync(user, role.ToString());
 

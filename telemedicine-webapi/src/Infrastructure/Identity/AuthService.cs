@@ -21,7 +21,7 @@ public class AuthService : IAuthService
 
     public async Task<BaseResponse> Register(string email,string password, string accountType)
     {
-        var existedUser=await _identityService.GetUserByEmailAsync(email);
+        var existedUser = await _identityService.GetUserByEmailAsync(email);
         if(existedUser.Data != null)return OperationResult.NotSuccessful($"Account with email-{email} already exist");
 
         var createUserOperation=await _identityService.CreateUserAsync(email,password,accountType);
@@ -40,14 +40,14 @@ public class AuthService : IAuthService
 
         var user = fetchedUser.Data as IdentityUser<Guid>;
 
-        var verifyPassword=new PasswordHasher<IdentityUser<Guid>>().VerifyHashedPassword(user!,user?.PasswordHash,password);
-        if(verifyPassword==PasswordVerificationResult.Failed)return OperationResult.NotSuccessful("Provided password is incorrect");
+        var verifyPassword = new PasswordHasher<IdentityUser<Guid>>().VerifyHashedPassword(user!, user?.PasswordHash, password);
+        if (verifyPassword == PasswordVerificationResult.Failed) return OperationResult.NotSuccessful("Provided password is incorrect");
 
         var role = await _identityService.GetUserRoleAsync(user?.Email!);
 
         var userId = user?.Id ?? default(Guid);
 
         var token = _jwtTokenGenerator.GenerateJwtToken(userId, user?.Email!, role!);
-        return OperationResult.Successful(token);
+        return OperationResult.Successful(new { token, role });
     }
 }

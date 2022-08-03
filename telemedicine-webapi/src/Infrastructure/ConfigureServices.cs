@@ -12,6 +12,9 @@ using telemedicine_webapi.Infrastructure.Persistence.Context;
 using telemedicine_webapi.Infrastructure.Persistence.Repositories;
 using telemedicine_webapi.Application.Services;
 using telemedicine_webapi.Infrastructure.Common;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -57,13 +60,23 @@ public static class ConfigureServices
         //services.AddIdentityServer().AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
         services.AddTransient<IDateTime, DateTimeService>();
-        services.AddTransient<IIdentityService, IdentityService>();
         services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
         services.AddMemoryCache();
 
-        //services.AddAuthentication().AddIdentityServerJwt();
-
-        //services.AddAuthorization(options => options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator")));
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = false,
+                    ValidIssuer=jwtSettings.Issuer,
+                    ValidateAudience = false,
+                    ValidAudience=jwtSettings.Audience,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key!))
+                };
+            });
 
         return services;
     }

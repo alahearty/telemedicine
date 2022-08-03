@@ -14,7 +14,7 @@ public class BaseResponse
         return this;
     }
 
-    internal BaseResponse SetErrors(List<string> errors)
+    internal BaseResponse SetErrors(IEnumerable<string> errors)
     {
         Errors.AddRange(errors);
         return this;
@@ -58,15 +58,15 @@ public class OperationResult
     {
         return new BaseResponse
         {
-            NotSuccesful = false,
+            NotSuccesful = true,
         }.SetError(error);
     }
 
-    public static BaseResponse NotSuccessful(List<string> errors)
+    public static BaseResponse NotSuccessful(IEnumerable<string> errors)
     {
         return new BaseResponse
         {
-            NotSuccesful = false,
+            NotSuccesful = true,
         }.SetErrors(errors);
     }
 }
