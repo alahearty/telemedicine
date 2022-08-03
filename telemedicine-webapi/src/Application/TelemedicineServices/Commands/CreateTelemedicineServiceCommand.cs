@@ -18,10 +18,12 @@ public class CreateTelemedicineServiceCommand : IRequest<BaseResponse>
 public class CreateTelemedicineServiceHandler : IRequestHandler<CreateTelemedicineServiceCommand, BaseResponse>
 {
     private readonly IUnitOfWork _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public CreateTelemedicineServiceHandler(IUnitOfWork context)
+    public CreateTelemedicineServiceHandler(IUnitOfWork context, ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
     public async Task<BaseResponse> Handle(CreateTelemedicineServiceCommand request, CancellationToken cancellationToken)
     {
@@ -34,7 +36,7 @@ public class CreateTelemedicineServiceHandler : IRequestHandler<CreateTelemedici
             Cost = request.Cost,
             Description = request.Description,
             Created = DateTime.UtcNow,
-            CreatedBy = null,
+            CreatedBy = _currentUser.Email
         };
 
         _context.TelemedicineServiceRepository.Add(telmedService);

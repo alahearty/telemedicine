@@ -26,15 +26,18 @@ public record CreatePhysicianCommand : IRequest<BaseResponse>
     public virtual string? License { get; set; }
     [Required]
     public virtual string? MedicalSpecialization { get; set; }
+    public virtual AccountType AccountType { get; set; }
 }
 
 public class CreatePhysicianCommandHandler : IRequestHandler<CreatePhysicianCommand, BaseResponse>
 {
     private readonly IUnitOfWork _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public CreatePhysicianCommandHandler(IUnitOfWork context)
+    public CreatePhysicianCommandHandler(IUnitOfWork context, ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
     public async Task<BaseResponse> Handle(CreatePhysicianCommand request, CancellationToken cancellationToken)
@@ -49,7 +52,10 @@ public class CreatePhysicianCommandHandler : IRequestHandler<CreatePhysicianComm
             Birth = request.Birth,
             Address = request.Address,
             License = request.License,
-            MedicalSpecialization = request.MedicalSpecialization
+            MedicalSpecialization = request.MedicalSpecialization,
+            AccountType = request.AccountType,
+            Created = DateTime.UtcNow,
+            CreatedBy = _currentUser.Email
         };
 
         _context.PhysicianRepository.Add(entity);

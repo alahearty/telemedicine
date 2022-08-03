@@ -22,16 +22,19 @@ public record CreatePatientCommand : IRequest<BaseResponse>
     public DateTime Birth { get; set; }
     [Required]
     public string? Phone { get; set; }
+    public AccountType AccountType { get; set; }
     public string? Address { get; set; }
 }
 
 public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, BaseResponse>
 {
     private readonly IUnitOfWork _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public CreatePatientCommandHandler(IUnitOfWork context)
+    public CreatePatientCommandHandler(IUnitOfWork context,ICurrentUserService currentUser)
     {
         _context = context;
+        _currentUser = currentUser;
     }
 
     public async Task<BaseResponse> Handle(CreatePatientCommand request, CancellationToken cancellationToken)
@@ -44,7 +47,10 @@ public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand,
             Birth = request.Birth,
             Phone = request.Phone,
             Email = request.Email,
-            Gender = request.Gender
+            Gender = request.Gender,
+            AccountType = request.AccountType,
+            CreatedBy = _currentUser.Email,
+            Created = DateTime.UtcNow
         };
 
         _context.PatientRepository.Add(entity);

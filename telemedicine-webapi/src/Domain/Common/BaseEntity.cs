@@ -6,7 +6,7 @@ namespace telemedicine_webapi.Domain.Common;
 public abstract class BaseEntity<T>
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public T? Id { get; set; }
 
     private readonly List<BaseEvent> _domainEvents = new();

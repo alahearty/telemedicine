@@ -9,28 +9,50 @@ namespace telemedicine_webapi.Application.Physicians.Commands.UpdatePhysician;
 public record UpdatePhysicianCommand : IRequest<BaseResponse>
 {
     public int Id { get; init; }
-
-    public string? Email { get; init; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Email { get; set; }
+    public string? Phone { get; set; }
+    public byte[]? Avatar { get; set; }
 }
 
 public class UpdatePhysicianCommandHandler : IRequestHandler<UpdatePhysicianCommand,BaseResponse>
 {
     private readonly IUnitOfWork _context;
+    private readonly IIdentityService _identityService;
+    private readonly ICurrentUserService _currentUser;
 
-    public UpdatePhysicianCommandHandler(IUnitOfWork context)
+    public UpdatePhysicianCommandHandler(IUnitOfWork context, IIdentityService identityService, ICurrentUserService currentUser)
     {
         _context = context;
+        _identityService = identityService;
+        _currentUser = currentUser;
     }
 
     public async Task<BaseResponse> Handle(UpdatePhysicianCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.PhysicianRepository.GetByIdAsync(request.Id);
-        if (entity == null) return OperationResult.NotSuccessful($"Physician with Id-{request.Id} not found");
 
-        entity.FirstName = request.Email;
+        if (entity == null) return OperationResult.NotSuccessful($"Patient with Id-{request.Id} not found");
 
-        var commitResult=await _context.SaveChangesAsync(cancellationToken);
+        if (request.FirstName != null) entity.FirstName = request.FirstName;
+        if (request.LastName != null) entity.LastName = request.LastName;
+        if (request.Email != null) await UpdateEmail(request.Email, entity);
+        if (request.Phone != null) entity.Phone = request.Phone;
+        if (request.Avatar != null) entity.Avatar = request.Avatar;
+        entity.LastModified = DateTime.UtcNow;
+        entity.LastModifiedBy = entity.Email;
 
-        return commitResult.WasSuccesful?OperationResult.Successful():OperationResult.NotSuccessful("Unable to update physician");
+        _context.PhysicianRepository.Update(entity);
+
+        var commitResult = await _context.SaveChangesAsync(cancellationToken);
+
+        return commitResult.WasSuccesful ? OperationResult.Successful() : OperationResult.NotSuccessful("");
+    }
+
+    private async Task UpdateEmail(string newEmail, Physician patient)
+    {
+        var result = await _identityService.UpdateEmailAsync(patient.Email!, newEmail);
+        if (result.WasSuccesful) patient.Email = newEmail;
     }
 }

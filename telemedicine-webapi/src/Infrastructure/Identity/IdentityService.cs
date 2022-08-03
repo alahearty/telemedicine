@@ -3,10 +3,6 @@ using telemedicine_webapi.Application.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using telemedicine_webapi.Domain.Enums;
-using Microsoft.Extensions.Options;
-using telemedicine_webapi.Infrastructure.JWTAuthentication;
-using telemedicine_webapi.Domain.Entities;
 
 namespace telemedicine_webapi.Infrastructure.Identity;
 
@@ -117,5 +113,14 @@ public class IdentityService : IIdentityService
         var result = _userManager.Users.ToList();
 
         return (BaseResponse<List<IdentityUser<Guid>>>)await Task.FromResult(OperationResult.Successful(result));
+    }
+
+    public async Task<BaseResponse> UpdateEmailAsync(string oldEmail, string newEmail)
+    {
+        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.Email == oldEmail);
+        if (user == null) return OperationResult.NotSuccessful("Not found");
+        await _userManager.SetEmailAsync(user, newEmail);
+        await _userManager.SetUserNameAsync(user, newEmail);
+        return OperationResult.Successful();
     }
 }

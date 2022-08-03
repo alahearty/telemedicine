@@ -9,6 +9,7 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionAut
 {
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionAuthorizationRequirement requirement)
     {
+        if (!context.User.HasClaim(claim=>claim.Type=="Role")) return Task.CompletedTask;
         var permissionName = GetPermission(context);
         if (!IsAuthorize(context.User, permissionName)) return Task.CompletedTask;
         context.Succeed(requirement);
@@ -40,9 +41,10 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionAut
         var assembly = typeof(Program).Assembly;
         var allControllerTypes = assembly.GetTypes().Where(x => x.IsSubclassOf(typeof(ApiControllerBase)));
         var controllerType = allControllerTypes.FirstOrDefault(x => x.FullName!.Contains(controllerName));
+        var controllerPermissionAttribute = controllerType?.GetCustomAttribute<PermitAttribute>();
         var actionMethod = controllerType?.GetMethod(actionName);
-        var permissionAttribute = actionMethod?.GetCustomAttribute<PermitAttribute>();
-        return permissionAttribute!.Name;
+        var actionPermissionAttribute = actionMethod?.GetCustomAttribute<PermitAttribute>();
+        return (actionPermissionAttribute != null) ? actionPermissionAttribute?.Name! : controllerPermissionAttribute?.Name!;
     }
 }
 

@@ -12,11 +12,13 @@ public class MakePaymentCommandHandler : IRequestHandler<MakePaymentCommand, Bas
 {
     private readonly IUnitOfWork _context;
     private readonly IMemoryCache _memoryCache;
+    private readonly ICurrentUserService _currentUser;
 
-    public MakePaymentCommandHandler(IUnitOfWork context, IMemoryCache memoryCache)
+    public MakePaymentCommandHandler(IUnitOfWork context, IMemoryCache memoryCache, ICurrentUserService currentUser)
     {
         _context = context;
         _memoryCache = memoryCache;
+        _currentUser = currentUser;
     }
 
     public async Task<BaseResponse> Handle(MakePaymentCommand request, CancellationToken cancellationToken)
@@ -30,7 +32,7 @@ public class MakePaymentCommandHandler : IRequestHandler<MakePaymentCommand, Bas
             AmountPaid = request.amountPaid,
             IsPaid = true,
             Created = DateTime.UtcNow,
-            CreatedBy = null,
+            CreatedBy = _currentUser.Email,
             Service = telMedService
         };
 

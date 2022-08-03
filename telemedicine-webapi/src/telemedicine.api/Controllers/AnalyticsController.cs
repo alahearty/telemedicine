@@ -1,17 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using telemedicine.api.Services.Authorization;
 using telemedicine_webapi.Application.Admin.Queries.GetTelemedicinePayment;
 using telemedicine_webapi.Application.Admin.Queries.GetTelemedicineService;
 using telemedicine_webapi.Application.Admin.Queries.GetUsers;
 
 namespace telemedicine.api.Controllers;
 
-[Authorize(Roles = "ADMIN")]
+[Permit("Administrator")]
 [ApiController]
 [Route("api/[controller]")]
 public class AnalyticsController : ApiControllerBase
 {
-    [HttpGet("Services")]
+    [HttpGet("services")]
     public async Task<IActionResult> GetServices()
     {
         //To be Replaced
@@ -39,14 +40,14 @@ public class AnalyticsController : ApiControllerBase
         //return Ok(revenue);
     }
 
-    [HttpGet("Visitor")]// no. of active users
+    [HttpGet("visitors")]// no. of active users
     public IActionResult GetVisitor()
     {
         var visitor = new { name = "Visitor", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 } };
         return Ok(visitor);
     }
 
-    [HttpGet("Transaction")]
+    [HttpGet("transactions")]
     public IActionResult GetTransactions()
     {
         var transactions = new List<dynamic>()
@@ -59,7 +60,7 @@ public class AnalyticsController : ApiControllerBase
         return Ok(transactions);
     }
 
-    [HttpGet("Report")]
+    [HttpGet("reports")]
     public IActionResult GetReports()
     {
         var reports = new List<dynamic>()
@@ -71,7 +72,7 @@ public class AnalyticsController : ApiControllerBase
         return Ok(reports);
     }
 
-    [HttpGet("User")]
+    [HttpGet("users")]
     public async Task<IActionResult> GetUsers()
     {
         var response = await Mediator.Send(new GetUsersQuery());

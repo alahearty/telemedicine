@@ -6,6 +6,7 @@ using telemedicine_webapi.Application.TelemedicineServices.Queries;
 
 namespace telemedicine.api.Controllers;
 
+[Permit("Administrator")]
 public class TelemedicineServicesController:ApiControllerBase
 {
     [Permit("Administrator,Physician")]
@@ -17,7 +18,6 @@ public class TelemedicineServicesController:ApiControllerBase
         return Ok(response);
     }
 
-    [Permit("Administrator")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateTelemedicineServiceCommand command)
     {
@@ -25,12 +25,18 @@ public class TelemedicineServicesController:ApiControllerBase
         return Ok(response);
     }
 
-    [Permit("Administrator")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
         var response = await Mediator.Send(new DeleteTelemedicineServiceCommand(id));
 
         return Ok(response.Data);
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] UpdateTelemedicineServiceCommand command)
+    {
+        var response = await Mediator.Send(command);
+        return Ok(response);
     }
 }
