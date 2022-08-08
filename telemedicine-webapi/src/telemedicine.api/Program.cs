@@ -81,7 +81,7 @@ var app = builder.Build();
     app.UseAuthorization();
     app.UseStatusCodePages();
     app.MapControllers();
-    await app.SeedData();
+    //await app.SeedData();
 
     app.Run();
 }
