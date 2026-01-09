@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Application.Common.Models.Authentication;
 using telemedicine_webapi.Application.Services;
 
@@ -20,17 +21,37 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
-        var requestResult = await _authenticationService.Register(request.Email, request.Password, request.AccountType);
+        if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            return BadRequest(new BaseResponse { NotSuccesful = true }.SetError("Email and password are required"));
+        }
 
-        return Ok(requestResult);
+        var result = await _authenticationService.Register(request.Email, request.Password, request.AccountType);
+        return result.WasSuccesful ? Ok(result) : BadRequest(result);
     }
 
-    [AllowAnonymous]
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var loginResult = await _authenticationService.Login(request.Email, request.Password);
+        if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            return BadRequest(new BaseResponse { NotSuccesful = true }.SetError("Email and password are required"));
+        }
 
-        return Ok(loginResult.Data);
+        var result = await _authenticationService.Login(request.Email, request.Password);
+        return result.WasSuccesful ? Ok(result) : Unauthorized(result);
+    }
+
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        if (request == null || string.IsNullOrWhiteSpace(request.RefreshToken))
+        {
+            return BadRequest(new BaseResponse { NotSuccesful = true }.SetError("Refresh token is required"));
+        }
+
+        return BadRequest(new BaseResponse { NotSuccesful = true }.SetError("Refresh token functionality not yet implemented"));
     }
 }

@@ -66,9 +66,30 @@ const router = createRouter({
   linkExactActiveClass: 'exact-active',
 })
 
+// Route guard for authentication
 router.beforeEach((to, from, next) => {
-  document.title = to.meta.title
-  next()
+  document.title = to.meta.title || 'Telemedicine'
+  
+  // Public routes that don't require authentication
+  const publicRoutes = ['/', '/login', '/signup', '/Home']
+  const isPublicRoute = publicRoutes.includes(to.path)
+  
+  // Get authentication token
+  const token = localStorage.getItem('access-token')
+  const isAuthenticated = !!token
+  
+  // Check if route requires authentication
+  const requiresAuth = !isPublicRoute && to.path !== '/'
+  
+  if (requiresAuth && !isAuthenticated) {
+    // Redirect to login if trying to access protected route without authentication
+    next({ path: '/login', query: { redirect: to.fullPath } })
+  } else if (isAuthenticated && (to.path === '/login' || to.path === '/signup')) {
+    // Redirect authenticated users away from login/signup pages
+    next({ path: '/dashboard' })
+  } else {
+    next()
+  }
 })
 
 export default router

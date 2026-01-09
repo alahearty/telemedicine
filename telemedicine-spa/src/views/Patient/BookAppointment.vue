@@ -1,195 +1,425 @@
 <template>
-  <div class="book-appointment">
-    <article
-      v-for="service in services"
-      :class="{ active: selected === service.id }"
-      :key="service.id"
-      @click="handleClick(service.id)"
-    >
-      <h2 class="title">{{ service.title }}</h2>
-      <p class="description">
-        {{ service.description }}
-      </p>
+  <div class="appointment-container">
+    <div class="appointment-header">
+      <h1 class="appointment-title">Book Your Appointment</h1>
+      <p class="appointment-subtitle">Select a service and choose your preferred date and time</p>
+    </div>
 
-      <div>
-        <p class="cost">
-          {{ service.cost }}
-        </p>
-        <button class="select-btn" :class="{ remove: selected === service.id }">
-          {{ this.selected === service.id ? 'Deselect' : 'Select' }}
+    <div class="appointment-content">
+      <!-- Service Selection -->
+      <div class="services-section">
+        <h2 class="section-title">Select a Service</h2>
+        <div class="services-grid">
+          <div
+            v-for="service in services"
+            :key="service.id"
+            :class="['service-card', { 'service-selected': selected === service.id }]"
+            @click="handleClick(service.id)"
+          >
+            <div class="service-icon">
+              <component :is="iconMap[service.icon] || BagIcon" />
+            </div>
+            <h3 class="service-title">{{ service.title }}</h3>
+            <p class="service-description">{{ service.description }}</p>
+            <div class="service-footer">
+              <span class="service-cost">{{ service.cost }}</span>
+              <span :class="['service-badge', { 'service-badge-selected': selected === service.id }]">
+                {{ selected === service.id ? 'Selected' : 'Select' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Date and Time Selection -->
+      <div v-if="selected" class="datetime-section">
+        <h2 class="section-title">Choose Date & Time</h2>
+        <div class="datetime-selector">
+          <div class="date-selector">
+            <label class="selector-label">Select Date</label>
+            <input 
+              type="date" 
+              v-model="selectedDate"
+              :min="minDate"
+              class="date-input"
+            />
+          </div>
+          <div class="time-selector">
+            <label class="selector-label">Select Time</label>
+            <select v-model="selectedTime" class="time-select">
+              <option value="">Choose time</option>
+              <option v-for="time in availableTimes" :key="time" :value="time">
+                {{ time }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Doctor Selection -->
+      <div v-if="selected && selectedDate && selectedTime && selectedDoctor === null" class="doctor-section">
+        <h2 class="section-title">Select a Doctor</h2>
+        <div class="doctors-grid">
+          <div
+            v-for="doctor in availableDoctors"
+            :key="doctor.id"
+            :class="['doctor-card', { 'doctor-selected': selectedDoctor === doctor.id }]"
+            @click="selectDoctor(doctor.id)"
+          >
+            <img :src="doctor.avatar" :alt="doctor.name" class="doctor-avatar" />
+            <div class="doctor-info">
+              <h3 class="doctor-name">{{ doctor.name }}</h3>
+              <p class="doctor-specialty">{{ doctor.specialty }}</p>
+              <div class="doctor-rating">
+                <span class="rating-stars">★★★★★</span>
+                <span class="rating-value">{{ doctor.rating }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Action Buttons -->
+      <div class="appointment-actions">
+        <button 
+          :disabled="!selected || !selectedDate || !selectedTime || loading"
+          class="continue-btn"
+          :class="{ 'continue-btn-active': canContinue && !loading }"
+          @click="confirmAppointment"
+        >
+          <span v-if="loading">Processing...</span>
+          <span v-else-if="!canContinue">Complete Selection</span>
+          <span v-else>Continue to Payment</span>
+          <svg v-if="!loading" class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
         </button>
       </div>
-    </article>
   </div>
-  <button :disabled="!selected" class="payment-btn" @click="pushToPayment">
-    Continue to payment
-  </button>
 </template>
 
 <script>
+import { getWithAuthAsync, postWithAuthAsync } from '@/api-services'
+import EyeIcon from '@/components/icons/EyeIcon.vue'
+import BrainIcon from '@/components/icons/BrainIcon.vue'
+import CardiacIcon from '@/components/icons/CardiacIcon.vue'
+import EarIcon from '@/components/icons/EarIcon.vue'
+import OsteoporosisiIcon from '@/components/icons/OsteoporosisiIcon.vue'
+import BagIcon from '@/components/icons/BagIcon.vue'
+
+const iconMap = {
+  'EyeIcon': EyeIcon,
+  'BrainIcon': BrainIcon,
+  'CardiacIcon': CardiacIcon,
+  'EarIcon': EarIcon,
+  'OsteoporosisiIcon': OsteoporosisiIcon,
+  'BagIcon': BagIcon
+}
+
 export default {
   name: 'BookAppointment',
+  components: {
+    EyeIcon,
+    BrainIcon,
+    CardiacIcon,
+    EarIcon,
+    OsteoporosisiIcon,
+    BagIcon
+  },
   data() {
     return {
       selected: null,
-      services: [
+      selectedDate: '',
+      selectedTime: '',
+      selectedDoctor: null,
+      services: [],
+      loading: false,
+      availableTimes: [
+        '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
+        '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM',
+        '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM',
+        '04:00 PM', '04:30 PM', '05:00 PM'
+      ],
+      availableDoctors: [
         {
           id: 1,
-          title: 'Eye care',
-          cost: '$200',
-          description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
+          name: 'Dr. Sarah Johnson',
+          specialty: 'Cardiologist',
+          rating: 4.8,
+          avatar: 'https://cdn.pixabay.com/photo/2016/11/29/13/14/attractive-1869761__340.jpg'
         },
         {
           id: 2,
-          title: 'Neurology',
-          cost: '$200',
-          description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
+          name: 'Dr. Michael Chen',
+          specialty: 'Neurologist',
+          rating: 4.9,
+          avatar: 'https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg'
         },
         {
           id: 3,
-          title: 'Cardiac care',
-          cost: '$300',
-          description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
-        },
-        {
-          id: 4,
-          title: 'Eye care',
-          cost: '$200',
-          description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
-        },
-        {
-          id: 5,
-          title: 'Cardiac care',
-          cost: '$150',
-          description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
-        },
-        {
-          id: 6,
-          title: 'Eye care',
-          cost: '$383',
-          description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
-        },
-        {
-          id: 7,
-          title: 'Cardiac care',
-          cost: '$395',
-          description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
-        },
-        {
-          id: 8,
-          title: 'Physiotherapy',
-          cost: '$999',
-          description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
-        },
-        {
-          id: 9,
-          title: 'Tooth care',
-          cost: '$220',
-          description: `Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aut quas exercitationem minima enim dicta soluta ea aperiam quos reiciendis nostrum.`,
-        },
-      ],
+          name: 'Dr. Emily Watson',
+          specialty: 'Ophthalmologist',
+          rating: 4.7,
+          avatar: 'https://cdn.pixabay.com/photo/2018/01/15/07/51/woman-3083383__340.jpg'
+        }
+      ]
+    }
+  },
+  computed: {
+    minDate() {
+      const tomorrow = new Date()
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      return tomorrow.toISOString().split('T')[0]
+    },
+    canContinue() {
+      return this.selected && this.selectedDate && this.selectedTime
     }
   },
   methods: {
+    async fetchServices() {
+      this.loading = true
+      try {
+        const response = await getWithAuthAsync('/TelemedicineServices')
+        if (response && Array.isArray(response)) {
+          this.services = response.map(service => ({
+            id: service.id,
+            title: service.name || service.title || 'Service',
+            cost: `$${service.price || service.cost || 0}`,
+            description: service.description || 'Telemedicine service',
+            icon: this.mapServiceToIcon(service.name || service.title || '')
+          }))
+        }
+      } catch (error) {
+        console.error('Error fetching services:', error)
+        // Fallback to default services if API fails
+        this.services = [
+          {
+            id: 1,
+            title: 'Eye Care',
+            cost: '$200',
+            description: 'Comprehensive eye examination and vision care services.',
+            icon: 'EyeIcon'
+          },
+          {
+            id: 2,
+            title: 'Neurology',
+            cost: '$200',
+            description: 'Expert neurological consultation and treatment.',
+            icon: 'BrainIcon'
+          },
+          {
+            id: 3,
+            title: 'Cardiac Care',
+            cost: '$300',
+            description: 'Heart health assessment and cardiovascular care.',
+            icon: 'CardiacIcon'
+          },
+        ]
+        if (this.$notification) {
+          this.$notification.warning('Service Loading', 'Using default services. Please check your connection.')
+        }
+      } finally {
+        this.loading = false
+      }
+    },
+    mapServiceToIcon(serviceName) {
+      const name = serviceName.toLowerCase()
+      if (name.includes('eye') || name.includes('vision')) return 'EyeIcon'
+      if (name.includes('brain') || name.includes('neuro')) return 'BrainIcon'
+      if (name.includes('heart') || name.includes('cardiac')) return 'CardiacIcon'
+      if (name.includes('ear') || name.includes('ent')) return 'EarIcon'
+      if (name.includes('physio') || name.includes('therapy')) return 'OsteoporosisiIcon'
+      if (name.includes('dental') || name.includes('tooth')) return 'BagIcon'
+      return 'BagIcon'
+    },
     handleClick(id) {
       if (this.selected === id) {
         this.selected = null
+        this.selectedDate = ''
+        this.selectedTime = ''
+        this.selectedDoctor = null
       } else {
         this.selected = id
       }
     },
-    pushToPayment() {
-      this.$router.push('/payment')
+    selectDoctor(doctorId) {
+      this.selectedDoctor = doctorId
     },
+    async confirmAppointment() {
+      if (!this.canContinue) return
+      
+      this.loading = true
+      try {
+        // Store appointment details for payment
+        const appointmentData = {
+          serviceId: this.selected,
+          selectedDate: this.selectedDate,
+          selectedTime: this.selectedTime,
+          selectedDoctor: this.selectedDoctor,
+          service: this.services.find(s => s.id === this.selected)
+        }
+        
+        // Store in session storage for payment page
+        sessionStorage.setItem('pendingAppointment', JSON.stringify(appointmentData))
+        
+        // Navigate to payment - appointment will be scheduled after payment
+        this.$router.push('/payment')
+      } catch (error) {
+        console.error('Error confirming appointment:', error)
+        if (this.$notification) {
+          this.$notification.error('Error', 'Failed to process appointment. Please try again.')
+        }
+      } finally {
+        this.loading = false
+      }
+    }
   },
+  mounted() {
+    this.fetchServices()
+  }
 }
 </script>
 
 <style scoped>
-.book-appointment {
-  flex: 1;
-  min-height: 400px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-}
-article {
-  padding: 1.5rem;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 2px 2px 4px -2px rgba(194, 194, 194, 0.75);
-  transition: all 300ms ease;
-  cursor: pointer;
-}
-article.active {
-  background-color: #c7d2fe;
-  box-shadow: 5px 7px 4px -2px rgba(194, 194, 194, 0.75);
-}
-article:hover {
-  /* background-color: #c7d2fe; */
-  box-shadow: 5px 7px 4px -2px rgba(194, 194, 194, 0.75);
-}
-article:hover .select-btn {
-  outline: 1px solid #3730a3;
-}
-article:hover .select-btn.remove {
-  outline: none;
-}
-article .title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #3730a3;
-}
-article .description {
-  margin-bottom: 1.5rem;
-  font-weight: 400;
-  font-size: 0.95rem;
-  opacity: 0.8;
-}
-article > div {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
-article .cost {
-  font-size: 1.15rem;
-}
-article .select-btn {
-  padding: 0.3em 1em;
-  background-color: #c7d2fe;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #3730a3;
-  font-weight: 500;
-  transition: all 300ms ease;
-}
-article .select-btn.remove {
-  background-color: rgb(206, 61, 61);
-  color: #fff;
+.appointment-container {
+  @apply max-w-7xl mx-auto p-6 bg-gray-50 dark:bg-gray-900 min-h-screen;
 }
 
-button.payment-btn {
-  display: block;
-  color: #fff;
-  margin-top: 2rem;
-  padding: 0.7em 1em;
-  cursor: pointer;
-  background-color: #3730a3;
-  border-radius: 6px;
-  transition: box-shadow 500ms ease;
+.appointment-header {
+  @apply text-center mb-8;
 }
-.payment-btn:hover {
-  box-shadow: 5px 7px 4px -2px #3830a34d;
+
+.appointment-title {
+  @apply text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2;
 }
-.payment-btn:disabled {
-  border: 1px solid #999999;
-  background-color: #cccccc;
-  color: #666666;
-  cursor: not-allowed;
+
+.appointment-subtitle {
+  @apply text-gray-600 dark:text-gray-400;
 }
-.payment-btn:disabled:hover {
-  box-shadow: 0 0 0 0;
+
+.appointment-content {
+  @apply space-y-8;
+}
+
+.section-title {
+  @apply text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4;
+}
+
+.services-section {
+  @apply mb-8;
+}
+
+.services-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.service-card {
+  @apply bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md border-2 border-transparent cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-600;
+}
+
+.service-card.service-selected {
+  @apply border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 ring-2 ring-indigo-200 dark:ring-indigo-800;
+}
+
+.service-icon {
+  @apply w-16 h-16 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4 text-indigo-600 dark:text-indigo-300;
+}
+
+.service-title {
+  @apply text-xl font-bold text-gray-800 dark:text-gray-200 mb-2;
+}
+
+.service-description {
+  @apply text-gray-600 dark:text-gray-400 mb-4 text-sm;
+}
+
+.service-footer {
+  @apply flex items-center justify-between;
+}
+
+.service-cost {
+  @apply text-2xl font-bold text-indigo-600 dark:text-indigo-400;
+}
+
+.service-badge {
+  @apply px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-semibold text-sm transition-colors;
+}
+
+.service-badge-selected {
+  @apply bg-indigo-500 text-white;
+}
+
+.datetime-section {
+  @apply bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md;
+}
+
+.datetime-selector {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.selector-label {
+  @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
+}
+
+.date-input,
+.time-select {
+  @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200;
+}
+
+.doctor-section {
+  @apply bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md;
+}
+
+.doctors-grid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+}
+
+.doctor-card {
+  @apply bg-gray-50 dark:bg-gray-700 rounded-lg p-4 cursor-pointer border-2 border-transparent transition-all hover:border-indigo-300 dark:hover:border-indigo-600;
+}
+
+.doctor-card.doctor-selected {
+  @apply border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20;
+}
+
+.doctor-avatar {
+  @apply w-20 h-20 rounded-full object-cover mx-auto mb-3;
+}
+
+.doctor-info {
+  @apply text-center;
+}
+
+.doctor-name {
+  @apply font-semibold text-gray-800 dark:text-gray-200 mb-1;
+}
+
+.doctor-specialty {
+  @apply text-sm text-gray-600 dark:text-gray-400 mb-2;
+}
+
+.doctor-rating {
+  @apply flex items-center justify-center gap-1;
+}
+
+.rating-stars {
+  @apply text-yellow-400 text-sm;
+}
+
+.rating-value {
+  @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+.appointment-actions {
+  @apply mt-8 flex justify-center;
+}
+
+.continue-btn {
+  @apply px-8 py-3 bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg font-semibold transition-all disabled:cursor-not-allowed flex items-center;
+}
+
+.continue-btn-active {
+  @apply bg-indigo-500 text-white hover:bg-indigo-600 shadow-lg transform hover:scale-105;
 }
 </style>

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using telemedicine.api.Services.Authorization;
 using telemedicine_webapi.Application.Physicians.Commands.CreatePhysician;
 using telemedicine_webapi.Application.Physicians.Commands.DeletePhysician;
@@ -9,55 +8,62 @@ using telemedicine_webapi.Application.Physicians.Queries.GetPhysicians;
 
 namespace telemedicine.api.Controllers;
 
+[ApiController]
+[Route("api/[controller]")]
 public class PhysicianController : ApiControllerBase
 {
     [HttpGet("{id}")]
+    [Permit("Physician, Administrator")]
     public async Task<IActionResult> GetPhysician(int id)
     {
         var query = new GetPhysicianQuery(id);
         var response = await Mediator.Send(query);
-        return Ok(response);
+        return HandleResponse(response);
     }
 
-    [Permit("Administrator")]
-    [HttpGet("all")]
+    [HttpGet]
+    [Permit("Administrator, Physician")]
     public async Task<IActionResult> GetPhysicians()
     {
         var query = new GetPhysiciansQuery();
         var response = await Mediator.Send(query);
-        return Ok(response);
+        return HandleResponse(response);
     }
 
-    [Permit("Administrator, Physician")]
     [HttpPost]
+    [Permit("Administrator, Physician")]
     public async Task<IActionResult> Create([FromBody] CreatePhysicianCommand command)
     {
-        var response= await Mediator.Send(command);
-        return Ok(response.Data);
+        var response = await Mediator.Send(command);
+        return HandleResponse(response, StatusCodes.Status201Created);
     }
 
+    [HttpPut("{id}")]
     [Permit("Physician")]
-    [HttpPut()]
-    public async Task<IActionResult> Update([FromBody] UpdatePhysicianCommand command)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdatePhysicianCommand command)
     {
-        var response=await Mediator.Send(command);
-        return Ok(response.Data);
+        if (id != command.Id)
+        {
+            return BadRequest(new BaseResponse { NotSuccesful = true }.SetError("ID mismatch"));
+        }
+
+        var response = await Mediator.Send(command);
+        return HandleResponse(response);
     }
 
-    [Permit("Administrator")]
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    [Permit("Administrator")]
+    public async Task<IActionResult> Delete(int id)
     {
-        var response=await Mediator.Send(new DeletePhysicianCommand(id));
-        return Ok(response.Data);
+        var response = await Mediator.Send(new DeletePhysicianCommand(id));
+        return HandleResponse(response);
     }
 
-    [Permit("Administrator")]
     [HttpDelete("purge")]
+    [Permit("Administrator")]
     public async Task<IActionResult> PurgePhysician()
     {
         var response = await Mediator.Send(new PurgePhysicianCommand());
-
-        return Ok(response.Data);
+        return HandleResponse(response);
     }
 }

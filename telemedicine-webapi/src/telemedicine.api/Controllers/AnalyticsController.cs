@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using telemedicine.api.Services.Authorization;
 using telemedicine_webapi.Application.Admin.Queries.GetTelemedicinePayment;
 using telemedicine_webapi.Application.Admin.Queries.GetTelemedicineService;
@@ -7,40 +6,26 @@ using telemedicine_webapi.Application.Admin.Queries.GetUsers;
 
 namespace telemedicine.api.Controllers;
 
-[Permit("Administrator")]
 [ApiController]
 [Route("api/[controller]")]
+[Permit("Administrator")]
 public class AnalyticsController : ApiControllerBase
 {
     [HttpGet("services")]
     public async Task<IActionResult> GetServices()
     {
-        //To be Replaced
-        //var services = new List<dynamic>()
-        //{
-        //    new { name = "Consultation 1", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 }},
-        //    new { name = "Consultation 2", data = new int[]  {20, 34, 45, 55, 79, 87, 90, 98 } }
-        //};
-
         var response = await Mediator.Send(new GetTelemedicineServiceQuery());
-        return Ok(response);
+        return HandleResponse(response);
     }
 
     [HttpGet("payments")]
     public async Task<IActionResult> GetRevenue()
-    { 
-        
+    {
         var response = await Mediator.Send(new GetTelemedicinePaymentQuery());
-        return Ok(response);
-        //var revenue = new List<dynamic>()
-        //{
-        //    new { name = "Revenue", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 }},
-        //    new { name = "Revenue (Previous period)", data = new int[]  {20, 34, 45, 55, 79, 87, 90, 98 } }
-        //};
-        //return Ok(revenue);
+        return HandleResponse(response);
     }
 
-    [HttpGet("visitors")]// no. of active users
+    [HttpGet("visitors")]
     public IActionResult GetVisitor()
     {
         var visitor = new { name = "Visitor", data = new int[] { 30, 40, 45, 50, 49, 60, 70, 91 } };
@@ -76,14 +61,6 @@ public class AnalyticsController : ApiControllerBase
     public async Task<IActionResult> GetUsers()
     {
         var response = await Mediator.Send(new GetUsersQuery());
-        return Ok(response);
-        //var user = new List<dynamic>()
-        //{
-        //    new { role = "admin"},
-        //    new { title = "SuperAdmin"},
-        //    new { title = "User"},
-        //    new { title = "Customer"}
-        //};
-        //return Ok(user);
+        return HandleResponse(response);
     }
 }

@@ -1,14 +1,19 @@
 <template>
   <div>
+    <Notification />
     <router-view/>
   </div>
 </template>
 
 <script>
 import Scrollbar from 'smooth-scrollbar'
+import Notification from '@/components/common/Notification.vue'
 
 export default {
   name: 'App',
+  components: {
+    Notification
+  },
 
   data(){
     return{

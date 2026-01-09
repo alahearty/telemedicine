@@ -143,6 +143,11 @@
 </template>
 
 <script>
+// Note: Install @microsoft/signalr package for SignalR support
+// npm install @microsoft/signalr
+
+const SIGNALR_HUB_URL = process.env.VUE_APP_SIGNALR_HUB_URL || 'https://localhost:7231/chat-hub'
+
 export default {
   name: 'Chat',
   data() {
@@ -150,6 +155,9 @@ export default {
       searchQuery: '',
       selectedChat: null,
       newMessage: '',
+      connection: null,
+      connectionId: null,
+      isConnected: false,
       chats: [
         {
           id: 1,
@@ -158,7 +166,8 @@ export default {
           lastMessage: 'Good Morning! How can I help you today?',
           lastMessageTime: '2:30 PM',
           online: true,
-          unread: 2
+          unread: 2,
+          connectionId: null
         },
         {
           id: 2,
@@ -167,7 +176,8 @@ export default {
           lastMessage: 'The test results look good',
           lastMessageTime: '1:15 PM',
           online: false,
-          unread: 0
+          unread: 0,
+          connectionId: null
         },
         {
           id: 3,
@@ -176,7 +186,8 @@ export default {
           lastMessage: 'Please schedule a follow-up appointment',
           lastMessageTime: '11:45 AM',
           online: true,
-          unread: 1
+          unread: 1,
+          connectionId: null
         }
       ],
       messages: [
@@ -197,32 +208,135 @@ export default {
     }
   },
   methods: {
+    async initializeSignalR() {
+      try {
+        // Dynamic import of SignalR if available
+        // Note: You need to install @microsoft/signalr package first
+        // npm install @microsoft/signalr
+        
+        // For now, we'll use a fallback approach
+        // In production, uncomment the SignalR code below after installing the package
+        
+        /*
+        const { HubConnectionBuilder, LogLevel } = await import('@microsoft/signalr')
+        
+        this.connection = new HubConnectionBuilder()
+          .withUrl(SIGNALR_HUB_URL, {
+            accessTokenFactory: () => localStorage.getItem('access-token') || ''
+          })
+          .withAutomaticReconnect()
+          .configureLogging(LogLevel.Information)
+          .build()
+
+        this.connection.on('ReceiveMessage', (user, message) => {
+          this.handleReceivedMessage(user, message)
+        })
+
+        this.connection.on('ReceiveMessageToUser', (user, message) => {
+          this.handleReceivedMessage(user, message)
+        })
+
+        this.connection.on('UserConnected', (connectionId) => {
+          this.handleUserConnected(connectionId)
+        })
+
+        this.connection.on('UserDisconnected', (connectionId) => {
+          this.handleUserDisconnected(connectionId)
+        })
+
+        await this.connection.start()
+        this.isConnected = true
+        this.connectionId = this.connection.connectionId
+        
+        console.log('SignalR connection established:', this.connectionId)
+        */
+        
+        console.log('SignalR not initialized. Please install @microsoft/signalr package.')
+      } catch (error) {
+        console.error('Error initializing SignalR:', error)
+        this.isConnected = false
+      }
+    },
+    async sendMessage() {
+      if (!this.newMessage.trim() || !this.selectedChat) return
+      
+      const messageText = this.newMessage.trim()
+      const now = new Date()
+      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      
+      // Add message to local state immediately for better UX
+      const newMsg = {
+        id: Date.now(),
+        text: messageText,
+        sent: true,
+        time: time
+      }
+      
+      this.messages.push(newMsg)
+      this.selectedChat.lastMessage = messageText
+      this.selectedChat.lastMessageTime = time
+      
+      // Try to send via SignalR if connected
+      if (this.isConnected && this.connection) {
+        try {
+          if (this.selectedChat.connectionId) {
+            await this.connection.invoke('SendMessageToUser', this.selectedChat.connectionId, 'You', messageText)
+          } else {
+            await this.connection.invoke('SendMessage', 'You', messageText)
+          }
+        } catch (error) {
+          console.error('Error sending message via SignalR:', error)
+        }
+      }
+      
+      this.newMessage = ''
+      this.$nextTick(() => {
+        this.scrollToBottom()
+      })
+    },
+    handleReceivedMessage(user, message) {
+      const now = new Date()
+      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      
+      this.messages.push({
+        id: Date.now(),
+        text: message,
+        sent: false,
+        time: time,
+        user: user
+      })
+      
+      if (this.selectedChat) {
+        this.selectedChat.lastMessage = message
+        this.selectedChat.lastMessageTime = time
+        this.selectedChat.unread = (this.selectedChat.unread || 0) + 1
+      }
+      
+      this.$nextTick(() => {
+        this.scrollToBottom()
+      })
+    },
+    handleUserConnected(connectionId) {
+      console.log('User connected:', connectionId)
+      // Update chat status if this connection matches a chat
+      const chat = this.chats.find(c => c.connectionId === connectionId)
+      if (chat) {
+        chat.online = true
+      }
+    },
+    handleUserDisconnected(connectionId) {
+      console.log('User disconnected:', connectionId)
+      // Update chat status if this connection matches a chat
+      const chat = this.chats.find(c => c.connectionId === connectionId)
+      if (chat) {
+        chat.online = false
+      }
+    },
     selectChat(chat) {
       this.selectedChat = chat
       // Mark as read
       chat.unread = 0
       // Scroll to bottom of messages
-      this.$nextTick(() => {
-        this.scrollToBottom()
-      })
-    },
-    sendMessage() {
-      if (!this.newMessage.trim() || !this.selectedChat) return
-      
-      const now = new Date()
-      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-      
-      this.messages.push({
-        id: this.messages.length + 1,
-        text: this.newMessage,
-        sent: true,
-        time: time
-      })
-      
-      this.newMessage = ''
-      this.selectedChat.lastMessage = this.messages[this.messages.length - 1].text
-      this.selectedChat.lastMessageTime = time
-      
       this.$nextTick(() => {
         this.scrollToBottom()
       })
@@ -246,10 +360,20 @@ export default {
       console.log('Attach file')
     }
   },
-  mounted() {
+  async mounted() {
+    // Initialize SignalR connection
+    await this.initializeSignalR()
+    
     // Auto-select first chat if available
     if (this.chats.length > 0 && !this.selectedChat) {
       this.selectChat(this.chats[0])
+    }
+  },
+  beforeUnmount() {
+    // Clean up SignalR connection
+    if (this.connection) {
+      this.connection.stop()
+      this.isConnected = false
     }
   }
 }
