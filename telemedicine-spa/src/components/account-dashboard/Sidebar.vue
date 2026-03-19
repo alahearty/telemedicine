@@ -48,7 +48,7 @@
         </div>
         <div class="item">
           <router-link
-            to="/account"
+            to="/dashboard/account"
             exact
             class="w-full flex text-left rounded-md box-border p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
@@ -58,7 +58,7 @@
         </div>
         <div class="item">
           <router-link
-            to="/hospital"
+            to="/dashboard/hospital"
             exact
             class="w-full flex text-left rounded-md box-border p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
