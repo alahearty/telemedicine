@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,7 +28,7 @@ public class GetHospitalsQueryHandler : IRequestHandler<GetHospitalsQuery, BaseR
         {
             foreach (var hospital in hospitals)
             {
-                hospitalDtos.Add(new HospitalDto(hospital.HospitalName!, hospital.Address!));
+                hospitalDtos.Add(new HospitalDto(hospital.Id, hospital.HospitalName!, hospital.Address!));
             }
         }
         return OperationResult.Successful(hospitalDtos);

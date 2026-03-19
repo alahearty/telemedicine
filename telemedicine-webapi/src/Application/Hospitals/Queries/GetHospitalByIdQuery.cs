@@ -26,7 +26,7 @@ public class GetHospitalByIdQueryHandler : IRequestHandler<GetHospitalByIdQuery,
             return OperationResult.NotSuccessful($"Hospital with ID {request.Id} not found");
         }
 
-        var hospitalDto = new HospitalDto(hospital.HospitalName!, hospital.Address!);
+        var hospitalDto = new HospitalDto(hospital.Id, hospital.HospitalName!, hospital.Address!);
         return OperationResult.Successful(hospitalDto);
     }
 }
