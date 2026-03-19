@@ -1,7 +1,7 @@
 using MediatR;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Models;
-using telemedicine_webapi.Domain.Enums;
+using telemedicine_webapi.Domain.Entities;
 
 namespace telemedicine_webapi.Application.Appointments.Commands;
 
