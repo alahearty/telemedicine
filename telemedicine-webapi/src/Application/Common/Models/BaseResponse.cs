@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,13 +8,13 @@ namespace telemedicine_webapi.Application.Common.Models;
 
 public class BaseResponse
 {
-    internal BaseResponse SetError(string error)
+    public BaseResponse SetError(string error)
     {
         Errors.Add(error);
         return this;
     }
 
-    internal BaseResponse SetErrors(IEnumerable<string> errors)
+    public BaseResponse SetErrors(IEnumerable<string> errors)
     {
         Errors.AddRange(errors);
         return this;
@@ -23,7 +23,7 @@ public class BaseResponse
     public object? Data { get; set; }
     public List<string> Errors => new List<string>();
     public bool WasSuccesful => !NotSuccesful;
-    public bool NotSuccesful { get; internal set; }
+    public bool NotSuccesful { get; set; }
 }
 
 public class BaseResponse<T>: BaseResponse

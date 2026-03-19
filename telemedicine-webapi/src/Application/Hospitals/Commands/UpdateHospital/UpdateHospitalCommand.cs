@@ -1,4 +1,4 @@
-﻿using telemedicine_webapi.Application.Common.Exceptions;
+using telemedicine_webapi.Application.Common.Exceptions;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using MediatR;
@@ -9,8 +9,8 @@ namespace telemedicine_webapi.Application.Hospitals.Commands.UpdateHospital;
 public record UpdateHospitalCommand : IRequest<BaseResponse>
 {
     public int Id { get; init; }
-
     public string? HospitalName { get; init; }
+    public string? Address { get; init; }
 }
 
 public class UpdateHospitalCommandHandler : IRequestHandler<UpdateHospitalCommand,BaseResponse>
@@ -28,7 +28,8 @@ public class UpdateHospitalCommandHandler : IRequestHandler<UpdateHospitalComman
 
         if (entity == null) return OperationResult.NotSuccessful($"Hospital with Id-{request.Id} not found");
 
-        entity.HospitalName = request.HospitalName;
+        if (request.HospitalName != null) entity.HospitalName = request.HospitalName;
+        if (request.Address != null) entity.Address = request.Address;
 
         var commitResult=await _context.SaveChangesAsync(cancellationToken);
 
