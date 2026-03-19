@@ -136,7 +136,7 @@
 import AuthLayout from '@/Layout/AuthLayout.vue'
 import GoogleIcon from '@/components/icons/GoogleIcon.vue'
 import FacebookIcon from '@/components/icons/FacebookIcon.vue'
-import { postAsync } from '@/api-services'
+import { register } from '@/api'
 
 export default {
   name: 'Signup',
@@ -205,24 +205,13 @@ export default {
 
       this.loading = true
       try {
-        const response = await postAsync('/auth/register', {
-          email: this.email,
-          password: this.password,
-          accountType: this.accountType
-        })
-
-        if (response.wasSuccesful || response.success || !response.notSuccesful) {
-          if (this.$notification) {
-            this.$notification.success('Registration Successful', 'Your account has been created successfully!')
-          }
-          // Redirect to login after successful registration
-          setTimeout(() => {
-            this.$router.push('/login')
-          }, 1500)
-        } else {
-          const errorMessage = response.error || response.message || 'Registration failed'
-          throw new Error(errorMessage)
+        await register(this.email, this.password, this.accountType)
+        if (this.$notification) {
+          this.$notification.success('Registration Successful', 'Your account has been created successfully!')
         }
+        setTimeout(() => {
+          this.$router.push('/login')
+        }, 1500)
       } catch (error) {
         console.error('Registration error:', error)
         const errorMessage = error.message || 'Registration failed. Please try again.'

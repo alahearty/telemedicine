@@ -166,40 +166,8 @@ export default {
         },
 
         async login(payload) {
-            try {
-                const response = await fetch(
-                    "https://localhost:7231/api/auth/login",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(payload),
-                    }
-                );
-
-                if (!response.ok) {
-                    const error = await response.json().catch(() => ({ message: 'Login failed' }));
-                    throw new Error(error.message || error.error || 'Login failed');
-                }
-
-                const data = await response.json();
-                
-                // Extract token and role from response
-                // The response structure may vary - adjust based on your API response
-                const token = data.token || data.accessToken || data.access_token;
-                const role = data.role || data.accountType || data.userRole;
-
-                return {
-                    token: token,
-                    role: role,
-                };
-            } catch (error) {
-                console.error('Login error:', error);
-                throw error;
-            }
-        },
-
+            const { login } = await import('@/api');
+            return login(payload.email, payload.password);
         },
     },
 };
