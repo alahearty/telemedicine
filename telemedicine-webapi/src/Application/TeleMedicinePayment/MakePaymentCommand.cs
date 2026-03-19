@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using telemedicine_webapi.Application.Common.Interfaces;
@@ -37,7 +37,7 @@ public class MakePaymentCommandHandler : IRequestHandler<MakePaymentCommand, Bas
         };
 
         string paymentToken = GeneratePaymentToken(16);
-        _memoryCache.Set("paymentToken", paymentToken);
+        _memoryCache.Set(paymentToken, paymentToken, TimeSpan.FromMinutes(15));
 
         _context.TelemedicinePaymentRepository.Add(telServicePayment);
         var result = await _context.SaveChangesAsync();

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Models;
@@ -33,7 +33,7 @@ public class ScheduleAppointmentCommandHandler : IRequestHandler<ScheduleAppoint
         var isValidPaymentToken = ValidatePaymentToken(request.paymentToken);
         if (!isValidPaymentToken) return OperationResult.NotSuccessful("Payment token is invalid");
 
-        _memoryCache.Remove("paymentToken");
+        _memoryCache.Remove(request.paymentToken);
 
         var patient = await _context.PatientRepository.FirstOrDefaultAsync(user => user.Email == _user.Email!);
 
@@ -55,7 +55,7 @@ public class ScheduleAppointmentCommandHandler : IRequestHandler<ScheduleAppoint
 
     private bool ValidatePaymentToken(string paymentToken)
     {
-        var storedToken=_memoryCache.Get(paymentToken);
-        return (storedToken.ToString() != paymentToken) ? false : true;
+        var storedToken = _memoryCache.Get(paymentToken);
+        return storedToken != null;
     }
 }
