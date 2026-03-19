@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +8,13 @@ namespace telemedicine_webapi.Domain.Entities;
 public class Appointment : BaseAuditableEntity
 {
     public virtual Patient? Patient { get; set; }
+    public int? PatientId { get; set; }
+    public virtual Physician? Physician { get; set; }
+    public int? PhysicianId { get; set; }
     public virtual TelemedicineService? TelemedicineService { get; set; }
     public DateTime? ScheduleStartTime => DateTime.UtcNow;
+    public DateTime? AppointmentDate { get; set; }
+    public string? Notes { get; set; }
     public virtual ScheduleStatus Status { get; set; }
     public DateTime? ScheduleEndTime { get; set; }
 }

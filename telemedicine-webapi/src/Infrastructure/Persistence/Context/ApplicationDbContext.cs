@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using telemedicine_webapi.Domain.Entities;
 using telemedicine_webapi.Infrastructure.Persistence.Interceptors;
 using MediatR;
@@ -24,6 +24,14 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser<Guid>, Identi
         _mediator = mediator;
         _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
+
+    /// <summary>Design-time constructor for EF migrations.</summary>
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+        _mediator = null!;
+        _auditableEntitySaveChangesInterceptor = null!;
+    }
     public DbSet<Hospital> Hospitals => Set<Hospital>();
     public DbSet<Patient> Patients => Set<Patient>();
     public DbSet<Physician> Physicians => Set<Physician>();
@@ -48,12 +56,14 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser<Guid>, Identi
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(_auditableEntitySaveChangesInterceptor);
+        if (_auditableEntitySaveChangesInterceptor != null)
+            optionsBuilder.AddInterceptors(_auditableEntitySaveChangesInterceptor);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        await _mediator.DispatchDomainEvents(this);
+        if (_mediator != null)
+            await _mediator.DispatchDomainEvents(this);
 
         return await base.SaveChangesAsync(cancellationToken);
     }

@@ -1,4 +1,4 @@
-﻿using telemedicine_webapi.Application.Common.Interfaces;
+using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Infrastructure.Files;
 using telemedicine_webapi.Infrastructure.Identity;
 using telemedicine_webapi.Infrastructure.Persistence.Interceptors;
@@ -36,7 +36,7 @@ public static class ConfigureServices
         }
         else
         {
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetValue<string>("DefaultConnection"), builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(configuration.GetValue<string>("DefaultConnection"), builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
         }
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());

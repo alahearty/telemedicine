@@ -1,4 +1,4 @@
-﻿using telemedicine_webapi.Domain.Entities;
+using telemedicine_webapi.Domain.Entities;
 using telemedicine_webapi.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +25,7 @@ public class ApplicationDbContextInitialiser:IApplicationDbContextInitialiser
     {
         try
         {
-            if (_context.Database.IsSqlServer())
+            if (_context.Database.IsNpgsql())
             {
                 await _context.Database.MigrateAsync();
             }
@@ -52,59 +52,72 @@ public class ApplicationDbContextInitialiser:IApplicationDbContextInitialiser
 
     private async Task TrySeedAsync()
     {
-        // Default roles
-        var administratorRole = new IdentityRole<Guid> { Name = "Administrator" };
-        var physicianRole = new IdentityRole<Guid> { Name = "Physician" };
-        var patientRole = new IdentityRole<Guid> { Name = "Patient" };
+        await SeedIdentityAsync();
+        await SeedTodoDataAsync();
+    }
 
-        var result = new IdentityResult();
-
-        if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
+    private async Task SeedIdentityAsync()
+    {
+        // Create roles
+        var roles = new[] { "Administrator", "Physician", "Patient" };
+        foreach (var roleName in roles)
         {
-            result = await _roleManager.CreateAsync(administratorRole);
-
-            var administrator = new IdentityUser<Guid> { UserName = "administrator@localhost", Email = "administrator@localhost"};
-
-            if (_userManager.Users.All(u => u.UserName != administrator.UserName))
+            if (!await _roleManager.RoleExistsAsync(roleName))
             {
-                result = await _userManager.CreateAsync(administrator, "Administrator1!");
-                result = await _userManager.AddToRoleAsync(administrator, administratorRole.ToString());
+                await _roleManager.CreateAsync(new IdentityRole<Guid> { Name = roleName });
             }
         }
 
-        if (_roleManager.Roles.All(r => r.Name != patientRole.Name))
-        {
-            result = await _roleManager.CreateAsync(patientRole);
-        }
-        
-        if (_roleManager.Roles.All(r => r.Name != physicianRole.Name))
-        {
-            result = await _roleManager.CreateAsync(physicianRole);
-        }
+        // Create admin user (stored in AspNetUsers, not the User table)
+        const string adminUserName = "administrator@localhost";
+        const string adminPassword = "Administrator1!";
 
-        var item1 = new TodoItem { Title = "Make a todo list 📃", Id = 1 };
-        var item2 = new TodoItem { Title = "Check off the first item ✅", Id = 2 };
-        var item3 = new TodoItem { Title = "Realise you've already done two things on the list! 🤯", Id = 3 };
-        var item4 = new TodoItem { Title = "Reward yourself with a nice, long nap 🏆", Id = 4 };
-
-        if (!_context.TodoItems.Any())
+        if (await _userManager.FindByNameAsync(adminUserName) == null)
         {
-            _context.TodoItems.Add(item1);
-            _context.TodoItems.Add(item2);
-            _context.TodoItems.Add(item3);
-            _context.TodoItems.Add(item4);
-        }
-
-        // Default data
-        // Seed, if necessary
-        if (!_context.TodoLists.Any())
-        {
-            _context.TodoLists.Add(new TodoList
+            var administrator = new IdentityUser<Guid>
             {
-                Title = "Todo List",
-                Items = { item1, item2, item3, item4 }
-            });          
+                UserName = adminUserName,
+                Email = adminUserName,
+                EmailConfirmed = true
+            };
+
+            var createResult = await _userManager.CreateAsync(administrator, adminPassword);
+            if (createResult.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(administrator, "Administrator");
+                _logger.LogInformation("Admin user created: {UserName}", adminUserName);
+            }
+            else
+            {
+                _logger.LogWarning("Failed to create admin user: {Errors}", string.Join(", ", createResult.Errors.Select(e => e.Description)));
+            }
         }
-        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedTodoDataAsync()
+    {
+        try
+        {
+            if (await _context.TodoLists.AnyAsync())
+                return;
+
+            var todoList = new TodoList { Title = "Todo List" };
+            _context.TodoLists.Add(todoList);
+            await _context.SaveChangesAsync();
+
+            var items = new[]
+            {
+                new TodoItem { Title = "Make a todo list 📃", ListId = todoList.Id },
+                new TodoItem { Title = "Check off the first item ✅", ListId = todoList.Id },
+                new TodoItem { Title = "Realise you've already done two things on the list! 🤯", ListId = todoList.Id },
+                new TodoItem { Title = "Reward yourself with a nice, long nap 🏆", ListId = todoList.Id }
+            };
+            _context.TodoItems.AddRange(items);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Todo data seeding failed (non-critical). Admin user may still have been created.");
+        }
     }
 }
