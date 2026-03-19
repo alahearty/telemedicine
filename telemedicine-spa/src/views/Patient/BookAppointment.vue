@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import { getWithAuthAsync, postWithAuthAsync } from '@/api-services'
+import { getTelemedicineServices } from '@/api'
 import EyeIcon from '@/components/icons/EyeIcon.vue'
 import BrainIcon from '@/components/icons/BrainIcon.vue'
 import CardiacIcon from '@/components/icons/CardiacIcon.vue'
@@ -180,16 +180,16 @@ export default {
     async fetchServices() {
       this.loading = true
       try {
-        const response = await getWithAuthAsync('/TelemedicineServices')
-        if (response && Array.isArray(response)) {
-          this.services = response.map(service => ({
-            id: service.id,
-            title: service.name || service.title || 'Service',
-            cost: `$${service.price || service.cost || 0}`,
-            description: service.description || 'Telemedicine service',
-            icon: this.mapServiceToIcon(service.name || service.title || '')
-          }))
-        }
+        const response = await getTelemedicineServices()
+        const list = Array.isArray(response) ? response : []
+        this.services = list.map(service => ({
+          id: service.id,
+          title: service.serviceName || service.name || 'Service',
+          cost: `$${service.cost ?? 0}`,
+          costValue: Number(service.cost) || 0,
+          description: service.description || 'Telemedicine service',
+          icon: this.mapServiceToIcon(service.serviceName || service.name || '')
+        }))
       } catch (error) {
         console.error('Error fetching services:', error)
         // Fallback to default services if API fails
@@ -248,10 +248,8 @@ export default {
     },
     async confirmAppointment() {
       if (!this.canContinue) return
-      
       this.loading = true
       try {
-        // Store appointment details for payment
         const appointmentData = {
           serviceId: this.selected,
           selectedDate: this.selectedDate,
@@ -259,12 +257,8 @@ export default {
           selectedDoctor: this.selectedDoctor,
           service: this.services.find(s => s.id === this.selected)
         }
-        
-        // Store in session storage for payment page
         sessionStorage.setItem('pendingAppointment', JSON.stringify(appointmentData))
-        
-        // Navigate to payment - appointment will be scheduled after payment
-        this.$router.push('/payment')
+        this.$router.push('/dashboard/payment')
       } catch (error) {
         console.error('Error confirming appointment:', error)
         if (this.$notification) {

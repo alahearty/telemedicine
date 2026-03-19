@@ -1,11 +1,21 @@
 <template>
   <div class="payment-container">
     <div class="payment-header">
-      <h1 class="payment-title">Choose Your Plan</h1>
-      <p class="payment-subtitle">Select the perfect plan for your healthcare needs</p>
+      <h1 class="payment-title">{{ pendingAppointment ? 'Complete Payment' : 'Choose Your Plan' }}</h1>
+      <p class="payment-subtitle">{{ pendingAppointment ? 'Pay for your selected telemedicine service' : 'Select the perfect plan for your healthcare needs' }}</p>
     </div>
 
-    <div class="payment-plans">
+    <div v-if="pendingAppointment" class="appointment-payment-section">
+      <div class="appointment-summary-card">
+        <h3>{{ pendingAppointment.service?.title || 'Telemedicine Service' }}</h3>
+        <p class="service-cost">${{ pendingAppointment.service?.costValue ?? pendingAppointment.service?.cost?.replace?.(/[^0-9.]/g, '') ?? '0' }}</p>
+        <button class="plan-button plan-button-selected" @click="showPaymentForm = true">
+          Proceed to Payment
+        </button>
+      </div>
+    </div>
+
+    <div v-else class="payment-plans">
       <div 
         v-for="plan in plans" 
         :key="plan.id"
@@ -52,8 +62,8 @@
         
         <div class="modal-content">
           <div class="selected-plan-summary">
-            <h3>{{ selectedPlanData?.name }} Plan</h3>
-            <p class="summary-price">${{ selectedPlanData?.price }} / {{ selectedPlanData?.period }}</p>
+            <h3>{{ pendingAppointment ? (selectedPlanData?.name || 'Service') : (selectedPlanData?.name + ' Plan') }}</h3>
+            <p class="summary-price">${{ selectedPlanData?.price }}{{ selectedPlanData?.period ? ' / ' + selectedPlanData.period : '' }}</p>
           </div>
 
           <form @submit.prevent="processPayment" class="payment-form">
@@ -140,10 +150,13 @@
 </template>
 
 <script>
+import { makePayment, scheduleAppointment } from '@/api'
+
 export default {
   name: 'Payment',
   data() {
     return {
+      pendingAppointment: null,
       selectedPlan: null,
       showPaymentForm: false,
       processing: false,
@@ -202,22 +215,40 @@ export default {
       ]
     }
   },
+  mounted() {
+    try {
+      const stored = sessionStorage.getItem('pendingAppointment')
+      if (stored) {
+        this.pendingAppointment = JSON.parse(stored)
+      }
+    } catch (e) {
+      console.warn('Could not parse pending appointment', e)
+    }
+  },
   computed: {
     selectedPlanData() {
+      if (this.pendingAppointment?.service) {
+        return {
+          name: this.pendingAppointment.service.title || 'Service',
+          price: this.pendingAppointment.service.costValue ?? this.pendingAppointment.service.cost?.replace?.(/[^0-9.]/g, '') ?? '0'
+        }
+      }
       return this.plans.find(p => p.id === this.selectedPlan)
     },
     taxAmount() {
       if (!this.selectedPlanData) return '0.00'
-      return (parseFloat(this.selectedPlanData.price) * 0.1).toFixed(2)
+      const price = parseFloat(this.selectedPlanData.price)
+      return this.pendingAppointment ? '0.00' : (price * 0.1).toFixed(2)
     },
     totalAmount() {
       if (!this.selectedPlanData) return '0.00'
-      return (parseFloat(this.selectedPlanData.price) + parseFloat(this.taxAmount)).toFixed(2)
+      const price = parseFloat(this.selectedPlanData.price)
+      return this.pendingAppointment ? price.toFixed(2) : (price + parseFloat(this.taxAmount)).toFixed(2)
     },
     isFormValid() {
-      return this.paymentDetails.cardNumber.length >= 16 &&
+      return this.paymentDetails.cardNumber.replace(/\s/g, '').length >= 16 &&
              this.paymentDetails.expiryDate.length === 5 &&
-             this.paymentDetails.cvv.length === 3 &&
+             this.paymentDetails.cvv.length >= 3 &&
              this.paymentDetails.cardholderName.trim() !== '' &&
              this.paymentDetails.billingAddress.trim() !== ''
     }
@@ -247,12 +278,36 @@ export default {
     },
     async processPayment() {
       this.processing = true
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      this.processing = false
-      alert('Payment successful!')
-      this.closePaymentForm()
-      // Redirect or show success message
+      try {
+        if (this.pendingAppointment) {
+          const { serviceId, service } = this.pendingAppointment
+          const amountPaid = Number(service?.costValue ?? service?.cost?.replace?.(/[^0-9.]/g, '') ?? 0)
+          if (!serviceId || amountPaid <= 0) {
+            throw new Error('Invalid appointment data')
+          }
+          const paymentResult = await makePayment(serviceId, amountPaid)
+          const paymentToken = paymentResult?.paymentToken ?? paymentResult
+          if (!paymentToken) throw new Error('Payment failed')
+          await scheduleAppointment(serviceId, paymentToken)
+          sessionStorage.removeItem('pendingAppointment')
+          if (this.$notification) {
+            this.$notification.success('Success', 'Appointment scheduled successfully!')
+          }
+          this.$router.push('/dashboard')
+        } else {
+          await new Promise(r => setTimeout(r, 1500))
+          if (this.$notification) {
+            this.$notification.success('Payment Successful', 'Your subscription has been activated.')
+          }
+        }
+        this.closePaymentForm()
+      } catch (error) {
+        if (this.$notification) {
+          this.$notification.error('Payment Failed', error.message || 'Please try again.')
+        }
+      } finally {
+        this.processing = false
+      }
     }
   }
 }
@@ -273,6 +328,22 @@ export default {
 
 .payment-subtitle {
   @apply text-lg text-gray-600 dark:text-gray-400;
+}
+
+.appointment-payment-section {
+  @apply max-w-md mx-auto mb-8;
+}
+
+.appointment-summary-card {
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 text-center;
+}
+
+.appointment-summary-card h3 {
+  @apply text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2;
+}
+
+.appointment-summary-card .service-cost {
+  @apply text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-6;
 }
 
 .payment-plans {

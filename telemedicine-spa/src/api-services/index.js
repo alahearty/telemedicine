@@ -125,5 +125,6 @@ export async function getAsync(url) {
     }
 }
 
-// Export API base URL for use in other modules
+// Export API base URL and all API functions
 export { API_BASE_URL };
+export * from '@/api';

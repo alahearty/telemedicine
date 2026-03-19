@@ -1,10 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
-// Default Component Page
 import Dashboard from '@/views/Admin/Dashboard.vue'
+import DashboardLayout from '@/Layout/DashboardLayout.vue'
 import Login from '@/views/General/Login.vue'
 import Signup from '@/views/General/Signup.vue'
 import Home from '@/views/General/Home.vue'
 import PageNotFound from '@/views/NotFound.vue'
+import HospitalManagement from '@/views/Admin/HospitalManagement.vue'
+import Account from '@/views/Admin/Account.vue'
 import DoctorFeedback from '@/views/Patient/DoctorFeedback.vue'
 import BookAppointment from '@/views/Patient/BookAppointment.vue'
 import Patient from '@/views/Patient/Patient.vue'
@@ -14,7 +16,6 @@ import Chat from '@/views/Patient/Chat.vue'
 var appname = ' - Analytics Dashboard'
 
 const routes = [
-  // Routes
   {
     path: '/',
     name: 'Home',
@@ -23,15 +24,26 @@ const routes = [
   },
   {
     path: '/dashboard',
-    name: 'Dashboard',
-    component: Dashboard,
+    component: DashboardLayout,
     meta: { title: 'Dashboard ' + appname },
     children: [
-      { path: '/update-record', component: Patient }, 
-      { path: '/book-service', component: BookAppointment },
-      { path: '/payment', component: Payment },
-      { path: '/chat', component: Chat },
-      { path: '/feedback', component: DoctorFeedback },
+      { path: '', name: 'Dashboard', component: Dashboard },
+      { path: 'account', component: Account },
+      { path: 'update-record', component: Patient }, 
+      { path: 'book-service', component: BookAppointment },
+      { path: 'payment', component: Payment },
+      { path: 'chat', component: Chat },
+      { path: 'feedback', component: DoctorFeedback },
+      { path: 'hospital', name: 'HospitalManagement', component: HospitalManagement },
+    ],
+  },
+  {
+    path: '/doctors',
+    component: DashboardLayout,
+    meta: { title: 'Physician Dashboard ' + appname },
+    children: [
+      { path: '', redirect: '/doctors/dashboard' },
+      { path: 'dashboard', name: 'PhysicianDashboard', component: Dashboard },
     ],
   },
   {
