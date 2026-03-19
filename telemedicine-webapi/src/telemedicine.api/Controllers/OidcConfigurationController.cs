@@ -1,25 +1,29 @@
-﻿using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Mvc;
 
 namespace telemedicine.api.Controllers;
 
 [ApiExplorerSettings(IgnoreApi = true)]
+[Route("_configuration")]
 public class OidcConfigurationController : Controller
 {
-    private readonly ILogger<OidcConfigurationController> logger;
+    private readonly ILogger<OidcConfigurationController> _logger;
 
-    public OidcConfigurationController(IClientRequestParametersProvider clientRequestParametersProvider, ILogger<OidcConfigurationController> _logger)
+    public OidcConfigurationController(ILogger<OidcConfigurationController> logger)
     {
-        ClientRequestParametersProvider = clientRequestParametersProvider;
-        logger = _logger;
+        _logger = logger;
     }
 
-    public IClientRequestParametersProvider ClientRequestParametersProvider { get; }
-
-    [HttpGet("_configuration/{clientId}")]
+    [HttpGet("{clientId}")]
     public IActionResult GetClientRequestParameters([FromRoute] string clientId)
     {
-        var parameters = ClientRequestParametersProvider.GetClientParameters(HttpContext, clientId);
+        // Stub for OIDC configuration - app uses JWT auth via /api/auth/login
+        var parameters = new Dictionary<string, string>
+        {
+            ["authority"] = $"{Request.Scheme}://{Request.Host}",
+            ["client_id"] = clientId,
+            ["response_type"] = "code",
+            ["scope"] = "openid profile"
+        };
         return Ok(parameters);
     }
 }

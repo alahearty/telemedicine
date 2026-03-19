@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using telemedicine.api.Services.Authorization;
+using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Application.Appointments;
+using telemedicine_webapi.Application.Appointments.Commands;
 using telemedicine_webapi.Application.Appointments.Queries;
 using telemedicine_webapi.Application.ScheduleAppointment;
 

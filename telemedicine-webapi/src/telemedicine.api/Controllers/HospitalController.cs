@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using telemedicine.api.Services.Authorization;
 using telemedicine_webapi.Application.Hospitals.Commands.CreateHospital;
 using telemedicine_webapi.Application.Hospitals.Commands.DeleteHospital;
 using telemedicine_webapi.Application.Hospitals.Commands.UpdateHospital;
+using telemedicine_webapi.Application.Common.Models;
+using telemedicine_webapi.Application.Hospitals.Queries;
 using telemedicine_webapi.Application.Hospitals.Queries.GetHospitals;
 
 namespace telemedicine.api.Controllers;

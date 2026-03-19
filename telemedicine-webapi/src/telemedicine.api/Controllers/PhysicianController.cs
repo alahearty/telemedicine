@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using telemedicine.api.Services.Authorization;
+using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Application.Physicians.Commands.CreatePhysician;
 using telemedicine_webapi.Application.Physicians.Commands.DeletePhysician;
 using telemedicine_webapi.Application.Physicians.Commands.PurgePhysician;

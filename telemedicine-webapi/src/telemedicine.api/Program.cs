@@ -139,21 +139,23 @@ var app = builder.Build();
     if (app.Environment.IsDevelopment())
     {
         app.UseDeveloperExceptionPage();
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
-        {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "TeleMedicine API V1");
-            c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
-            c.DisplayRequestDuration();
-            c.EnableDeepLinking();
-            c.EnableFilter();
-        });
     }
     else
     {
         app.UseExceptionHandler("/Error");
         app.UseHsts();
     }
+
+    // Swagger - available in all environments
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "TeleMedicine API V1");
+        c.RoutePrefix = "swagger"; // Swagger UI at /swagger
+        c.DisplayRequestDuration();
+        c.EnableDeepLinking();
+        c.EnableFilter();
+    });
 
     app.UseHttpsRedirection();
     
@@ -223,7 +225,7 @@ var app = builder.Build();
     // SignalR Hub
     app.MapHub<Application.SignalRHub.ChatHub>("/chat-hub");
     
-    //await app.SeedData();
+    await app.SeedData();
 
     app.Run();
 }

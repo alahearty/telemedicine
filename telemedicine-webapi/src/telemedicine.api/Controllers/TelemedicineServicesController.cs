@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using telemedicine.api.Services.Authorization;
+using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Application.TelemedicineServices.Commands;
 using telemedicine_webapi.Application.TelemedicineServices.Queries;
 
@@ -38,7 +39,7 @@ public class TelemedicineServicesController : ApiControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateTelemedicineServiceCommand command)
     {
-        if (id != command.Id)
+        if (id != command.id)
         {
             return BadRequest(new BaseResponse { NotSuccesful = true }.SetError("ID mismatch"));
         }
