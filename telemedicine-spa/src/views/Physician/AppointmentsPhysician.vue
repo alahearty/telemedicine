@@ -34,14 +34,13 @@
                 </span>
               </td>
               <td class="p-4">
-                <button
-                  v-if="statusLabel(apt.status) === 'Not attended'"
-                  class="text-primary-600 hover:text-primary-700 font-medium"
-                  @click="respondToAppointment(apt.id)"
-                >
-                  Respond
-                </button>
-                <span v-else class="text-slate-400 text-sm">{{ statusLabel(apt.status) }}</span>
+                <div class="flex flex-wrap items-center gap-3">
+                  <router-link :to="`/physician/appointments/${apt.id}`" class="text-primary-600 hover:text-primary-700 font-medium">Details</router-link>
+                  <template v-if="statusLabel(apt.status) === 'Pending'">
+                    <button class="text-emerald-600 hover:text-emerald-700 font-medium" @click="respond(apt.id, true)">Accept</button>
+                    <button class="text-red-600 hover:text-red-700 font-medium" @click="respond(apt.id, false)">Decline</button>
+                  </template>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -56,6 +55,7 @@
 
 <script>
 import { getPhysicianAppointments, getCurrentPhysician, respondToAppointment } from '@/api'
+import { statusClass as classForStatus, statusLabel as labelForStatus } from '@/utils/appointments'
 
 export default {
   name: 'AppointmentsPhysician',
@@ -72,21 +72,24 @@ export default {
       return s?.split('T')[0] || 'N/A'
     },
     statusLabel(status) {
-      if (typeof status === 'string') return status
-      const labels = { 0: 'Active', 1: 'Not attended', 2: 'Attended', 3: 'Cancelled' }
-      return labels[status] || 'Unknown'
+      return labelForStatus(status)
     },
     statusClass(status) {
-      const s = (status || '').toLowerCase()
-      if (s === 'attended' || s.includes('active') || s.includes('completed')) return 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400'
-      if (s.includes('not') || s.includes('unattended')) return 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400'
-      if (s.includes('cancel')) return 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400'
-      return 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+      return classForStatus(status)
     },
-    async respondToAppointment(id) {
+    async respond(id, accept) {
+      let reason = null
+      if (!accept) {
+        reason = window.prompt('Reason for declining this appointment:')
+        if (reason === null) return
+        if (!reason.trim()) {
+          if (this.$notification) this.$notification.error('Decline reason required', 'Enter a reason before declining.')
+          return
+        }
+      }
       try {
-        await respondToAppointment({ appointmentId: id })
-        if (this.$notification) this.$notification.success('Responded', 'Appointment marked as active.')
+        await respondToAppointment({ appointmentId: id, accept, reason: reason ? reason.trim() : null })
+        if (this.$notification) this.$notification.success(accept ? 'Accepted' : 'Declined', accept ? 'The appointment is now active.' : 'The appointment was declined.')
         this.load()
       } catch (e) {
         if (this.$notification) this.$notification.error('Error', e.message || 'Could not respond.')

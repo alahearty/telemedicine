@@ -27,6 +27,8 @@ public record CreatePhysicianCommand : IRequest<BaseResponse>
     public virtual string? License { get; set; }
     [Required]
     public virtual string? MedicalSpecialization { get; set; }
+    public string? Qualifications { get; set; }
+    public string? Bio { get; set; }
     public virtual AccountType AccountType { get; set; }
 }
 
@@ -45,22 +47,28 @@ public class CreatePhysicianCommandHandler : IRequestHandler<CreatePhysicianComm
 
     public async Task<BaseResponse> Handle(CreatePhysicianCommand request, CancellationToken cancellationToken)
     {
-        if (_currentUser.UserId == Guid.Empty || !string.Equals(request.Email, _currentUser.Email, StringComparison.OrdinalIgnoreCase))
+        if (_currentUser.UserId == Guid.Empty || !string.Equals(request.Email?.Trim(), _currentUser.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
             return OperationResult.NotSuccessful("The profile email must match the authenticated account");
+        if (request.Birth == default || request.Birth.Date > DateTime.UtcNow.Date)
+            return OperationResult.NotSuccessful("A valid birth date is required");
+        if (string.IsNullOrWhiteSpace(request.License) || string.IsNullOrWhiteSpace(request.MedicalSpecialization))
+            return OperationResult.NotSuccessful("Licence number and medical speciality are required");
         if (await _db.Physicians.AnyAsync(x => x.IdentityUserId == _currentUser.UserId || x.Email == _currentUser.Email || x.License == request.License, cancellationToken))
             return OperationResult.NotSuccessful("A physician profile or licence already exists");
         var entity = new Physician()
         {
             IdentityUserId = _currentUser.UserId,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
+            FirstName = request.FirstName?.Trim(),
+            LastName = request.LastName?.Trim(),
             Gender = request.Gender,
-            Email = request.Email,
-            Phone = request.Phone,
-            Birth = request.Birth,
-            Address = request.Address,
-            License = request.License,
-            MedicalSpecialization = request.MedicalSpecialization,
+            Email = _currentUser.Email!.Trim().ToLowerInvariant(),
+            Phone = request.Phone?.Trim(),
+            Birth = request.Birth.Date,
+            Address = request.Address?.Trim(),
+            License = request.License?.Trim(),
+            MedicalSpecialization = request.MedicalSpecialization?.Trim(),
+            Qualifications = request.Qualifications?.Trim(),
+            Bio = request.Bio?.Trim(),
             AccountType = AccountType.PHYSICIAN,
             Created = DateTime.UtcNow,
             CreatedBy = _currentUser.Email
@@ -68,8 +76,16 @@ public class CreatePhysicianCommandHandler : IRequestHandler<CreatePhysicianComm
 
         _context.PhysicianRepository.Add(entity);
 
-        var commitResult=await _context.SaveChangesAsync(cancellationToken);
-
-        return commitResult.WasSuccesful?OperationResult.Successful(entity.Id):OperationResult.NotSuccessful("Unable to create physician");
+        try
+        {
+            var commitResult = await _context.SaveChangesAsync(cancellationToken);
+            return commitResult.WasSuccesful
+                ? OperationResult.Successful(entity.Id)
+                : OperationResult.NotSuccessful("Unable to create physician");
+        }
+        catch (DbUpdateException)
+        {
+            return OperationResult.NotSuccessful("A physician profile or licence already exists");
+        }
     }
 }

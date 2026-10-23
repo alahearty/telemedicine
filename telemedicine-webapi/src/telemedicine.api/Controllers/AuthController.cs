@@ -26,7 +26,7 @@ public class AuthController : ControllerBase
             return BadRequest(new BaseResponse { NotSuccesful = true }.SetError("Email and password are required"));
         }
 
-        var result = await _authenticationService.Register(request.Email, request.Password, request.AccountType);
+        var result = await _authenticationService.Register(request, HttpContext.RequestAborted);
         return result.WasSuccesful ? Ok(result) : BadRequest(result);
     }
 

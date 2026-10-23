@@ -8,12 +8,15 @@ public class CurrentUserService : ICurrentUserService
 {
     public CurrentUserService(IHttpContextAccessor httpContextAccessor)
     {
-        Guid.TryParse(httpContextAccessor.HttpContext?.User?
-            .Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value, out var id);
+        var principal = httpContextAccessor.HttpContext?.User;
+        var idValue = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? principal?.FindFirst("sub")?.Value
+            ?? principal?.FindFirst("uid")?.Value;
+        Guid.TryParse(idValue, out var id);
         UserId = id;
 
-        Email = httpContextAccessor.HttpContext?.User?
-            .Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Email)?.Value!;
+        Email = principal?.FindFirst(ClaimTypes.Email)?.Value
+            ?? principal?.FindFirst("email")?.Value!;
 
         Role = httpContextAccessor.HttpContext?.User?
             .Claims.FirstOrDefault(claim => claim.Type == "Role" || claim.Type == ClaimTypes.Role)?.Value;

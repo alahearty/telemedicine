@@ -15,7 +15,7 @@
           </label>
           <input
             type="email"
-            v-model="email"
+            data-testid="login-email" v-model="email"
             placeholder="you@example.com"
             :class="['input-modern', { 'ring-2 ring-red-500 border-red-500': errors.email }]"
             @blur="validateEmail"
@@ -30,8 +30,8 @@
           <div class="relative">
             <input
               :type="showPassword ? 'text' : 'password'"
-              v-model="password"
-              placeholder="••••••••"
+              data-testid="login-password" v-model="password"
+              placeholder="Your password"
               :class="['input-modern pr-12', { 'ring-2 ring-red-500 border-red-500': errors.password }]"
               @blur="validatePassword"
             />
@@ -54,47 +54,18 @@
         </div>
       </div>
 
-      <div class="flex items-center justify-between mt-6">
-        <a href="#" class="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400">
-          Forgot password?
-        </a>
+      <div class="flex justify-end mt-6">
         <button
           type="button"
           @click="loginLocal"
           :disabled="loading"
-          class="btn-primary inline-flex items-center gap-2"
+          data-testid="login-submit" class="btn-primary inline-flex items-center gap-2"
         >
           <span v-if="loading">Signing in...</span>
           <span v-else>Sign in</span>
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
           </svg>
-        </button>
-      </div>
-
-      <div class="relative my-8">
-        <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-slate-200 dark:border-slate-600"></div>
-        </div>
-        <div class="relative flex justify-center text-sm">
-          <span class="px-4 bg-white dark:bg-slate-800 text-slate-500">Or continue with</span>
-        </div>
-      </div>
-
-      <div class="flex gap-3">
-        <button
-          type="button"
-          class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-slate-700 dark:text-slate-300"
-        >
-          <GoogleIcon class="w-5 h-5" />
-          Google
-        </button>
-        <button
-          type="button"
-          class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-slate-700 dark:text-slate-300"
-        >
-          <FacebookIcon class="w-5 h-5" />
-          Facebook
         </button>
       </div>
 
@@ -109,13 +80,11 @@
 </template>
 
 <script>
-import GoogleIcon from "@/components/icons/GoogleIcon.vue";
-import FacebookIcon from "@/components/icons/FacebookIcon.vue";
 import Layout from "@/Layout/AuthLayout.vue";
 
 export default {
   name: "Login",
-  components: { GoogleIcon, FacebookIcon, Layout },
+  components: { Layout },
   data() {
     return {
       email: "",

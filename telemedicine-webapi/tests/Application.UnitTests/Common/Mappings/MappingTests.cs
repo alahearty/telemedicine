@@ -5,6 +5,7 @@ using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Application.TodoLists.Queries.GetTodos;
 using telemedicine_webapi.Domain.Entities;
 using NUnit.Framework;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace telemedicine_webapi.Application.UnitTests.Common.Mappings;
 
@@ -15,8 +16,8 @@ public class MappingTests
 
     public MappingTests()
     {
-        _configuration = new MapperConfiguration(config => 
-            config.AddProfile<MappingProfile>());
+        _configuration = new MapperConfiguration(config =>
+            config.AddProfile<MappingProfile>(), NullLoggerFactory.Instance);
 
         _mapper = _configuration.CreateMapper();
     }

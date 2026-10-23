@@ -29,13 +29,16 @@ public class GetPatientQueryHandler : IRequestHandler<GetPatientQuery, BaseRespo
             throw new NotFoundException("Patient", request.id);
 
         var isAdministrator = string.Equals(_currentUser.Role, "Administrator", StringComparison.OrdinalIgnoreCase);
-        var isOwnPatient = string.Equals(patient.Email, _currentUser.Email, StringComparison.OrdinalIgnoreCase);
+        var isOwnPatient = (patient.IdentityUserId.HasValue && patient.IdentityUserId == _currentUser.UserId)
+            || string.Equals(patient.Email, _currentUser.Email, StringComparison.OrdinalIgnoreCase);
 
         if (!isAdministrator && !isOwnPatient)
         {
             if (string.Equals(_currentUser.Role, "Physician", StringComparison.OrdinalIgnoreCase))
             {
-                var physician = await _context.PhysicianRepository.FirstOrDefaultAsync(p => p.Email == _currentUser.Email);
+                var physician = await _context.PhysicianRepository.FirstOrDefaultAsync(p =>
+                    (_currentUser.UserId != Guid.Empty && p.IdentityUserId == _currentUser.UserId)
+                    || p.Email == _currentUser.Email);
                 var appointments = physician == null
                     ? Enumerable.Empty<Appointment>()
                     : await _context.AppointmentRepository.FindAsync(a =>

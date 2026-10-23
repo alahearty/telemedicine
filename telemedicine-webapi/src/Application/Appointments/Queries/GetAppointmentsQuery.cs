@@ -35,7 +35,9 @@ public class GetAppointmentsQueryHandler : IRequestHandler<GetAppointmentsQuery,
             .Include(appointment => appointment.Patient)
             .Include(appointment => appointment.Physician)
             .Include(appointment => appointment.TelemedicineService)
-            .Where(appointment => appointment.Status == ScheduleStatus.NotAttended);
+            .Where(appointment =>
+                appointment.Status == ScheduleStatus.Pending
+                || appointment.Status == ScheduleStatus.NotAttended);
 
         if (AppointmentAccess.IsPhysician(_currentUser))
         {
@@ -49,7 +51,7 @@ public class GetAppointmentsQueryHandler : IRequestHandler<GetAppointmentsQuery,
         }
 
         var appointments = await query
-            .OrderByDescending(appointment => appointment.Id)
+            .OrderBy(appointment => appointment.AppointmentDate)
             .ToListAsync(cancellationToken);
 
         var appointmentDtos = _mapper.Map<List<AppointmentDto>>(appointments);

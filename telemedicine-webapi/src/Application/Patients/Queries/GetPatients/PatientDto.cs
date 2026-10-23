@@ -15,6 +15,8 @@ public class PatientDto:IMapFrom<Patient>
     public DateTime Birth { get; set; }
     public string? Phone { get; set; }
     public string? Address { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactPhone { get; set; }
 
     public void Mapping(Profile profile)
     {

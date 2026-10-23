@@ -1,353 +1,261 @@
 <template>
-  <div class="appointment-container">
-    <div class="appointment-header">
-      <h1 class="appointment-title">Book Your Appointment</h1>
-      <p class="appointment-subtitle">Select a service and choose your preferred date and time</p>
+  <div class="max-w-6xl mx-auto p-6">
+    <div class="text-center mb-8">
+      <h1 class="font-display text-3xl font-bold text-slate-800 dark:text-slate-100">Book an appointment</h1>
+      <p class="text-slate-600 dark:text-slate-400 mt-2">
+        Choose a real service, physician and available slot. Times are displayed in your local time zone.
+      </p>
     </div>
 
-    <div class="appointment-content">
-      <!-- Service Selection -->
-      <div class="services-section">
-        <h2 class="section-title">Select a Service</h2>
-        <div v-if="servicesLoading" class="flex items-center justify-center gap-3 py-12">
-          <div class="animate-spin rounded-full h-10 w-10 border-2 border-primary-500 border-t-transparent"></div>
-          <span class="text-slate-500 dark:text-slate-400">Loading services...</span>
+    <div v-if="profileError" class="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+      {{ profileError }}
+      <router-link to="/dashboard/update-record" class="font-semibold underline ml-1">Complete your profile</router-link>
+    </div>
+
+    <div class="space-y-8">
+      <section class="card-modern p-6">
+        <h2 class="font-display text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4">1. Select a service</h2>
+        <div v-if="loadingServices" class="flex items-center gap-3 text-slate-500">
+          <div class="animate-spin rounded-full h-6 w-6 border-2 border-primary-500 border-t-transparent"></div>
+          <span>Loading services...</span>
         </div>
-        <div v-else class="services-grid">
-          <div
+        <div v-else-if="!services.length" class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+          No telemedicine services are available. Please contact an administrator.
+        </div>
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <button
             v-for="service in services"
             :key="service.id"
-            :class="['service-card', { 'service-selected': selected === service.id }]"
-            @click="handleClick(service.id)"
+            data-testid="service-card" type="button" class="text-left rounded-2xl border p-5 transition-all"
+            :class="selectedService?.id === service.id
+              ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-200 dark:bg-primary-900/20 dark:ring-primary-800'
+              : 'border-slate-200 bg-white hover:border-primary-300 dark:border-slate-700 dark:bg-slate-800'"
+            @click="selectedService = service"
           >
-            <div class="service-icon">
-              <component :is="iconComponent(service.icon)" />
+            <div class="flex items-start justify-between gap-3">
+              <div class="w-11 h-11 rounded-xl bg-primary-100 text-primary-600 flex items-center justify-center dark:bg-primary-900/40 dark:text-primary-300">
+                <Icon :icon="serviceIcon(service.serviceName)" class="text-xl" />
+              </div>
+              <span class="text-lg font-bold text-primary-600 dark:text-primary-300">${{ Number(service.cost).toFixed(2) }}</span>
             </div>
-            <h3 class="service-title">{{ service.title }}</h3>
-            <p class="service-description">{{ service.description }}</p>
-            <div class="service-footer">
-              <span class="service-cost">{{ service.cost }}</span>
-              <span :class="['service-badge', { 'service-badge-selected': selected === service.id }]">
-                {{ selected === service.id ? 'Selected' : 'Select' }}
-              </span>
-            </div>
-          </div>
+            <h3 class="font-semibold text-slate-800 dark:text-slate-100 mt-4">{{ service.serviceName }}</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ service.description }}</p>
+          </button>
         </div>
-      </div>
+      </section>
 
-      <!-- Date and Time Selection -->
-      <div v-if="selected" class="datetime-section">
-        <h2 class="section-title">Choose Date & Time</h2>
-        <div class="datetime-selector">
-          <div class="date-selector">
-            <label class="selector-label">Select Date</label>
-            <input 
-              type="date" 
-              v-model="selectedDate"
-              :min="minDate"
-              class="date-input"
-            />
-          </div>
-          <div class="time-selector">
-            <label class="selector-label">Select Time</label>
-            <select v-model="selectedTime" class="time-select">
-              <option value="">Choose time</option>
-              <option v-for="time in availableTimes" :key="time" :value="time">
-                {{ time }}
-              </option>
-            </select>
-          </div>
+      <section v-if="selectedService" class="card-modern p-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <h2 class="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">2. Select a physician</h2>
+          <input v-model="doctorSearch" type="search" class="input-modern max-w-xs" placeholder="Search name or speciality" />
         </div>
-      </div>
-
-      <!-- Doctor Selection -->
-      <div v-if="selected && selectedDate && selectedTime && selectedDoctor === null" class="doctor-section">
-        <h2 class="section-title">Select a Doctor</h2>
-        <div class="doctors-grid">
-          <div
-            v-for="doctor in availableDoctors"
+        <div v-if="loadingDoctors" class="flex items-center gap-3 text-slate-500">
+          <div class="animate-spin rounded-full h-6 w-6 border-2 border-primary-500 border-t-transparent"></div>
+          <span>Loading physicians...</span>
+        </div>
+        <div v-else-if="!filteredDoctors.length" class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800/50">
+          No physicians match your search.
+        </div>
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button
+            v-for="doctor in filteredDoctors"
             :key="doctor.id"
-            :class="['doctor-card', { 'doctor-selected': selectedDoctor === doctor.id }]"
-            @click="selectDoctor(doctor.id)"
+            data-testid="service-card" type="button" class="text-left rounded-2xl border p-5 transition-all"
+            :class="selectedDoctor?.id === doctor.id
+              ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-200 dark:bg-primary-900/20 dark:ring-primary-800'
+              : 'border-slate-200 bg-white hover:border-primary-300 dark:border-slate-700 dark:bg-slate-800'"
+            @click="chooseDoctor(doctor)"
           >
-            <img :src="doctor.avatar" :alt="doctor.name" class="doctor-avatar" />
-            <div class="doctor-info">
-              <h3 class="doctor-name">{{ doctor.name }}</h3>
-              <p class="doctor-specialty">{{ doctor.specialty }}</p>
-              <div class="doctor-rating">
-                <span class="rating-stars">★★★★★</span>
-                <span class="rating-value">{{ doctor.rating }}</span>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold dark:bg-primary-900/40 dark:text-primary-300">
+                {{ initials(doctor) }}
+              </div>
+              <div class="min-w-0">
+                <h3 class="font-semibold text-slate-800 dark:text-slate-100">Dr. {{ doctor.firstName }} {{ doctor.lastName }}</h3>
+                <p class="text-sm text-primary-600 dark:text-primary-300">{{ doctor.medicalSpecialization || 'General Practice' }}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ doctor.bio || doctor.qualifications || 'Licensed telemedicine physician' }}</p>
               </div>
             </div>
-          </div>
+          </button>
         </div>
-      </div>
-    </div>
+      </section>
 
-      <!-- Action Buttons -->
-      <div class="appointment-actions">
-        <button 
-          :disabled="!selected || !selectedDate || !selectedTime || loading"
-          class="continue-btn"
-          :class="{ 'continue-btn-active': canContinue && !loading }"
-          @click="confirmAppointment"
+      <section v-if="selectedDoctor" class="card-modern p-6">
+        <h2 class="font-display text-xl font-semibold text-slate-800 dark:text-slate-100 mb-1">3. Choose a slot</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+          Dr. {{ selectedDoctor.firstName }} {{ selectedDoctor.lastName }} · {{ selectedDoctor.medicalSpecialization }}
+        </p>
+        <SlotPicker
+          :physician-id="selectedDoctor.id"
+          :from-utc="slotFrom"
+          :to-utc="slotTo"
+          :selected-start="selectedSlot?.start || ''"
+          @select="selectedSlot = $event"
+        />
+        <div v-if="selectedSlot" class="mt-5 rounded-xl bg-primary-50 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800 p-4 text-sm text-primary-800 dark:text-primary-200">
+          Selected: <strong>{{ formatSlot(selectedSlot.start) }}</strong> — {{ selectedSlot.durationMinutes }} minutes
+        </div>
+      </section>
+
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          The payment step is a clearly labelled sandbox. No card data is collected.
+        </p>
+        <button
+          type="button"
+          data-testid="continue-to-payment" class="btn-primary px-8 py-3"
+          :disabled="!canContinue || loading"
+          @click="continueToPayment"
         >
-          <span v-if="loading">Processing...</span>
-          <span v-else-if="!canContinue">Complete Selection</span>
-          <span v-else>Continue to Payment</span>
-          <svg v-if="!loading" class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
+          {{ loading ? 'Preparing...' : 'Continue to payment' }}
         </button>
       </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { getTelemedicineServices, getPhysicians } from '@/api'
-import EyeIcon from '@/components/icons/EyeIcon.vue'
-import BrainIcon from '@/components/icons/BrainIcon.vue'
-import CardiacIcon from '@/components/icons/CardiacIcon.vue'
-import EarIcon from '@/components/icons/EarIcon.vue'
-import OsteoporosisiIcon from '@/components/icons/OsteoporosisiIcon.vue'
-import BagIcon from '@/components/icons/BagIcon.vue'
-
-const iconMap = {
-  'EyeIcon': EyeIcon,
-  'BrainIcon': BrainIcon,
-  'CardiacIcon': CardiacIcon,
-  'EarIcon': EarIcon,
-  'OsteoporosisiIcon': OsteoporosisiIcon,
-  'BagIcon': BagIcon
-}
+import { Icon } from '@iconify/vue'
+import SlotPicker from '@/components/appointments/SlotPicker.vue'
+import { getTelemedicineServices, getPhysicians, getCurrentPatient } from '@/api'
 
 export default {
   name: 'BookAppointment',
-  components: {
-    EyeIcon,
-    BrainIcon,
-    CardiacIcon,
-    EarIcon,
-    OsteoporosisiIcon,
-    BagIcon
-  },
+  components: { Icon, SlotPicker },
   data() {
     return {
-      selected: null,
-      selectedDate: '',
-      selectedTime: '',
-      selectedDoctor: null,
       services: [],
-      servicesLoading: false,
+      doctors: [],
+      loadingServices: false,
+      loadingDoctors: false,
       loading: false,
-      availableTimes: [
-        '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
-        '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM',
-        '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM',
-        '04:00 PM', '04:30 PM', '05:00 PM'
-      ],
-      availableDoctors: []
+      profileError: '',
+      doctorSearch: '',
+      selectedService: null,
+      selectedDoctor: null,
+      selectedSlot: null,
     }
   },
   computed: {
-    minDate() {
-      const tomorrow = new Date()
-      tomorrow.setDate(tomorrow.getDate() + 1)
-      return tomorrow.toISOString().split('T')[0]
+    filteredDoctors() {
+      const term = this.doctorSearch.trim().toLowerCase()
+      if (!term) return this.doctors
+      return this.doctors.filter(d =>
+        `${d.firstName} ${d.lastName}`.toLowerCase().includes(term)
+        || (d.medicalSpecialization || '').toLowerCase().includes(term)
+        || (d.bio || '').toLowerCase().includes(term)
+      )
+    },
+    slotFrom() {
+      return new Date().toISOString()
+    },
+    slotTo() {
+      return new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString()
     },
     canContinue() {
-      return this.selected && this.selectedDate && this.selectedTime
-    }
+      return Boolean(this.selectedService && this.selectedDoctor && this.selectedSlot)
+    },
   },
   methods: {
-    async fetchServices() {
-      this.servicesLoading = true
-      const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), ms))
-      try {
-        const response = await Promise.race([
-          getTelemedicineServices(),
-          timeout(4000)
-        ])
-        const list = Array.isArray(response) ? response : (response?.data ?? [])
-        this.services = (list.length ? list : []).map(service => ({
-          id: service.id,
-          title: service.serviceName || service.name || 'Service',
-          cost: `$${service.cost ?? 0}`,
-          costValue: Number(service.cost) || 0,
-          description: service.description || 'Telemedicine service',
-          icon: this.mapServiceToIcon(service.serviceName || service.name || '')
-        }))
-        if (!this.services.length) throw new Error('No services')
-      } catch (error) {
-        console.warn('Services fetch failed, using defaults:', error?.message)
-        this.services = [
-          { id: 1, title: 'Eye Care', cost: '$200', description: 'Comprehensive eye examination and vision care services.', icon: 'EyeIcon' },
-          { id: 2, title: 'Neurology', cost: '$200', description: 'Expert neurological consultation and treatment.', icon: 'BrainIcon' },
-          { id: 3, title: 'Cardiac Care', cost: '$300', description: 'Heart health assessment and cardiovascular care.', icon: 'CardiacIcon' },
-        ]
-        if (this.$notification) this.$notification.warning('Using default services', 'Could not load from server. Ensure the API is running.')
-      } finally {
-        this.servicesLoading = false
+    initials(doctor) {
+      return `${(doctor.firstName || '?')[0]}${(doctor.lastName || '?')[0]}`.toUpperCase()
+    },
+    serviceIcon(name) {
+      const value = (name || '').toLowerCase()
+      if (value.includes('cardio') || value.includes('heart')) return 'bxs:heart'
+      if (value.includes('paed') || value.includes('child')) return 'bxs:baby-carriage'
+      if (value.includes('skin') || value.includes('derm')) return 'bxs:bandage'
+      return 'bxs:stethoscope'
+    },
+    formatSlot(value) {
+      return new Date(value).toLocaleString(undefined, {
+        weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+      })
+    },
+    chooseDoctor(doctor) {
+      this.selectedDoctor = doctor
+      this.selectedSlot = null
+      const preferred = this.preferredSlot()
+      if (preferred && Number(preferred.physicianId) === doctor.id && preferred.slot?.start) {
+        this.selectedSlot = preferred.slot
       }
     },
-    async fetchDoctors() {
+    preferredSlot() {
+      try {
+        const stored = sessionStorage.getItem('preferredSlot')
+        if (!stored) return null
+        sessionStorage.removeItem('preferredSlot')
+        return JSON.parse(stored)
+      } catch (e) {
+        return null
+      }
+    },
+    async loadProfile() {
+      try {
+        await getCurrentPatient()
+      } catch (e) {
+        this.profileError = e.message || 'A patient profile is required before booking.'
+      }
+    },
+    async loadServices() {
+      this.loadingServices = true
+      try {
+        const data = await getTelemedicineServices()
+        this.services = (Array.isArray(data) ? data : []).map(s => ({ ...s, cost: Number(s.cost) || 0 }))
+      } catch (e) {
+        if (this.$notification) this.$notification.error('Services', e.message || 'Could not load services.')
+      } finally {
+        this.loadingServices = false
+      }
+    },
+    async loadDoctors() {
+      this.loadingDoctors = true
       try {
         const data = await getPhysicians()
-        const list = Array.isArray(data) ? data : (data?.data ?? [])
-        this.availableDoctors = list.map((p, i) => ({
-          id: p.id,
-          name: `Dr. ${p.firstName || ''} ${p.lastName || ''}`.trim() || 'Physician',
-          specialty: p.medicalSpecialization || p.specialty || 'General Practice',
-          rating: 4.5,
-          avatar: ['https://cdn.pixabay.com/photo/2016/11/29/13/14/attractive-1869761__340.jpg', 'https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg', 'https://cdn.pixabay.com/photo/2018/01/15/07/51/woman-3083383__340.jpg'][i % 3]
-        }))
-        if (!this.availableDoctors.length) {
-          this.availableDoctors = [
-            { id: 1, name: 'Dr. Sarah Johnson', specialty: 'Cardiologist', rating: 4.8, avatar: 'https://cdn.pixabay.com/photo/2016/11/29/13/14/attractive-1869761__340.jpg' },
-            { id: 2, name: 'Dr. Michael Chen', specialty: 'Neurologist', rating: 4.9, avatar: 'https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg' },
-            { id: 3, name: 'Dr. Emily Watson', specialty: 'Ophthalmologist', rating: 4.7, avatar: 'https://cdn.pixabay.com/photo/2018/01/15/07/51/woman-3083383__340.jpg' }
-          ]
+        this.doctors = Array.isArray(data) ? data : (data?.data ?? [])
+        const prefill = Number(this.$route.query.physicianId)
+        if (prefill) {
+          const match = this.doctors.find(d => d.id === prefill)
+          if (match) {
+            const preferred = this.preferredSlot()
+            this.selectedDoctor = match
+            if (preferred && Number(preferred.physicianId) === match.id && preferred.slot?.start) {
+              this.selectedSlot = preferred.slot
+            }
+          }
         }
       } catch (e) {
-        this.availableDoctors = [
-          { id: 1, name: 'Dr. Sarah Johnson', specialty: 'Cardiologist', rating: 4.8, avatar: 'https://cdn.pixabay.com/photo/2016/11/29/13/14/attractive-1869761__340.jpg' },
-          { id: 2, name: 'Dr. Michael Chen', specialty: 'Neurologist', rating: 4.9, avatar: 'https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg' },
-          { id: 3, name: 'Dr. Emily Watson', specialty: 'Ophthalmologist', rating: 4.7, avatar: 'https://cdn.pixabay.com/photo/2018/01/15/07/51/woman-3083383__340.jpg' }
-        ]
+        if (this.$notification) this.$notification.error('Physicians', e.message || 'Could not load physicians.')
+      } finally {
+        this.loadingDoctors = false
       }
     },
-    iconComponent(iconName) {
-      return iconMap[iconName] || BagIcon
-    },
-    mapServiceToIcon(serviceName) {
-      const name = serviceName.toLowerCase()
-      if (name.includes('eye') || name.includes('vision')) return 'EyeIcon'
-      if (name.includes('brain') || name.includes('neuro')) return 'BrainIcon'
-      if (name.includes('heart') || name.includes('cardiac')) return 'CardiacIcon'
-      if (name.includes('ear') || name.includes('ent')) return 'EarIcon'
-      if (name.includes('physio') || name.includes('therapy')) return 'OsteoporosisiIcon'
-      if (name.includes('dental') || name.includes('tooth')) return 'BagIcon'
-      return 'BagIcon'
-    },
-    handleClick(id) {
-      if (this.selected === id) {
-        this.selected = null
-        this.selectedDate = ''
-        this.selectedTime = ''
-        this.selectedDoctor = null
-      } else {
-        this.selected = id
-      }
-    },
-    selectDoctor(doctorId) {
-      this.selectedDoctor = doctorId
-    },
-    async confirmAppointment() {
+    continueToPayment() {
       if (!this.canContinue) return
       this.loading = true
       try {
-        const appointmentData = {
-          serviceId: this.selected,
-          selectedDate: this.selectedDate,
-          selectedTime: this.selectedTime,
-          selectedDoctor: this.selectedDoctor,
-          service: this.services.find(s => s.id === this.selected)
-        }
-        sessionStorage.setItem('pendingAppointment', JSON.stringify(appointmentData))
+        sessionStorage.setItem('pendingAppointment', JSON.stringify({
+          serviceId: this.selectedService.id,
+          serviceName: this.selectedService.serviceName,
+          serviceDescription: this.selectedService.description,
+          costValue: this.selectedService.cost,
+          physicianId: this.selectedDoctor.id,
+          physicianName: `Dr. ${this.selectedDoctor.firstName} ${this.selectedDoctor.lastName}`,
+          physicianSpecialization: this.selectedDoctor.medicalSpecialization,
+          startUtc: this.selectedSlot.start,
+          endUtc: this.selectedSlot.end,
+          durationMinutes: this.selectedSlot.durationMinutes,
+        }))
         this.$router.push('/dashboard/payment')
-      } catch (error) {
-        console.error('Error confirming appointment:', error)
-        if (this.$notification) {
-          this.$notification.error('Error', 'Failed to process appointment. Please try again.')
-        }
       } finally {
         this.loading = false
       }
-    }
+    },
   },
-  async mounted() {
-    await this.fetchServices()
-    await this.fetchDoctors()
-  }
+  mounted() {
+    this.loadProfile()
+    this.loadServices()
+    this.loadDoctors()
+  },
 }
 </script>
-
-<style scoped>
-.appointment-container {
-  @apply max-w-5xl mx-auto p-6 bg-slate-50 dark:bg-slate-900 min-h-screen;
-}
-
-.appointment-header {
-  @apply text-center mb-10;
-}
-
-.appointment-title {
-  @apply font-display text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2;
-}
-
-.appointment-subtitle {
-  @apply text-slate-600 dark:text-slate-400;
-}
-
-.appointment-content {
-  @apply space-y-8;
-}
-
-.services-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
-}
-
-.datetime-section,
-.doctor-section {
-  @apply bg-white dark:bg-slate-800 rounded-2xl shadow-soft border border-slate-100 dark:border-slate-700/50 p-6;
-}
-
-.datetime-selector {
-  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
-}
-
-.appointment-actions {
-  @apply mt-8 flex justify-center;
-}
-
-.continue-btn {
-  @apply px-8 py-3 rounded-xl font-semibold transition-all disabled:cursor-not-allowed flex items-center bg-slate-200 dark:bg-slate-700 text-slate-500;
-}
-
-.section-title {
-  @apply font-display text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4;
-}
-
-.service-card {
-  @apply bg-white dark:bg-slate-800 rounded-2xl shadow-soft border border-slate-100 dark:border-slate-700/50 p-6 cursor-pointer border-2 border-transparent transition-all duration-300 hover:shadow-soft-lg;
-}
-
-.service-card.service-selected {
-  @apply border-primary-500 bg-primary-50 dark:bg-primary-900/20 ring-2 ring-primary-200 dark:ring-primary-800;
-}
-
-.service-icon {
-  @apply w-14 h-14 bg-primary-100 dark:bg-primary-900/40 rounded-2xl flex items-center justify-center mb-4 text-primary-600 dark:text-primary-400;
-}
-
-.service-cost {
-  @apply text-xl font-bold text-primary-600 dark:text-primary-400;
-}
-
-.service-badge-selected {
-  @apply bg-primary-500 text-white;
-}
-
-.date-input,
-.time-select {
-  @apply w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500;
-}
-
-.doctor-card.doctor-selected {
-  @apply border-primary-500 bg-primary-50 dark:bg-primary-900/20;
-}
-
-.continue-btn-active {
-  @apply px-6 py-2.5 rounded-xl font-semibold text-white bg-primary-500 hover:bg-primary-600 transition-all duration-200;
-}
-</style>

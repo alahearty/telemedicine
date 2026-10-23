@@ -8,6 +8,11 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Application.SignalRHub;
 
 var builder = WebApplication.CreateBuilder(args);
+// Console logging is portable across local, CI and container hosts. The Windows
+// EventLog provider requires machine-level permissions and prevented the E2E host
+// from starting under a least-privilege account.
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 {
     // Add services to the container.
 
@@ -75,7 +80,10 @@ var builder = WebApplication.CreateBuilder(args);
         {
             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.JsonSerializerOptions.WriteIndented = true;
+            options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
         });
+
+    builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, AppUserIdProvider>();
 
     // Health Checks
     builder.Services.AddHealthChecks()

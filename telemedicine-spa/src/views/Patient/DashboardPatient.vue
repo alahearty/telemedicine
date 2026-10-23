@@ -62,28 +62,28 @@
       </router-link>
 
       <router-link
-        to="/dashboard/chat"
+        to="/dashboard/doctors"
         class="card-modern p-6 flex items-center gap-4 hover:shadow-lg transition-shadow border-2 border-transparent hover:border-primary-200 dark:hover:border-primary-800 group"
       >
         <div class="w-14 h-14 rounded-2xl bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center text-violet-600 dark:text-violet-400 group-hover:scale-105 transition-transform">
-          <Icon icon="bxs:message-dots" class="text-2xl" />
+          <Icon icon="bxs:user-account" class="text-2xl" />
         </div>
         <div>
-          <h3 class="font-semibold text-slate-800 dark:text-slate-100">Chat Session</h3>
-          <p class="text-sm text-slate-500 dark:text-slate-400">Talk to your doctor</p>
+          <h3 class="font-semibold text-slate-800 dark:text-slate-100">Find a Doctor</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Browse doctors and availability</p>
         </div>
       </router-link>
 
       <router-link
-        to="/dashboard/feedback"
+        to="/dashboard/appointments"
         class="card-modern p-6 flex items-center gap-4 hover:shadow-lg transition-shadow border-2 border-transparent hover:border-primary-200 dark:hover:border-primary-800 group"
       >
         <div class="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform">
-          <Icon icon="bxs:star" class="text-2xl" />
+          <Icon icon="bxs:calendar-check" class="text-2xl" />
         </div>
         <div>
-          <h3 class="font-semibold text-slate-800 dark:text-slate-100">Doctor Feedback</h3>
-          <p class="text-sm text-slate-500 dark:text-slate-400">Share your experience</p>
+          <h3 class="font-semibold text-slate-800 dark:text-slate-100">My Appointments</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">History, reschedule and cancel</p>
         </div>
       </router-link>
     </div>
@@ -105,9 +105,8 @@
               <p class="text-sm text-slate-500 dark:text-slate-400">{{ apt.date }} at {{ apt.time }}</p>
             </div>
             <div class="flex items-center gap-3">
-              <span class="px-3 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400">
-                {{ apt.status }}
-              </span>
+              <span class="px-3 py-1 rounded-full text-xs font-medium" :class="statusClass(apt.rawStatus)">{{ apt.status }}</span>
+              <router-link :to="`/dashboard/appointments/${apt.id}`" class="text-xs text-primary-600 hover:text-primary-700 font-medium">Details</router-link>
               <button class="text-xs text-red-600 hover:text-red-700 font-medium" @click="cancel(apt)">Cancel</button>
             </div>
           </div>
@@ -127,18 +126,18 @@
         </h2>
         <div class="space-y-3">
           <router-link
-            to="/dashboard/payment"
+            to="/dashboard/appointments"
             class="flex items-center gap-3 p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
           >
-            <Icon icon="bxs:credit-card" class="text-xl text-primary-500" />
-            <span class="font-medium text-slate-700 dark:text-slate-300">Proceed to Payment</span>
+            <Icon icon="bxs:calendar-check" class="text-xl text-primary-500" />
+            <span class="font-medium text-slate-700 dark:text-slate-300">Manage appointments</span>
           </router-link>
           <router-link
-            to="/dashboard/hospital"
+            to="/dashboard/doctors"
             class="flex items-center gap-3 p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
           >
-            <Icon icon="bxs:building" class="text-xl text-primary-500" />
-            <span class="font-medium text-slate-700 dark:text-slate-300">Find Hospitals</span>
+            <Icon icon="bxs:user-account" class="text-xl text-primary-500" />
+            <span class="font-medium text-slate-700 dark:text-slate-300">Find doctors</span>
           </router-link>
           <router-link
             to="/dashboard/account"
@@ -156,6 +155,7 @@
 <script>
 import { Icon } from '@iconify/vue'
 import { getPatientAppointments, getCurrentPatient, cancelAppointment } from '@/api'
+import { isUpcoming, statusClass, statusLabel as labelForStatus } from '@/utils/appointments'
 
 export default {
   name: 'DashboardPatient',
@@ -163,11 +163,10 @@ export default {
   data() {
     return {
       processSteps: [
+        { label: 'Find a Doctor', url: '/dashboard/doctors' },
+        { label: 'Book Appointment', url: '/dashboard/book-service' },
+        { label: 'My Appointments', url: '/dashboard/appointments' },
         { label: 'Update Record', url: '/dashboard/update-record' },
-        { label: 'Book Service', url: '/dashboard/book-service' },
-        { label: 'Payment', url: '/dashboard/payment' },
-        { label: 'Chat Session', url: '/dashboard/chat' },
-        { label: 'Doctor Feedback', url: '/dashboard/feedback' },
       ],
       upcomingAppointments: [],
       userProfile: null,
@@ -186,10 +185,9 @@ export default {
   },
   methods: {
     statusLabel(status) {
-      if (typeof status === 'string') return status
-      const labels = { 0: 'Active', 1: 'Not attended', 2: 'Attended', 3: 'Cancelled' }
-      return labels[status] || 'Unknown'
+      return labelForStatus(status)
     },
+    statusClass,
     async cancel(appointment) {
       if (!window.confirm('Cancel this appointment?')) return
       try {
@@ -217,10 +215,7 @@ export default {
           const data = await getPatientAppointments(patientId)
           const list = Array.isArray(data) ? data : (data?.data ?? [])
           this.upcomingAppointments = list
-            .filter(a => {
-              const status = this.statusLabel(a.status)
-              return status !== 'Cancelled' && status !== 'Attended'
-            })
+            .filter(a => isUpcoming(a.status))
             .slice(0, 5)
             .map(a => {
               const when = a.appointmentDate || a.scheduleStartTime
@@ -230,6 +225,7 @@ export default {
                 date: when ? new Date(when).toLocaleDateString() : 'TBD',
                 time: when ? new Date(when).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'TBD',
                 status: this.statusLabel(a.status),
+                rawStatus: a.status,
               }
             })
         }

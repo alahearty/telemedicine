@@ -19,7 +19,9 @@ public class GetCurrentPhysicianQueryHandler : IRequestHandler<GetCurrentPhysici
 
     public async Task<BaseResponse> Handle(GetCurrentPhysicianQuery request, CancellationToken cancellationToken)
     {
-        var physicians = await _context.PhysicianRepository.FindAsync(p => p.Email == _currentUser.Email);
+        var physicians = await _context.PhysicianRepository.FindAsync(p =>
+            (_currentUser.UserId != Guid.Empty && p.IdentityUserId == _currentUser.UserId)
+            || p.Email == _currentUser.Email);
         var physician = physicians.FirstOrDefault();
         if (physician == null)
             return OperationResult.NotSuccessful("Physician record not found.");
@@ -36,6 +38,8 @@ public class GetCurrentPhysicianQueryHandler : IRequestHandler<GetCurrentPhysici
             Address = physician.Address,
             License = physician.License,
             MedicalSpecialization = physician.MedicalSpecialization,
+            Qualifications = physician.Qualifications,
+            Bio = physician.Bio,
             Avatar = physician.Avatar,
         };
         return OperationResult.Successful(dto);

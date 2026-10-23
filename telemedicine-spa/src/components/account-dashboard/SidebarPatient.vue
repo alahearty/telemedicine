@@ -26,6 +26,14 @@
           <span class="nav-icon"><Icon icon="bxs:calendar" /></span>
           <span>Book Appointment</span>
         </router-link>
+        <router-link to="/dashboard/appointments" class="nav-item">
+          <span class="nav-icon"><Icon icon="bxs:calendar-check" /></span>
+          <span>My Appointments</span>
+        </router-link>
+        <router-link to="/dashboard/doctors" class="nav-item">
+          <span class="nav-icon"><Icon icon="bxs:user-account" /></span>
+          <span>Find a Doctor</span>
+        </router-link>
         <router-link to="/dashboard/update-record" exact class="nav-item">
           <span class="nav-icon"><Icon icon="bxs:user-detail" /></span>
           <span>Update Record</span>
@@ -33,18 +41,6 @@
         <router-link to="/dashboard/payment" exact class="nav-item">
           <span class="nav-icon"><Icon icon="bxs:credit-card" /></span>
           <span>Payment</span>
-        </router-link>
-        <router-link to="/dashboard/chat" exact class="nav-item">
-          <span class="nav-icon"><Icon icon="bxs:message-dots" /></span>
-          <span>Chat</span>
-        </router-link>
-        <router-link to="/dashboard/feedback" exact class="nav-item">
-          <span class="nav-icon"><Icon icon="bxs:star" /></span>
-          <span>Feedback</span>
-        </router-link>
-        <router-link to="/dashboard/hospital" exact class="nav-item">
-          <span class="nav-icon"><Icon icon="bxs:building" /></span>
-          <span>Hospitals</span>
         </router-link>
       </div>
     </div>

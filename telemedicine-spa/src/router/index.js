@@ -1,23 +1,28 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Dashboard from '@/views/Admin/Dashboard.vue'
-import DashboardLayout from '@/Layout/DashboardLayout.vue'
-import PhysicianDashboardLayout from '@/Layout/PhysicianDashboardLayout.vue'
-import Login from '@/views/General/Login.vue'
-import Signup from '@/views/General/Signup.vue'
-import Home from '@/views/General/Home.vue'
-import PageNotFound from '@/views/NotFound.vue'
-import HospitalManagement from '@/views/Admin/HospitalManagement.vue'
-import Account from '@/views/Admin/Account.vue'
-import DoctorFeedback from '@/views/Patient/DoctorFeedback.vue'
-import BookAppointment from '@/views/Patient/BookAppointment.vue'
-import Patient from '@/views/Patient/Patient.vue'
-import Payment from '@/views/Patient/Payment.vue'
-import Chat from '@/views/Patient/Chat.vue'
-import DashboardPhysician from '@/views/Physician/DashboardPhysician.vue'
-import AppointmentsPhysician from '@/views/Physician/AppointmentsPhysician.vue'
-import PatientsPhysician from '@/views/Physician/PatientsPhysician.vue'
-import ProfilePhysician from '@/views/Physician/ProfilePhysician.vue'
-import UnattendedPhysician from '@/views/Physician/UnattendedPhysician.vue'
+const Home = () => import(/* webpackChunkName: "public" */ '@/views/General/Home.vue')
+const Login = () => import(/* webpackChunkName: "auth" */ '@/views/General/Login.vue')
+const Signup = () => import(/* webpackChunkName: "auth" */ '@/views/General/Signup.vue')
+const PageNotFound = () => import(/* webpackChunkName: "public" */ '@/views/NotFound.vue')
+const DashboardLayout = () => import(/* webpackChunkName: "patient" */ '@/Layout/DashboardLayout.vue')
+const PhysicianDashboardLayout = () => import(/* webpackChunkName: "physician" */ '@/Layout/PhysicianDashboardLayout.vue')
+const Dashboard = () => import(/* webpackChunkName: "admin" */ '@/views/Admin/Dashboard.vue')
+const HospitalManagement = () => import(/* webpackChunkName: "admin" */ '@/views/Admin/HospitalManagement.vue')
+const Account = () => import(/* webpackChunkName: "admin" */ '@/views/Admin/Account.vue')
+const DoctorFeedback = () => import(/* webpackChunkName: "patient" */ '@/views/Patient/DoctorFeedback.vue')
+const BookAppointment = () => import(/* webpackChunkName: "patient-booking" */ '@/views/Patient/BookAppointment.vue')
+const Patient = () => import(/* webpackChunkName: "patient" */ '@/views/Patient/Patient.vue')
+const Payment = () => import(/* webpackChunkName: "patient-booking" */ '@/views/Patient/Payment.vue')
+const Chat = () => import(/* webpackChunkName: "chat" */ '@/views/Patient/Chat.vue')
+const DashboardPhysician = () => import(/* webpackChunkName: "physician" */ '@/views/Physician/DashboardPhysician.vue')
+const AppointmentsPhysician = () => import(/* webpackChunkName: "physician" */ '@/views/Physician/AppointmentsPhysician.vue')
+const PatientsPhysician = () => import(/* webpackChunkName: "physician" */ '@/views/Physician/PatientsPhysician.vue')
+const ProfilePhysician = () => import(/* webpackChunkName: "physician" */ '@/views/Physician/ProfilePhysician.vue')
+const UnattendedPhysician = () => import(/* webpackChunkName: "physician" */ '@/views/Physician/UnattendedPhysician.vue')
+const AvailabilityPhysician = () => import(/* webpackChunkName: "physician" */ '@/views/Physician/AvailabilityPhysician.vue')
+const DoctorDirectory = () => import(/* webpackChunkName: "patient" */ '@/views/Patient/DoctorDirectory.vue')
+const DoctorProfile = () => import(/* webpackChunkName: "patient" */ '@/views/Patient/DoctorProfile.vue')
+const AppointmentsPatient = () => import(/* webpackChunkName: "patient" */ '@/views/Patient/AppointmentsPatient.vue')
+const AppointmentDetails = () => import(/* webpackChunkName: "appointments" */ '@/views/Appointment/AppointmentDetails.vue')
 
 var appname = ' - Analytics Dashboard'
 
@@ -38,6 +43,10 @@ const routes = [
       { path: 'update-record', component: Patient }, 
       { path: 'book-service', component: BookAppointment },
       { path: 'payment', component: Payment },
+      { path: 'doctors', name: 'DoctorDirectory', component: DoctorDirectory },
+      { path: 'doctors/:id', name: 'DoctorProfile', component: DoctorProfile },
+      { path: 'appointments', name: 'PatientAppointments', component: AppointmentsPatient },
+      { path: 'appointments/:id', name: 'PatientAppointmentDetails', component: AppointmentDetails },
       { path: 'chat', component: Chat },
       { path: 'feedback', component: DoctorFeedback },
       { path: 'hospital', name: 'HospitalManagement', component: HospitalManagement },
@@ -50,6 +59,8 @@ const routes = [
     children: [
       { path: '', name: 'PhysicianDashboard', component: DashboardPhysician },
       { path: 'appointments', name: 'PhysicianAppointments', component: AppointmentsPhysician },
+      { path: 'appointments/:id', name: 'PhysicianAppointmentDetails', component: AppointmentDetails },
+      { path: 'availability', name: 'PhysicianAvailability', component: AvailabilityPhysician },
       { path: 'patients', name: 'PhysicianPatients', component: PatientsPhysician },
       { path: 'profile', name: 'PhysicianProfile', component: ProfilePhysician },
       { path: 'unattended', name: 'PhysicianUnattended', component: UnattendedPhysician },

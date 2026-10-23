@@ -1,9 +1,10 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using telemedicine_webapi.Application.Appointments;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace telemedicine_webapi.Application.ScheduleAppointment;
 
@@ -21,7 +22,11 @@ public class ScheduleAppointmentCommandHandler : IRequestHandler<ScheduleAppoint
     private readonly ICurrentUserService _user;
     private readonly IApplicationDbContext _db;
 
-    public ScheduleAppointmentCommandHandler(IUnitOfWork context, IMemoryCache memoryCache, ICurrentUserService user, IApplicationDbContext db)
+    public ScheduleAppointmentCommandHandler(
+        IUnitOfWork context,
+        IMemoryCache memoryCache,
+        ICurrentUserService user,
+        IApplicationDbContext db)
     {
         _context = context;
         _memoryCache = memoryCache;
@@ -35,59 +40,79 @@ public class ScheduleAppointmentCommandHandler : IRequestHandler<ScheduleAppoint
         if (teleMedService == null)
             return OperationResult.NotSuccessful("Telemedicine service not found");
 
-        if (!ValidatePaymentToken(request.paymentToken))
+        if (string.IsNullOrWhiteSpace(request.paymentToken) || !_memoryCache.TryGetValue(request.paymentToken, out _))
             return OperationResult.NotSuccessful("Payment token is invalid or has already been used");
 
-        if (!request.appointmentDate.HasValue || request.appointmentDate.Value <= DateTime.UtcNow)
+        if (!request.appointmentDate.HasValue)
             return OperationResult.NotSuccessful("A future appointment date is required");
-        if (request.durationMinutes is < 10 or > 240)
-            return OperationResult.NotSuccessful("Appointment duration must be between 10 and 240 minutes");
 
-        Physician? physician = null;
-        if (request.physicianId.HasValue)
-        {
-            physician = await _context.PhysicianRepository.GetByIdAsync(request.physicianId.Value);
-            if (physician == null)
-                return OperationResult.NotSuccessful("Selected physician was not found");
-        }
-        else return OperationResult.NotSuccessful("A physician is required");
+        if (!request.physicianId.HasValue)
+            return OperationResult.NotSuccessful("A physician is required");
 
-        var patient = await _context.PatientRepository.FirstOrDefaultAsync(user => user.Email == _user.Email!);
+        var physician = await _context.PhysicianRepository.GetByIdAsync(request.physicianId.Value);
+        if (physician == null)
+            return OperationResult.NotSuccessful("Selected physician was not found");
+
+        var patient = await _db.Patients.FirstOrDefaultAsync(x =>
+            (_user.UserId != Guid.Empty && x.IdentityUserId == _user.UserId)
+            || x.Email == _user.Email, cancellationToken);
         if (patient == null)
             return OperationResult.NotSuccessful("Patient profile not found. Please complete your profile first.");
 
-        var start = request.appointmentDate.Value;
-        var end = start.AddMinutes(request.durationMinutes);
-        var availability = await _db.PhysicianAvailabilities.AnyAsync(x => x.PhysicianId == request.physicianId && x.IsActive && x.DayOfWeek == start.DayOfWeek && x.StartTime <= start.TimeOfDay && x.EndTime >= end.TimeOfDay, cancellationToken);
-        if (!availability) return OperationResult.NotSuccessful("The selected time is outside the physician's availability");
-        var overlaps = await _db.Appointments.AnyAsync(x => x.PhysicianId == request.physicianId && x.Status != ScheduleStatus.Cancelled && x.Status != ScheduleStatus.Declined && x.AppointmentDate < end && x.ScheduleEndTime > start, cancellationToken);
-        if (overlaps) return OperationResult.NotSuccessful("The selected slot is no longer available");
+        var start = SlotCalculator.AsUtc(request.appointmentDate.Value);
+        var rules = await _db.PhysicianAvailabilities
+            .Where(x => x.PhysicianId == request.physicianId.Value && x.IsActive)
+            .ToListAsync(cancellationToken);
+        var rangeStart = start.AddHours(-4);
+        var rangeEnd = start.AddHours(5);
+        var booked = await _db.Appointments
+            .Where(x => x.PhysicianId == request.physicianId.Value
+                        && x.Status != ScheduleStatus.Cancelled
+                        && x.Status != ScheduleStatus.Declined
+                        && x.AppointmentDate < rangeEnd
+                        && x.ScheduleEndTime > rangeStart)
+            .ToListAsync(cancellationToken);
 
-        // A payment token is single-use; consume it only once all validations pass.
-        _memoryCache.Remove(request.paymentToken);
+        if (!SlotCalculator.TryResolve(rules, booked, start, DateTime.UtcNow, out var slot))
+            return OperationResult.NotSuccessful("The selected slot is outside the physician's availability or is no longer available");
 
         var appointment = new Appointment
         {
             Created = DateTime.UtcNow,
+            CreatedBy = _user.Email,
             Patient = patient,
             Physician = physician,
-            AppointmentDate = start,
-            ScheduleEndTime = end,
+            AppointmentDate = slot.StartUtc,
+            ScheduleEndTime = slot.EndUtc,
             Status = ScheduleStatus.Pending,
             TelemedicineService = teleMedService
         };
 
         _context.AppointmentRepository.Add(appointment);
 
-        var commitResult = await _context.SaveChangesAsync(cancellationToken);
-        return commitResult.WasSuccesful
-            ? OperationResult.Successful(appointment.Id)
-            : OperationResult.NotSuccessful("Unable to schedule appointment");
-    }
+        try
+        {
+            var commitResult = await _context.SaveChangesAsync(cancellationToken);
+            if (!commitResult.WasSuccesful)
+                return OperationResult.NotSuccessful("Unable to schedule appointment");
+        }
+        catch (DbUpdateException)
+        {
+            // PostgreSQL exclusion constraint EX_Appointments_Physician_Time is the
+            // final guard when two requests race past the application-level check.
+            return OperationResult.NotSuccessful("The selected slot is no longer available");
+        }
 
-    private bool ValidatePaymentToken(string paymentToken)
-    {
-        var storedToken = _memoryCache.Get(paymentToken);
-        return storedToken != null;
+        // Consume the token only after the booking has committed successfully.
+        _memoryCache.Remove(request.paymentToken);
+
+        return OperationResult.Successful(new
+        {
+            id = appointment.Id,
+            start = slot.StartUtc,
+            end = slot.EndUtc,
+            durationMinutes = slot.DurationMinutes,
+            status = ScheduleStatus.Pending
+        });
     }
 }

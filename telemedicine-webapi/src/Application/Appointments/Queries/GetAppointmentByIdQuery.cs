@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using telemedicine_webapi.Application.Appointments;
+using telemedicine_webapi.Application.Common.Exceptions;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Domain.Entities;
@@ -39,7 +40,7 @@ public class GetAppointmentByIdQueryHandler : IRequestHandler<GetAppointmentById
 
         if (appointment == null)
         {
-            return OperationResult.NotSuccessful($"Appointment with ID {request.Id} not found");
+            throw new NotFoundException("Appointment", request.Id);
         }
 
         await AppointmentAccess.EnsureCanAccessAsync(_unitOfWork, _currentUser, appointment);

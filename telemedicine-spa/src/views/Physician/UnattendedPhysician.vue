@@ -21,12 +21,10 @@
           <p class="font-medium text-slate-800 dark:text-slate-100">{{ apt.serviceName || apt.telemedicineService?.serviceName || 'Consultation' }}</p>
           <p class="text-sm text-slate-500">ID: {{ apt.id }} • {{ formatDate(apt.appointmentDate || apt.scheduleStartTime) }}</p>
         </div>
-        <button
-          class="btn-primary"
-          @click="respondToAppointment(apt.id)"
-        >
-          Respond & Accept
-        </button>
+        <div class="flex gap-2">
+          <button class="btn-primary" @click="respond(apt.id, true)">Accept</button>
+          <button class="btn-secondary text-red-600 border-red-200" @click="respond(apt.id, false)">Decline</button>
+        </div>
       </div>
       <div v-if="!unattended.length && !loading" class="card-modern p-12 text-center text-slate-500">
         <Icon icon="bxs:bell" class="text-4xl mb-4 opacity-50" />
@@ -55,10 +53,19 @@ export default {
       const s = typeof d === 'string' ? d : d?.toString?.()
       return s?.split('T')[0] || 'N/A'
     },
-    async respondToAppointment(id) {
+    async respond(id, accept) {
+      let reason = null
+      if (!accept) {
+        reason = window.prompt('Reason for declining this appointment:')
+        if (reason === null) return
+        if (!reason.trim()) {
+          if (this.$notification) this.$notification.error('Decline reason required', 'Enter a reason before declining.')
+          return
+        }
+      }
       try {
-        await respondToAppointment({ appointmentId: id })
-        if (this.$notification) this.$notification.success('Accepted', 'Appointment marked as active.')
+        await respondToAppointment({ appointmentId: id, accept, reason: reason ? reason.trim() : null })
+        if (this.$notification) this.$notification.success(accept ? 'Accepted' : 'Declined', accept ? 'Appointment marked as active.' : 'Appointment declined.')
         this.load()
       } catch (e) {
         if (this.$notification) this.$notification.error('Error', e.message)

@@ -12,7 +12,7 @@ public static class ConfigureServices
     {
         services.AddTransient<IChatHubConnection, ChatHub>();
         services.AddSignalR();
-        services.AddAutoMapper(Assembly.GetExecutingAssembly());
+        services.AddAutoMapper(_ => { }, Assembly.GetExecutingAssembly());
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));

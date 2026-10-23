@@ -30,8 +30,16 @@
             <input v-model="form.phone" type="tel" class="input-modern w-full" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Specialization</label>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Speciality</label>
             <input v-model="form.medicalSpecialization" type="text" class="input-modern w-full" placeholder="e.g. General Practice" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Qualifications</label>
+            <input v-model="form.qualifications" type="text" class="input-modern w-full" placeholder="Degrees and professional qualifications" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Professional bio</label>
+            <textarea v-model="form.bio" rows="3" class="input-modern w-full" placeholder="Short professional summary shown in the doctor directory" />
           </div>
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Address</label>
@@ -44,6 +52,7 @@
         <button type="submit" :disabled="saving" class="btn-primary">
           {{ saving ? 'Saving...' : 'Save Changes' }}
         </button>
+        <router-link to="/physician/availability" class="btn-secondary">Manage availability</router-link>
         <router-link to="/physician" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
           Cancel
         </router-link>
@@ -68,6 +77,8 @@ export default {
         email: '',
         phone: '',
         medicalSpecialization: '',
+        qualifications: '',
+        bio: '',
         address: '',
       },
     }
@@ -84,6 +95,8 @@ export default {
           email: p.email || '',
           phone: p.phone || '',
           medicalSpecialization: p.medicalSpecialization || '',
+          qualifications: p.qualifications || '',
+          bio: p.bio || '',
           address: p.address || '',
         }
       } catch (e) {
@@ -101,6 +114,8 @@ export default {
           lastName: this.form.lastName,
           phone: this.form.phone,
           medicalSpecialization: this.form.medicalSpecialization,
+          qualifications: this.form.qualifications,
+          bio: this.form.bio,
           address: this.form.address,
         })
         if (this.$notification) this.$notification.success('Saved', 'Profile updated.')

@@ -25,7 +25,9 @@ public static class AppointmentAccess
 
         if (IsPatient(user))
         {
-            var patient = await context.PatientRepository.FirstOrDefaultAsync(item => item.Email == user.Email);
+            var patient = await context.PatientRepository.FirstOrDefaultAsync(item =>
+                (user.UserId != Guid.Empty && item.IdentityUserId == user.UserId)
+                || item.Email == user.Email);
             if (patient == null || appointment.PatientId != patient.Id)
                 throw new ForbiddenAccessException();
             return;
@@ -33,7 +35,9 @@ public static class AppointmentAccess
 
         if (IsPhysician(user))
         {
-            var physician = await context.PhysicianRepository.FirstOrDefaultAsync(item => item.Email == user.Email);
+            var physician = await context.PhysicianRepository.FirstOrDefaultAsync(item =>
+                (user.UserId != Guid.Empty && item.IdentityUserId == user.UserId)
+                || item.Email == user.Email);
             if (physician == null || appointment.PhysicianId != physician.Id)
                 throw new ForbiddenAccessException();
             return;
@@ -46,7 +50,9 @@ public static class AppointmentAccess
         IUnitOfWork context,
         ICurrentUserService user)
     {
-        var patient = await context.PatientRepository.FirstOrDefaultAsync(item => item.Email == user.Email);
+        var patient = await context.PatientRepository.FirstOrDefaultAsync(item =>
+            (user.UserId != Guid.Empty && item.IdentityUserId == user.UserId)
+            || item.Email == user.Email);
         if (patient == null)
             throw new ForbiddenAccessException();
         return patient;
@@ -56,7 +62,9 @@ public static class AppointmentAccess
         IUnitOfWork context,
         ICurrentUserService user)
     {
-        var physician = await context.PhysicianRepository.FirstOrDefaultAsync(item => item.Email == user.Email);
+        var physician = await context.PhysicianRepository.FirstOrDefaultAsync(item =>
+            (user.UserId != Guid.Empty && item.IdentityUserId == user.UserId)
+            || item.Email == user.Email);
         if (physician == null)
             throw new ForbiddenAccessException();
         return physician;

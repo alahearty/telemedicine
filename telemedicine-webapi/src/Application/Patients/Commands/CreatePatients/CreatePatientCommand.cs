@@ -25,6 +25,8 @@ public record CreatePatientCommand : IRequest<BaseResponse>
     public string? Phone { get; set; }
     public AccountType AccountType { get; set; }
     public string? Address { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactPhone { get; set; }
 }
 
 public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand, BaseResponse>
@@ -42,20 +44,24 @@ public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand,
 
     public async Task<BaseResponse> Handle(CreatePatientCommand request, CancellationToken cancellationToken)
     {
-        if (_currentUser.UserId == Guid.Empty || !string.Equals(request.Email, _currentUser.Email, StringComparison.OrdinalIgnoreCase))
+        if (_currentUser.UserId == Guid.Empty || !string.Equals(request.Email?.Trim(), _currentUser.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
             return OperationResult.NotSuccessful("The profile email must match the authenticated account");
+        if (request.Birth == default || request.Birth.Date > DateTime.UtcNow.Date)
+            return OperationResult.NotSuccessful("A valid birth date is required");
         if (await _db.Patients.AnyAsync(x => x.IdentityUserId == _currentUser.UserId || x.Email == _currentUser.Email, cancellationToken))
             return OperationResult.NotSuccessful("A patient profile already exists for this account");
         var entity = new Patient
         {
             IdentityUserId = _currentUser.UserId,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Address = request.Address,
-            Birth = request.Birth,
-            Phone = request.Phone,
-            Email = request.Email,
+            FirstName = request.FirstName?.Trim(),
+            LastName = request.LastName?.Trim(),
+            Address = request.Address?.Trim(),
+            Birth = request.Birth.Date,
+            Phone = request.Phone?.Trim(),
+            Email = _currentUser.Email!.Trim().ToLowerInvariant(),
             Gender = request.Gender,
+            EmergencyContactName = request.EmergencyContactName?.Trim(),
+            EmergencyContactPhone = request.EmergencyContactPhone?.Trim(),
             AccountType = AccountType.PATIENT,
             CreatedBy = _currentUser.Email,
             Created = DateTime.UtcNow
@@ -63,8 +69,16 @@ public class CreatePatientCommandHandler : IRequestHandler<CreatePatientCommand,
 
         _context.PatientRepository.Add(entity);
 
-        var commitResult=await _context.SaveChangesAsync(cancellationToken);
-
-        return commitResult.WasSuccesful?OperationResult.Successful(entity.Id):OperationResult.NotSuccessful("Unable to save Todo list");
+        try
+        {
+            var commitResult = await _context.SaveChangesAsync(cancellationToken);
+            return commitResult.WasSuccesful
+                ? OperationResult.Successful(entity.Id)
+                : OperationResult.NotSuccessful("Unable to save patient profile");
+        }
+        catch (DbUpdateException)
+        {
+            return OperationResult.NotSuccessful("A patient profile already exists for this account");
+        }
     }
 }

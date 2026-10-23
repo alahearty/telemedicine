@@ -107,6 +107,13 @@
             <span class="font-medium text-slate-700 dark:text-slate-300">Patient List</span>
           </router-link>
           <router-link
+            to="/physician/availability"
+            class="flex items-center gap-3 p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+          >
+            <Icon icon="bxs:time" class="text-xl text-primary-500" />
+            <span class="font-medium text-slate-700 dark:text-slate-300">Manage availability</span>
+          </router-link>
+          <router-link
             to="/physician/profile"
             class="flex items-center gap-3 p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
           >
@@ -122,6 +129,7 @@
 <script>
 import { Icon } from '@iconify/vue'
 import { getCurrentPhysician, getPhysicianAppointments, getUnattendedAppointments } from '@/api'
+import { statusLabel as labelForStatus } from '@/utils/appointments'
 
 export default {
   name: 'DashboardPhysician',
@@ -169,9 +177,7 @@ export default {
   },
   methods: {
     statusLabel(status) {
-      if (typeof status === 'string') return status
-      const labels = { 0: 'Active', 1: 'Not attended', 2: 'Attended', 3: 'Cancelled' }
-      return labels[status] || 'Unknown'
+      return labelForStatus(status)
     },
     async load() {
       try {

@@ -50,6 +50,8 @@ public partial class Testing
         return _currentUserId;
     }
 
+    public static IServiceScope CreateScope() => _scopeFactory.CreateScope();
+
     //public static async Task<string> RunAsDefaultUserAsync()
     //{
     //    return await RunAsUserAsync("test@local", "Testing1234!", Array.Empty<string>());

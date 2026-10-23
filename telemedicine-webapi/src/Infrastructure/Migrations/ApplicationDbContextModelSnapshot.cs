@@ -203,10 +203,12 @@ namespace telemedicine_webapi.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
@@ -242,10 +244,12 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Value")
                         .HasColumnType("text");
@@ -293,6 +297,10 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
                     b.Property<int?>("TelemedicineServiceId")
                         .HasColumnType("integer");
 
@@ -302,9 +310,14 @@ namespace telemedicine_webapi.Infrastructure.Migrations
 
                     b.HasIndex("TelemedicineServiceId");
 
+                    b.HasIndex("Status", "AppointmentDate");
+
                     b.HasIndex("PhysicianId", "AppointmentDate", "ScheduleEndTime");
 
-                    b.ToTable("Appointments");
+                    b.ToTable("Appointments", t =>
+                        {
+                            t.HasCheckConstraint("CK_Appointments_TimeRange", "\"ScheduleEndTime\" > \"AppointmentDate\"");
+                        });
                 });
 
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.Comment", b =>
@@ -452,7 +465,14 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.HasIndex("PhysicianId", "DayOfWeek", "StartTime", "EndTime")
                         .IsUnique();
 
-                    b.ToTable("PhysicianAvailabilities");
+                    b.ToTable("PhysicianAvailabilities", t =>
+                        {
+                            t.HasCheckConstraint("CK_PhysicianAvailabilities_DayOfWeek", "\"DayOfWeek\" BETWEEN 0 AND 6");
+
+                            t.HasCheckConstraint("CK_PhysicianAvailabilities_SlotDuration", "\"SlotDurationMinutes\" BETWEEN 10 AND 240");
+
+                            t.HasCheckConstraint("CK_PhysicianAvailabilities_TimeRange", "\"StartTime\" < \"EndTime\"");
+                        });
                 });
 
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.PhysicianPatientTransaction", b =>
@@ -719,6 +739,12 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                 {
                     b.HasBaseType("telemedicine_webapi.Domain.Entities.User");
 
+                    b.Property<string>("EmergencyContactName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EmergencyContactPhone")
+                        .HasColumnType("text");
+
                     b.HasIndex("Email")
                         .IsUnique();
 
@@ -732,6 +758,9 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                 {
                     b.HasBaseType("telemedicine_webapi.Domain.Entities.User");
 
+                    b.Property<string>("Bio")
+                        .HasColumnType("text");
+
                     b.Property<int?>("HospitalId")
                         .HasColumnType("integer");
 
@@ -739,6 +768,9 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("MedicalSpecialization")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Qualifications")
                         .HasColumnType("text");
 
                     b.HasIndex("Email")

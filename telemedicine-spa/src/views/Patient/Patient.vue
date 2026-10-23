@@ -81,6 +81,14 @@
               placeholder="Street, City, State, ZIP"
             />
           </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Emergency contact</label>
+            <input v-model="form.emergencyContactName" type="text" class="input-modern w-full" placeholder="Contact name" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Emergency phone</label>
+            <input v-model="form.emergencyContactPhone" type="tel" class="input-modern w-full" placeholder="+27 11 555 0111" />
+          </div>
         </div>
       </div>
 
@@ -118,6 +126,8 @@ export default {
         gender: 'Male',
         birth: '',
         address: '',
+        emergencyContactName: '',
+        emergencyContactPhone: '',
       },
     }
   },
@@ -135,6 +145,8 @@ export default {
           gender: p.gender || 'Male',
           birth: p.birth ? p.birth.split('T')[0] : '',
           address: p.address || '',
+          emergencyContactName: p.emergencyContactName || '',
+          emergencyContactPhone: p.emergencyContactPhone || '',
         }
       } catch {
         this.form.email = localStorage.getItem('user-email') || ''
@@ -151,6 +163,11 @@ export default {
             lastName: this.form.lastName,
             email: this.form.email,
             phone: this.form.phone,
+            gender: this.form.gender,
+            birth: this.form.birth,
+            address: this.form.address,
+            emergencyContactName: this.form.emergencyContactName,
+            emergencyContactPhone: this.form.emergencyContactPhone,
           })
           if (this.$notification) this.$notification.success('Updated', 'Your profile has been updated.')
         } else {
@@ -162,6 +179,8 @@ export default {
             gender: this.form.gender,
             birth: this.form.birth,
             address: this.form.address,
+            emergencyContactName: this.form.emergencyContactName,
+            emergencyContactPhone: this.form.emergencyContactPhone,
             accountType: 'Patient',
           })
           this.form.id = created?.id ?? created

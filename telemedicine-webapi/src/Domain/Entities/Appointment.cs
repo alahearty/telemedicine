@@ -16,6 +16,7 @@ public class Appointment : BaseAuditableEntity
     public string? Notes { get; set; }
     public virtual ScheduleStatus Status { get; set; } = ScheduleStatus.Pending;
     public DateTime ScheduleEndTime { get; set; }
+    public string? StatusReason { get; set; }
 }
 
 public enum ScheduleStatus { Active = 0, NotAttended = 1, Attended = 2, Cancelled = 3, Pending = 4, Declined = 5 }

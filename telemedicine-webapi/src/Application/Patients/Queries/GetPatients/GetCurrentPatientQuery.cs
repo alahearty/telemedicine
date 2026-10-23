@@ -22,7 +22,9 @@ public class GetCurrentPatientQueryHandler : IRequestHandler<GetCurrentPatientQu
 
     public async Task<BaseResponse> Handle(GetCurrentPatientQuery request, CancellationToken cancellationToken)
     {
-        var patients = await _context.PatientRepository.FindAsync(p => p.Email == _currentUser.Email);
+        var patients = await _context.PatientRepository.FindAsync(p =>
+            (_currentUser.UserId != Guid.Empty && p.IdentityUserId == _currentUser.UserId)
+            || p.Email == _currentUser.Email);
         var patient = patients.FirstOrDefault();
         if (patient == null)
             return OperationResult.NotSuccessful("Patient record not found. Please complete your profile in Update Record.");

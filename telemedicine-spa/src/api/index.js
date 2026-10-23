@@ -10,7 +10,7 @@ function getAuthToken() {
 async function handleResponse(response) {
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-    const msg = error.message || error.error || error.errors?.[0] || `HTTP ${response.status}`;
+    const msg = error.message || error.error || error.title || error.errors?.[0] || `HTTP ${response.status}`;
     throw new Error(msg);
   }
   const contentType = response.headers.get('content-type');
@@ -40,11 +40,11 @@ export async function login(email, password) {
   return { token: payload.token, role: payload.role };
 }
 
-export async function register(email, password, accountType) {
+export async function register(payload) {
   const res = await fetch(`${API_BASE_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password, accountType }),
+    body: JSON.stringify(payload),
   });
   return handleResponse(res);
 }
@@ -195,11 +195,11 @@ export async function getTelemedicineService(id) {
 }
 
 // --- Appointments ---
-export async function scheduleAppointment(serviceId, paymentToken, appointmentDate = null, physicianId = null) {
+export async function scheduleAppointment(serviceId, paymentToken, appointmentDate = null, physicianId = null, durationMinutes = 30) {
   const res = await fetch(`${API_BASE_URL}/Appointment`, {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ serviceId, paymentToken, appointmentDate, physicianId }),
+    body: JSON.stringify({ serviceId, paymentToken, appointmentDate, physicianId, durationMinutes }),
   });
   const data = await handleResponse(res);
   return data.data ?? data;
@@ -229,8 +229,9 @@ export async function getAppointment(id) {
   return data.data ?? data;
 }
 
-export async function cancelAppointment(id) {
-  const res = await fetch(`${API_BASE_URL}/Appointment/${id}`, {
+export async function cancelAppointment(id, reason = '') {
+  const query = reason ? `?reason=${encodeURIComponent(reason)}` : '';
+  const res = await fetch(`${API_BASE_URL}/Appointment/${id}${query}`, {
     method: 'DELETE',
     headers: authHeaders(),
   });
@@ -251,6 +252,31 @@ export async function respondToAppointment(payload) {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify(payload),
+  });
+  return handleResponse(res);
+}
+
+// --- Availability ---
+export async function getPhysicianAvailability(physicianId) {
+  const res = await fetch(`${API_BASE_URL}/physicians/${physicianId}/availability`, { headers: authHeaders() });
+  return handleResponse(res);
+}
+
+export async function replacePhysicianAvailability(rules) {
+  const res = await fetch(`${API_BASE_URL}/physicians/me/availability`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify(rules),
+  });
+  return handleResponse(res);
+}
+
+export async function getPhysicianSlots(physicianId, fromUtc, toUtc) {
+  const params = new URLSearchParams();
+  if (fromUtc) params.set('from', fromUtc);
+  if (toUtc) params.set('to', toUtc);
+  const res = await fetch(`${API_BASE_URL}/physicians/${physicianId}/slots?${params.toString()}`, {
+    headers: authHeaders(),
   });
   return handleResponse(res);
 }

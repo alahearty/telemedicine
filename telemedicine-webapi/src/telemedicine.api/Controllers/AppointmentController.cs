@@ -66,9 +66,9 @@ public class AppointmentController : ApiControllerBase
 
     [HttpDelete("{id}")]
     [Permit("Patient, Physician, Administrator")]
-    public async Task<IActionResult> CancelAppointment(int id)
+    public async Task<IActionResult> CancelAppointment(int id, [FromQuery] string? reason = null)
     {
-        var command = new CancelAppointmentCommand(id);
+        var command = new CancelAppointmentCommand(id, reason);
         var response = await Mediator.Send(command);
         return HandleResponse(response);
     }

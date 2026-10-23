@@ -18,5 +18,7 @@ public class Patient : User
         HealthAnalysisReports.Remove(healthAnalysisReport);
     }
 
+    public virtual string? EmergencyContactName { get; set; }
+    public virtual string? EmergencyContactPhone { get; set; }
     public virtual ICollection<HealthAnalysisReport> HealthAnalysisReports { get; set; } = new List<HealthAnalysisReport>();
 }

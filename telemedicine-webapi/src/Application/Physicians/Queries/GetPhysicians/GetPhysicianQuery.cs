@@ -36,6 +36,8 @@ public class GetPhysicianQueryHandler : IRequestHandler<GetPhysicianQuery, BaseR
             LastName = physician.LastName,
             License = physician.License,
             MedicalSpecialization = physician.MedicalSpecialization,
+            Qualifications = physician.Qualifications,
+            Bio = physician.Bio,
             Phone = physician.Phone
         };
 

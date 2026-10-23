@@ -9,6 +9,7 @@ using telemedicine_webapi.Domain.Entities;
 namespace telemedicine_webapi.Application.HealthAnalysisReports.Queries;
 public class HealthAnalysisReportDto : IMapFrom<HealthAnalysisReport>
 {
+    public int Id { get; set; }
     public DateTime When { get; set; }
     public int PatientId { get; set; }
     public List<CommentDto>? Comments { get; set; }

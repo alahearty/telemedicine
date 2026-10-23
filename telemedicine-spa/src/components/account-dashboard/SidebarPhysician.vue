@@ -22,6 +22,10 @@
           <span class="nav-icon"><Icon icon="bxs:calendar" /></span>
           <span>Appointments</span>
         </router-link>
+        <router-link to="/physician/availability" class="nav-item">
+          <span class="nav-icon"><Icon icon="bxs:time" /></span>
+          <span>Availability</span>
+        </router-link>
         <router-link to="/physician/patients" exact class="nav-item">
           <span class="nav-icon"><Icon icon="bxs:user-detail" /></span>
           <span>Patients</span>

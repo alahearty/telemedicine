@@ -20,5 +20,7 @@ public class PhysicianDto:IMapFrom<Physician>
     public string? Address { get; set; }
     public string? License { get; set; }
     public string? MedicalSpecialization { get; set; }
+    public string? Qualifications { get; set; }
+    public string? Bio { get; set; }
     public byte[]? Avatar { get; set; }
 }
