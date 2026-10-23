@@ -1,4 +1,4 @@
-﻿using telemedicine_webapi.Application.Common.Exceptions;
+using telemedicine_webapi.Application.Common.Exceptions;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using telemedicine_webapi.Domain.Enums;
@@ -31,7 +31,7 @@ public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItem
     {
         var entity = await _context.TodoItemRepository.GetByIdAsync(request.Id);
 
-        if (entity == null)return OperationResult.NotSuccessful("Not found");
+        if (entity == null) throw new NotFoundException("TodoItem", request.Id);
 
         entity.ListId = request.ListId;
         entity.Priority = request.Priority;

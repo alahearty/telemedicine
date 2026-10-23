@@ -1,13 +1,17 @@
 <template>
-  <!-- App -->
-  <div class="flex bg-packed font-lexend dark:bg-gray-900 pt-16">
-    <div class="flex-auto w-full overflow-auto h-screen" id="body-scroll">
+  <div class="flex bg-slate-50 dark:bg-slate-900 font-sans pt-16 min-h-screen">
+    <div
+      id="sidebar-scroll"
+      class="flex-sidebar lg:flex-auto w-sidebar lg:block hidden h-screen lg:z-0 z-40 overflow-auto lg:relative fixed"
+    >
+      <Sidebar />
+    </div>
+    <div class="flex-auto w-full overflow-auto min-h-screen" id="body-scroll">
       <Header />
       <slot />
       <Footer />
     </div>
   </div>
-  <!-- end app -->
 </template>
 
 <script>

@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using telemedicine_webapi.Application.TodoLists.Queries.ExportTodos;
+using System.Globalization;
 using CsvHelper.Configuration;
 using telemedicine_webapi.Application.Hospitals.Queries.ExportHospitals;
 
@@ -9,7 +8,5 @@ public class HospitalRecordMap : ClassMap<HospitalRecord>
     public HospitalRecordMap()
     {
         AutoMap(CultureInfo.InvariantCulture);
-
-        Map(m => m.Done).ConvertUsing(c => c.Done ? "Yes" : "No");
     }
 }

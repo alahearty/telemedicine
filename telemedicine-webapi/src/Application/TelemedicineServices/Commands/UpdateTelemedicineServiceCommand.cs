@@ -25,8 +25,8 @@ public class UpdateTelemedicineServiceCommandHandler : IRequestHandler<UpdateTel
         var service = await _unitOfWork.TelemedicineServiceRepository.GetByIdAsync(request.id);
         if (service == null) return OperationResult.NotSuccessful("Service not found");
 
-        if (request.cost == 0) service.Cost = (decimal)request.cost;
-        if (request.description == null) service.Description = request.description;
+        if (request.cost != 0) service.Cost = (decimal)request.cost;
+        if (!string.IsNullOrWhiteSpace(request.description)) service.Description = request.description;
         service.LastModified = DateTime.UtcNow;
         service.LastModifiedBy = _currentUser.Email;
 

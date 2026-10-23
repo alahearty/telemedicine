@@ -1,7 +1,6 @@
 <template>
   <div class="home">
     <Navbar />
-
     <main>
       <Hero />
       <Departments />
@@ -9,7 +8,6 @@
       <AboutUs />
       <Service />
     </main>
-
     <Footer />
   </div>
 </template>
@@ -39,41 +37,39 @@ export default {
 
 <style>
 :root {
-  --max-width: 1080px;
-  --max-width-md: var(--max-width-md);
-  --bg-padding-inline: 3rem;
+  --max-width: 1200px;
+  --bg-padding-inline: 1.5rem;
 }
+
 body {
   overflow: auto;
 }
+
 body::-webkit-scrollbar {
-  width: 12px;
+  width: 10px;
 }
+
 body::-webkit-scrollbar-thumb {
-  background-color: rgb(177, 177, 177);
-  border: 2px solid #fff;
-  border-radius: 8px;
+  background: #94a3b8;
+  border-radius: 5px;
 }
-body::-webkit-scrollbar-track {
-  background: #fff;
-}
+
 body::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(124, 124, 124);
+  background: #64748b;
 }
+
+body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
 .home {
-  font-family: 'Mulish', sans-serif;
-  height: 100vh;
-  position: relative;
+  font-family: 'DM Sans', system-ui, sans-serif;
 }
 
 main > section {
-  min-height: 100vh;
+  min-height: 60vh;
   padding-top: 5rem;
-  padding-bottom: 3rem;
-}
-
-.home button {
-  font-family: 'Mulish', sans-serif;
+  padding-bottom: 4rem;
 }
 
 @media (max-width: 520px) {

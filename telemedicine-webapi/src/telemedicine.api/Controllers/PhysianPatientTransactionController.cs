@@ -1,6 +1,12 @@
-﻿namespace telemedicine.api.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
-public class PhysianPatientTransactionController
+namespace telemedicine.api.Controllers;
+
+/// <summary>
+/// Physician-Patient transaction endpoints (placeholder for future implementation).
+/// </summary>
+[ApiController]
+[Route("api/[controller]")]
+public class PhysianPatientTransactionController : ControllerBase
 {
-
 }

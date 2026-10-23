@@ -14,9 +14,14 @@ public class CurrentUserService : ICurrentUserService
 
         Email = httpContextAccessor.HttpContext?.User?
             .Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Email)?.Value!;
+
+        Role = httpContextAccessor.HttpContext?.User?
+            .Claims.FirstOrDefault(claim => claim.Type == "Role" || claim.Type == ClaimTypes.Role)?.Value;
     }
 
     public Guid UserId{ get; }
 
     public string Email { get;}
+
+    public string? Role { get; }
 }

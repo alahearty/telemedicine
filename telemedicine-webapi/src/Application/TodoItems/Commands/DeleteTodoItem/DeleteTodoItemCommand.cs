@@ -1,4 +1,4 @@
-﻿using telemedicine_webapi.Application.Common.Exceptions;
+using telemedicine_webapi.Application.Common.Exceptions;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using telemedicine_webapi.Domain.Events;
@@ -21,7 +21,7 @@ public class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemComman
     public async Task<BaseResponse> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoItemRepository.GetByIdAsync(request.Id);
-        if (entity == null) return OperationResult.NotSuccessful("Not found");
+        if (entity == null) throw new NotFoundException("TodoItem", request.Id);
 
         _context.TodoItemRepository.Delete(entity);
 

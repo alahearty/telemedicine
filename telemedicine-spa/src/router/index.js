@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Dashboard from '@/views/Admin/Dashboard.vue'
 import DashboardLayout from '@/Layout/DashboardLayout.vue'
+import PhysicianDashboardLayout from '@/Layout/PhysicianDashboardLayout.vue'
 import Login from '@/views/General/Login.vue'
 import Signup from '@/views/General/Signup.vue'
 import Home from '@/views/General/Home.vue'
@@ -12,6 +13,11 @@ import BookAppointment from '@/views/Patient/BookAppointment.vue'
 import Patient from '@/views/Patient/Patient.vue'
 import Payment from '@/views/Patient/Payment.vue'
 import Chat from '@/views/Patient/Chat.vue'
+import DashboardPhysician from '@/views/Physician/DashboardPhysician.vue'
+import AppointmentsPhysician from '@/views/Physician/AppointmentsPhysician.vue'
+import PatientsPhysician from '@/views/Physician/PatientsPhysician.vue'
+import ProfilePhysician from '@/views/Physician/ProfilePhysician.vue'
+import UnattendedPhysician from '@/views/Physician/UnattendedPhysician.vue'
 
 var appname = ' - Analytics Dashboard'
 
@@ -38,12 +44,15 @@ const routes = [
     ],
   },
   {
-    path: '/doctors',
-    component: DashboardLayout,
-    meta: { title: 'Physician Dashboard ' + appname },
+    path: '/physician',
+    component: PhysicianDashboardLayout,
+    meta: { title: 'Physician Dashboard ' + appname, role: 'physician' },
     children: [
-      { path: '', redirect: '/doctors/dashboard' },
-      { path: 'dashboard', name: 'PhysicianDashboard', component: Dashboard },
+      { path: '', name: 'PhysicianDashboard', component: DashboardPhysician },
+      { path: 'appointments', name: 'PhysicianAppointments', component: AppointmentsPhysician },
+      { path: 'patients', name: 'PhysicianPatients', component: PatientsPhysician },
+      { path: 'profile', name: 'PhysicianProfile', component: ProfilePhysician },
+      { path: 'unattended', name: 'PhysicianUnattended', component: UnattendedPhysician },
     ],
   },
   {
@@ -57,12 +66,6 @@ const routes = [
     name: 'Signup',
     component: Signup,
     meta: { title: 'Signup' },
-  },
-  {
-    path: '/feedback',
-    name: 'DoctorFeedback',
-    component: DoctorFeedback,
-    meta: { title: "Doctor's feedback" },
   },
   {
     path: '/:catchAll(.*)',
@@ -83,7 +86,7 @@ router.beforeEach((to, from, next) => {
   document.title = to.meta.title || 'Telemedicine'
   
   // Public routes that don't require authentication
-  const publicRoutes = ['/', '/login', '/signup', '/Home']
+  const publicRoutes = ['/', '/login', '/signup']
   const isPublicRoute = publicRoutes.includes(to.path)
   
   // Get authentication token
@@ -94,14 +97,31 @@ router.beforeEach((to, from, next) => {
   const requiresAuth = !isPublicRoute && to.path !== '/'
   
   if (requiresAuth && !isAuthenticated) {
-    // Redirect to login if trying to access protected route without authentication
     next({ path: '/login', query: { redirect: to.fullPath } })
-  } else if (isAuthenticated && (to.path === '/login' || to.path === '/signup')) {
-    // Redirect authenticated users away from login/signup pages
-    next({ path: '/dashboard' })
-  } else {
-    next()
+    return
   }
+  if (isAuthenticated) {
+    const role = (localStorage.getItem('user-role') || '').toLowerCase()
+    const isPhysician = role.includes('physician') || role.includes('doctor')
+    const isAdmin = role.includes('admin') || role.includes('administrator')
+    // Physician trying to access dashboard -> redirect to physician
+    if (isPhysician && to.path.startsWith('/dashboard')) {
+      next({ path: '/physician' })
+      return
+    }
+    // Admin/Patient trying to access physician area -> redirect to dashboard
+    if (!isPhysician && to.path.startsWith('/physician')) {
+      next({ path: '/dashboard' })
+      return
+    }
+  }
+  if (isAuthenticated && (to.path === '/login' || to.path === '/signup')) {
+    const role = (localStorage.getItem('user-role') || '').toLowerCase()
+    const dest = (role.includes('physician') || role.includes('doctor')) ? '/physician' : '/dashboard'
+    next({ path: dest })
+    return
+  }
+  next()
 })
 
 export default router

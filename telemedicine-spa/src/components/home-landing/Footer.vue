@@ -1,34 +1,30 @@
 <template>
-  <footer>
+  <footer class="footer">
     <section class="newsletter">
-      <img class="img-bg" src="@/assets/img/dot-lg-bg.png" />
-
       <div class="inner">
         <div>
-          <h2>Get an update every week</h2>
-          <p>
-            Livedoc was created in order to improve the patient experience.
-            Providing world-class tests, and a wide range of other services.
+          <h2 class="font-display font-bold text-white text-2xl mb-3">
+            Stay updated
+          </h2>
+          <p class="text-white/85 leading-relaxed">
+            Telemedicine was created to improve the patient experience with world-class care and a wide range of services.
           </p>
         </div>
-
-        <form>
-          <h3>Subscribe to newsletter</h3>
+        <form class="newsletter-form">
+          <h3 class="font-semibold text-white/90 text-sm uppercase tracking-wider mb-3">Newsletter</h3>
           <div class="newsletter-btn-container">
-            <input type="email" placeholder="Email" />
-            <button class="subscribe-btn">Subscribe</button>
+            <input type="email" placeholder="Your email" />
+            <button type="button" class="subscribe-btn">Subscribe</button>
           </div>
         </form>
       </div>
     </section>
     <section class="footer-links">
-      <img class="img-bg" src="@/assets/img/dot-bg.png" />
       <div class="inner">
         <div class="promo-container">
           <TelemedicineLogo />
-          <p>
-            The world's most trusted <br />
-            telehealth company.
+          <p class="mt-4 font-medium text-white/90">
+            The world's most trusted<br />telehealth company.
           </p>
         </div>
         <div class="links-container">
@@ -36,7 +32,7 @@
             <li class="link-title">Departments</li>
             <li>Eye care</li>
             <li>Cardiac care</li>
-            <li>Heart care</li>
+            <li>Neurology</li>
           </ul>
           <ul>
             <li class="link-title">Membership</li>
@@ -45,17 +41,17 @@
             <li>Premium</li>
           </ul>
           <ul>
-            <li class="link-title">Customer care</li>
+            <li class="link-title">Support</li>
             <li>About us</li>
-            <li>Contact us</li>
-            <li>Get update</li>
+            <li>Contact</li>
+            <li>FAQ</li>
           </ul>
         </div>
       </div>
     </section>
     <section class="copyright">
       <div class="inner">
-        <p>All rights reserved &copy; <span>Telemedicine</span> 2022</p>
+        <p>© 2024 <span class="text-primary-300">Telemedicine</span>. All rights reserved.</p>
       </div>
     </section>
   </footer>
@@ -71,175 +67,140 @@ export default {
 </script>
 
 <style scoped>
-footer {
-  background: #283779;
-  min-height: 400px;
-  color: #b2dded;
+.footer {
+  background: linear-gradient(135deg, #065f55 0%, #04786a 50%, #059682 100%);
+  color: #ccfbf1;
 }
-footer section {
-  padding-inline: var(--bg-padding-inline);
+
+.footer section {
+  padding-inline: var(--bg-padding-inline, 1.5rem);
 }
-footer section .inner {
-  max-width: var(--max-width);
+
+.footer .inner {
+  max-width: 1200px;
   margin-inline: auto;
-  width: 100%;
 }
-.newsletter,
+
 .newsletter {
-  position: relative;
-}
-
-.newsletter .img-bg {
-  position: absolute;
-  top: -8.125rem;
-  right: 0;
-  width: 25%;
-}
-
-.newsletter,
-.footer-links {
-  padding-block: 7rem;
+  padding: 5rem 0 4rem;
 }
 
 .newsletter .inner {
   display: flex;
-  gap: 1.5rem;
+  gap: 3rem;
+  align-items: flex-start;
 }
-.newsletter .inner > div,
-.newsletter .inner > form {
-  z-index: 1;
-  flex: 0.5;
-}
-.newsletter h2 {
-  font-weight: 700;
-  font-size: clamp(1.7rem, 4vw, 2.2rem);
-  line-height: 120%;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1rem;
-}
-.newsletter p {
-  line-height: 120%;
-  color: #b2dded;
-}
-.newsletter h3 {
-  font-size: 1.15rem;
-  text-transform: uppercase;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-.newsletter-btn-container {
-  display: flex;
-  gap: 1rem;
-}
-.newsletter input {
-  border: 1px solid rgba(240, 244, 249, 0.95);
-  color: #b2dded;
-  background-color: transparent;
-  padding: 1em;
-  border-radius: 1rem;
+
+.newsletter-form input {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
   flex: 1;
 }
-.newsletter button {
-  background-color: #fff;
-  padding: 1em;
-  border: 1px solid rgba(240, 244, 249, 0.95);
-  color: #464558;
+
+.newsletter-form input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.newsletter-btn-container {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.subscribe-btn {
+  background: white;
+  color: #04786a;
+  padding: 0.875rem 1.5rem;
+  border-radius: 12px;
   font-weight: 700;
-  border-radius: 1rem;
-  flex: 0.5;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.subscribe-btn:hover {
+  background: #ecfdf8;
+  transform: translateY(-1px);
 }
 
 .footer-links {
-  position: relative;
-  background-color: rgba(27, 113, 161, 0.75);
+  padding: 4rem 0;
+  background: rgba(0, 0, 0, 0.15);
 }
+
 .footer-links .inner {
   display: flex;
   justify-content: space-between;
-}
-
-.footer-links .img-bg {
-  position: absolute;
-  top: -3.25rem;
-  left: 0;
-  opacity: 0.2;
+  align-items: flex-start;
 }
 
 .footer-links svg {
-  color: #fff;
-  height: 50px;
-  width: 250px;
+  color: white;
+  height: 40px;
+  width: 200px;
 }
 
-.footer-links .promo-container p {
-  margin-top: 1.5rem;
-  font-weight: 600;
-}
-
-.footer-links .links-container {
-  width: 470px;
+.links-container {
   display: flex;
-  justify-content: space-between;
+  gap: 4rem;
 }
-.footer-links ul .link-title {
-  margin-bottom: 2rem;
-  font-size: 1.2rem;
+
+.link-title {
   font-weight: 700;
-  color: #f0f4f9;
-  cursor: default;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: white;
+  margin-bottom: 1rem;
+}
+.link-title + li {
+  margin-top: 0;
 }
 
 .footer-links li {
   margin-bottom: 0.5rem;
-  font-weight: 600;
   cursor: pointer;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.footer-links li:hover {
+  opacity: 1;
 }
 
 .copyright {
-  padding-block: 2rem;
+  padding: 1.5rem 0;
   text-align: center;
-  color: #dbdbe9;
-  font-weight: 700;
   font-size: 0.875rem;
-}
-.copyright span {
-  color: #0dafca;
+  opacity: 0.8;
 }
 
 @media (max-width: 900px) {
   .newsletter .inner {
     flex-direction: column;
-    gap: 2.5rem;
+    gap: 2rem;
   }
+
   .footer-links .inner {
     flex-direction: column;
-    gap: 5rem;
+    gap: 3rem;
   }
-  .footer-links .links-container {
-    width: 100%;
-    max-width: 600px;
+
+  .links-container {
+    flex-wrap: wrap;
+    gap: 2rem;
   }
 }
+
 @media (max-width: 520px) {
-  .footer-links .links-container {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
   .newsletter-btn-container {
     flex-direction: column;
   }
-  .newsletter-btn-container button {
-    max-width: 170px;
-  }
-  .footer-links .inner {
-    gap: 3rem;
-  }
-  .footer-links svg {
-    height: 30px;
-    width: 150px;
-  }
-  .footer-links ul .link-title {
-    margin-bottom: 0.7rem;
+
+  .subscribe-btn {
+    width: 100%;
   }
 }
 </style>

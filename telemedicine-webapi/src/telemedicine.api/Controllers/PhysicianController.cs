@@ -13,8 +13,17 @@ namespace telemedicine.api.Controllers;
 [Route("api/[controller]")]
 public class PhysicianController : ApiControllerBase
 {
+    [HttpGet("me")]
+    [Permit("Physician")]
+    public async Task<IActionResult> GetCurrentPhysician()
+    {
+        var query = new GetCurrentPhysicianQuery();
+        var response = await Mediator.Send(query);
+        return HandleResponse(response);
+    }
+
     [HttpGet("{id}")]
-    [Permit("Physician, Administrator")]
+    [Permit("Physician, Administrator, Patient")]
     public async Task<IActionResult> GetPhysician(int id)
     {
         var query = new GetPhysicianQuery(id);
@@ -23,7 +32,7 @@ public class PhysicianController : ApiControllerBase
     }
 
     [HttpGet]
-    [Permit("Administrator, Physician")]
+    [Permit("Administrator, Physician, Patient")]
     public async Task<IActionResult> GetPhysicians()
     {
         var query = new GetPhysiciansQuery();

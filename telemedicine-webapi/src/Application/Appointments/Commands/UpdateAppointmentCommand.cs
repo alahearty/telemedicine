@@ -1,5 +1,6 @@
 using MediatR;
 using System.ComponentModel.DataAnnotations;
+using telemedicine_webapi.Application.Appointments;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Domain.Entities;
@@ -37,6 +38,8 @@ public class UpdateAppointmentCommandHandler : IRequestHandler<UpdateAppointment
         {
             return OperationResult.NotSuccessful($"Appointment with ID {request.Id} not found");
         }
+
+        await AppointmentAccess.EnsureCanAccessAsync(_context, _currentUser, appointment);
 
         if (request.AppointmentDate.HasValue)
         {

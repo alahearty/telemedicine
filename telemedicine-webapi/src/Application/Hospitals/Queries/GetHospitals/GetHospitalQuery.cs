@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,7 +23,9 @@ public class GetHospitalQueryHandler : IRequestHandler<GetHospitalQuery, BaseRes
     public async Task<BaseResponse> Handle(GetHospitalQuery request, CancellationToken cancellationToken)
     {
         var hospital = await _unitOfwork.HospitalRepository.GetByIdAsync(request.id);
-        var hospitalDto = new HospitalDto(hospital?.HospitalName!, hospital?.Address!);
+        if (hospital == null)
+            return OperationResult.NotSuccessful("Hospital not found");
+        var hospitalDto = new HospitalDto(hospital.Id, hospital.HospitalName!, hospital.Address!);
         return OperationResult.Successful(hospitalDto);
     }
 }

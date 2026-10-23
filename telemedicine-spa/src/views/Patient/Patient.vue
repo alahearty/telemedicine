@@ -1,80 +1,182 @@
 <template>
-<form class="w-full max-w-lg">
-  <div class="flex flex-wrap -mx-3 mb-6">
-    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
-        First Name
-      </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="Jane">
-      <p class="text-red-500 text-xs italic">Please fill out this field.</p>
+  <div class="patient-record p-6 max-w-3xl mx-auto">
+    <h1 class="font-display text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+      Update Record
+    </h1>
+    <p class="text-slate-600 dark:text-slate-400 mb-6">
+      Complete or update your medical profile. This information helps doctors provide better care.
+    </p>
+
+    <div v-if="loading" class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-10 w-10 border-2 border-primary-500 border-t-transparent"></div>
     </div>
-    <div class="w-full md:w-1/2 px-3">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
-        Last Name
-      </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="text" placeholder="Doe">
-    </div>
-    <div class="w-full md:w-1/2 px-3">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
-        Gender
-      </label>
-      <div class="relative">
-        <select class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state">
-          <option>Male</option>
-          <option>Female</option>
-          <option>Other</option>
-        </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-          <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+
+    <form v-else @submit.prevent="submit" class="space-y-6">
+      <div class="card-modern p-6 space-y-4">
+        <h2 class="font-semibold text-slate-800 dark:text-slate-100">Personal Information</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">First Name *</label>
+            <input
+              v-model="form.firstName"
+              type="text"
+              class="input-modern w-full"
+              placeholder="Jane"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Last Name *</label>
+            <input
+              v-model="form.lastName"
+              type="text"
+              class="input-modern w-full"
+              placeholder="Doe"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email *</label>
+            <input
+              v-model="form.email"
+              type="email"
+              class="input-modern w-full"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Phone *</label>
+            <input
+              v-model="form.phone"
+              type="tel"
+              class="input-modern w-full"
+              placeholder="+1 234 567 8900"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Gender *</label>
+            <select v-model="form.gender" class="input-modern w-full" required>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Birth Date *</label>
+            <input
+              v-model="form.birth"
+              type="date"
+              class="input-modern w-full"
+              required
+            />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Address</label>
+            <textarea
+              v-model="form.address"
+              rows="3"
+              class="input-modern w-full"
+              placeholder="Street, City, State, ZIP"
+            />
+          </div>
         </div>
       </div>
-    </div>
-    <div class="w-full md:w-1/2 px-3">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
-        Birth Date
-      </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="text" placeholder="Doe">
-    </div>
-    <div class="w-full md:w-1/2 px-3">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
-        Phone
-      </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="text" placeholder="Doe">
-    </div>
-  </div>
-  <div class="flex flex-wrap -mx-3 mb-2">
-    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-city">
-        City
-      </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-city" type="text" placeholder="Albuquerque">
-    </div>
-    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
-        State
-      </label>
-      <div class="relative">
-        <select class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state">
-          <option>New Mexico</option>
-          <option>Missouri</option>
-          <option>Texas</option>
-        </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-          <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-        </div>
+
+      <div class="flex gap-3">
+        <button
+          type="submit"
+          :disabled="saving"
+          class="btn-primary"
+        >
+          {{ saving ? 'Saving...' : (form.id ? 'Update Profile' : 'Create Profile') }}
+        </button>
+        <router-link to="/dashboard" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+          Cancel
+        </router-link>
       </div>
-    </div>
-    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-      <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-zip">
-        Zip
-      </label>
-      <input class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-zip" type="text" placeholder="90210">
-    </div>
+    </form>
   </div>
-</form>
 </template>
+
 <script>
+import { getCurrentPatient, createPatient, updatePatient } from '@/api'
+
 export default {
-  
+  name: 'Patient',
+  data() {
+    return {
+      loading: true,
+      saving: false,
+      form: {
+        id: null,
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        gender: 'Male',
+        birth: '',
+        address: '',
+      },
+    }
+  },
+  methods: {
+    async load() {
+      this.loading = true
+      try {
+        const p = await getCurrentPatient()
+        this.form = {
+          id: p.id,
+          firstName: p.firstName || '',
+          lastName: p.lastName || '',
+          email: p.email || localStorage.getItem('user-email') || '',
+          phone: p.phone || '',
+          gender: p.gender || 'Male',
+          birth: p.birth ? p.birth.split('T')[0] : '',
+          address: p.address || '',
+        }
+      } catch {
+        this.form.email = localStorage.getItem('user-email') || ''
+      } finally {
+        this.loading = false
+      }
+    },
+    async submit() {
+      this.saving = true
+      try {
+        if (this.form.id) {
+          await updatePatient(this.form.id, {
+            firstName: this.form.firstName,
+            lastName: this.form.lastName,
+            email: this.form.email,
+            phone: this.form.phone,
+          })
+          if (this.$notification) this.$notification.success('Updated', 'Your profile has been updated.')
+        } else {
+          const created = await createPatient({
+            firstName: this.form.firstName,
+            lastName: this.form.lastName,
+            email: this.form.email,
+            phone: this.form.phone,
+            gender: this.form.gender,
+            birth: this.form.birth,
+            address: this.form.address,
+            accountType: 'Patient',
+          })
+          this.form.id = created?.id ?? created
+          localStorage.setItem('user-id', String(this.form.id))
+          if (this.$notification) this.$notification.success('Created', 'Your profile has been created.')
+        }
+      } catch (e) {
+        if (this.$notification) this.$notification.error('Error', e.message || 'Could not save.')
+      } finally {
+        this.saving = false
+      }
+    },
+  },
+  mounted() {
+    this.load()
+  },
 }
 </script>

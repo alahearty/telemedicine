@@ -1,5 +1,6 @@
 <template>
-  <AdminLayout v-if="user.accountType === 'admin'">
+  <div>
+    <template v-if="user.accountType === 'admin'">
     <div class="dashboard p-4">
       <nav class="flex mt-5" aria-label="Breadcrumb">
         <ol class="inline-flex items-center space-x-1 md:space-x-3">
@@ -29,44 +30,24 @@
         class="wrapper-card grid lg:grid-cols-4 grid-cols-1 md:grid-cols-2 gap-2 mt-5"
       >
         <!-- card  -->
-        <card total="Rp.2 300 908" totalPayout="Total Payouts">
-          <div
-            class="bg-red-200 rounded-full w-14 h-14 text-lg p-3 text-red-600 mx-auto"
-          >
-            <span class="">
-              <wallet-icon />
-            </span>
+        <Card total="Rp.2 300 908" totalPayout="Total Payouts">
+          <div class="bg-primary-100 dark:bg-primary-900/30 rounded-2xl w-14 h-14 flex items-center justify-center text-primary-600 dark:text-primary-400">
+            <wallet-icon />
           </div>
-        </card>
-
-        <!-- end card -->
+        </Card>
         <Card total="256" totalPayout="Total Payins">
-          <div
-            class="bg-orange-200 rounded-full w-14 h-14 text-lg p-3 text-orange-600 mx-auto"
-          >
-            <span class="">
-              <bag-icon />
-            </span>
+          <div class="bg-amber-100 dark:bg-amber-900/30 rounded-2xl w-14 h-14 flex items-center justify-center text-amber-600 dark:text-amber-400">
+            <bag-icon />
           </div>
         </Card>
-        <!-- end card -->
         <Card total="3569" totalPayout="Total Patients">
-          <div
-            class="bg-green-200 rounded-full w-14 h-14 text-lg p-3 text-green-600 mx-auto"
-          >
-            <span class="">
-              <user-icon />
-            </span>
+          <div class="bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl w-14 h-14 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <user-icon />
           </div>
         </Card>
-        <!-- end card -->
         <Card total="7230" totalPayout="Total Visit">
-          <div
-            class="bg-purple-200 rounded-full w-14 h-14 text-lg p-3 text-purple-600 mx-auto"
-          >
-            <span class="">
-              <trend-icon />
-            </span>
+          <div class="bg-violet-100 dark:bg-violet-900/30 rounded-2xl w-14 h-14 flex items-center justify-center text-violet-600 dark:text-violet-400">
+            <trend-icon />
           </div>
         </Card>
         <!-- end card -->
@@ -101,9 +82,7 @@
           </chart-component>
         </div>
 
-        <div
-          class="bg-white dark:bg-gray-800 p-5 lg:w-96 lg:mt-0 mt-4 shadow rounded-md w-full"
-        >
+        <div class="card-modern p-6 lg:w-96 lg:mt-0 mt-4 w-full">
           <Partners />
         </div>
       </div>
@@ -179,10 +158,9 @@
         </data-table>
       </div>
     </div>
-  </AdminLayout>
-  <UserLayout v-else>
-    <DashboardPatient />
-  </UserLayout>
+    </template>
+    <DashboardPatient v-else />
+  </div>
 </template>
 
 <script>
@@ -195,17 +173,20 @@ import TrendIcon from '@/components/icons/TrendIcon.vue'
 import DataTable from '@/components/account-dashboard/DataTable.vue'
 import ChartComponent from '@/components/account-dashboard/ChartComponent.vue'
 import Card from '@/components/account-dashboard/Card.vue'
-import AdminLayout from '@/Layout/AdminLayout.vue'
-import UserLayout from '@/Layout/UserLayout.vue'
 import DashboardPatient from '@/views/Patient/DashboardPatient.vue'
 
 export default {
   name: 'Dashboard',
   data() {
     return {
-      // Temporary user
       user: {
-        accountType: 'user',
+        accountType: (() => {
+          const role = localStorage.getItem('user-role') || ''
+          const r = role.toLowerCase()
+          if (r.includes('admin') || r.includes('administrator')) return 'admin'
+          if (r.includes('physician') || r.includes('doctor')) return 'physician'
+          return 'user'
+        })(),
       },
       optionsArea: {
         xaxis: {
@@ -259,7 +240,7 @@ export default {
         yaxis: {
           show: false,
         },
-        colors: ['#4f46e5', '#DC2626'],
+        colors: ['#059682', '#DC2626'],
         dataLabels: {
           enabled: false,
         },
@@ -355,25 +336,26 @@ export default {
     DataTable,
     ChartComponent,
     Card,
-    AdminLayout,
-    UserLayout,
     DashboardPatient,
   },
   computed: {
     seriesBar() {
-      return this.$store.getters.getProducts
+      const services = this.$store.getters.getServices
+      return Array.isArray(services) && services.length ? [{ name: 'Services', data: services.map(s => s.id || 0) }] : [{ name: 'Services', data: [0] }]
     },
     seriesArea() {
-      return this.$store.getters.getRevenue
+      const revenue = this.$store.getters.getRevenue
+      return Array.isArray(revenue) && revenue.length ? [{ name: 'Revenue', data: revenue.map(r => r.amountPaid ?? r.amount ?? 0) }] : [{ name: 'Revenue', data: [30, 40, 45, 50, 49, 60, 70, 91] }]
     },
     seriesVisitor() {
-      return this.$store.getters.getVisitor
+      const v = this.$store.getters.getVisitor
+      return v?.data ? [{ name: v.name || 'Visitor', data: v.data }] : [{ name: 'Visitor', data: [30, 40, 45, 50, 49, 60, 70, 91] }]
     },
   },
 
   methods: {
     fetchServices() {
-      this.$store.dispatch('fetchfetchServices')
+      this.$store.dispatch('fetchServices')
     },
 
     fetchRevenues() {
@@ -397,6 +379,7 @@ export default {
   },
 
   mounted() {
+    if (this.user.accountType !== 'admin') return
     this.fetchServices()
     this.fetchRevenues()
     this.fetchTransactions()
@@ -411,7 +394,7 @@ export default {
 
 <style scoped>
 .chart {
-  @apply mt-2 bg-white dark:bg-gray-800 p-5 w-full rounded-md box-border shadow;
+  @apply mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-soft border border-slate-100 dark:border-slate-700/50 p-6 w-full;
 }
 .status {
   @apply text-red-800 bg-red-300 px-3 py-1 rounded-md;

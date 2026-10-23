@@ -102,6 +102,12 @@ export async function getPatient(id) {
   return data.data ?? data;
 }
 
+export async function getCurrentPatient() {
+  const res = await fetch(`${API_BASE_URL}/Patient/me`, { headers: authHeaders() });
+  const data = await handleResponse(res);
+  return data.data ?? data;
+}
+
 export async function createPatient(payload) {
   const res = await fetch(`${API_BASE_URL}/Patient`, {
     method: 'POST',
@@ -138,6 +144,12 @@ export async function getPhysicians() {
 
 export async function getPhysician(id) {
   const res = await fetch(`${API_BASE_URL}/Physician/${id}`, { headers: authHeaders() });
+  const data = await handleResponse(res);
+  return data.data ?? data;
+}
+
+export async function getCurrentPhysician() {
+  const res = await fetch(`${API_BASE_URL}/Physician/me`, { headers: authHeaders() });
   const data = await handleResponse(res);
   return data.data ?? data;
 }
@@ -183,11 +195,11 @@ export async function getTelemedicineService(id) {
 }
 
 // --- Appointments ---
-export async function scheduleAppointment(serviceId, paymentToken) {
+export async function scheduleAppointment(serviceId, paymentToken, appointmentDate = null, physicianId = null) {
   const res = await fetch(`${API_BASE_URL}/Appointment`, {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ serviceId, paymentToken }),
+    body: JSON.stringify({ serviceId, paymentToken, appointmentDate, physicianId }),
   });
   const data = await handleResponse(res);
   return data.data ?? data;

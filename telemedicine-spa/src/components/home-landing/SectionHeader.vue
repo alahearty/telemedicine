@@ -23,11 +23,11 @@ header h2 {
   text-transform: uppercase;
   font-weight: 700;
   text-align: center;
-  color: #283779;
+  color: #065f55;
 }
 header .faded-title {
   font-size: clamp(3.5rem, 6vw, 7rem);
-  color: rgba(178, 221, 237, 0.15);
+  color: rgba(16, 185, 154, 0.08);
   text-transform: uppercase;
   position: absolute;
   z-index: -1;

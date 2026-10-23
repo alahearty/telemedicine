@@ -1,21 +1,24 @@
 <template>
-  <section id="hero">
+  <section id="hero" class="hero-section">
     <article class="hero-content">
       <div class="hero-text-container">
-        <h1>
-          We're <span>determined</span> for your <span>better life.</span>
+        <h1 class="font-display font-bold text-slate-800 leading-tight">
+          Healthcare, <span class="text-primary-600">anywhere</span>
         </h1>
-        <p>
-          You can get the care you need 24/7 – be it online or in person. You
-          will be treated by caring specialist doctors.
+        <p class="hero-subtitle">
+          Connect with specialists 24/7. Get the care you need online or in person—treated by caring doctors who put you first.
         </p>
         <a href="#service">
-          <button class="hero-cta">Check Our Services</button>
+          <button class="hero-cta btn-primary">
+            Explore services
+            <svg class="w-5 h-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </button>
         </a>
       </div>
-
       <div class="hero-img">
-        <img src="@/assets/img/home-hero.png" />
+        <img src="@/assets/img/home-hero.png" alt="Healthcare illustration" />
       </div>
     </article>
   </section>
@@ -26,73 +29,72 @@ export default {}
 </script>
 
 <style scoped>
-.home #hero {
+.hero-section {
   width: 100%;
-  background-image: url('@/assets/img/home-hero-bg1.png');
-  background-repeat: no-repeat;
-  background-size: cover;
+  min-height: 90vh;
+  background: linear-gradient(135deg, #f0fdfa 0%, #ecfeff 40%, #f0f9ff 100%);
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
-  padding-inline: var(--bg-padding-inline);
+  padding: 6rem 1.5rem 4rem;
 }
-.home .hero-content {
+
+.hero-content {
   display: flex;
-  max-width: var(--max-width);
+  max-width: 1200px;
   margin-inline: auto;
   align-items: center;
   justify-content: space-between;
-  margin-top: 2rem;
-}
-.hero-content .hero-text-container {
-  flex: 0.45;
+  gap: 3rem;
 }
 
-.hero-content h1 {
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 300;
-  line-height: 120%;
-  color: #283779;
-  margin-bottom: 1rem;
+.hero-text-container {
+  flex: 0 0 48%;
 }
-.hero-content h1 span {
-  font-weight: 700;
+
+.hero-text-container h1 {
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  margin-bottom: 1.25rem;
 }
-.hero-content p {
+
+.hero-subtitle {
   font-size: 1.125rem;
-  line-height: 130%;
-  color: #1b71a1;
-  margin-bottom: 2.5rem;
-}
-.hero-content .hero-cta {
-  padding: 0.975rem 3.5rem;
-  font-size: 1rem;
-  background: #283779;
-  color: #fff;
-  border-radius: 50px;
-  font-weight: 700;
-}
-.hero-content .hero-img {
-  flex: 0.5;
+  line-height: 1.7;
+  color: #475569;
+  margin-bottom: 2rem;
 }
 
-@media (max-width: 800px) {
-  .home .hero-content {
-    max-width: var(--max-width-md);
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+}
+
+.hero-img {
+  flex: 0 0 48%;
+}
+
+.hero-img img {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+}
+
+@media (max-width: 900px) {
+  .hero-content {
     flex-direction: column-reverse;
     text-align: center;
-    margin-top: 7rem;
   }
-  .hero-content .hero-img {
-    width: 100%;
-    max-width: 470px;
+
+  .hero-text-container {
+    flex: 1;
   }
-  .hero-content .hero-text-container {
-    padding-block: 4rem;
+
+  .hero-img {
+    flex: 1;
   }
-  .hero-content h1 {
-    font-size: clamp(2rem, 6vw, 3rem);
+
+  .hero-img img {
+    max-width: 360px;
   }
 }
 </style>

@@ -1,49 +1,59 @@
 <template>
   <AuthLayout>
-    <form @submit.prevent="handleSubmit">
-      <h1>Sign up</h1>
-      <p class="subtitle">Create your account to get started</p>
+    <form @submit.prevent="handleSubmit" class="auth-form">
+      <h1 class="font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
+        Create account
+      </h1>
+      <p class="text-slate-600 dark:text-slate-400 mt-1 mb-8">
+        Get started with telemedicine in minutes
+      </p>
 
-      <div class="inputs-container">
-        <div class="input-group">
-          <label class="input-label">Account Type</label>
-          <select 
-            v-model="accountType" 
-            :class="['form-select', { 'input-error': errors.accountType }]"
+      <div class="space-y-5">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            Account type
+          </label>
+          <select
+            v-model="accountType"
+            :class="['input-modern', { 'ring-2 ring-red-500 border-red-500': errors.accountType }]"
             @blur="validateAccountType"
           >
             <option value="">Select account type</option>
             <option value="Patient">Patient</option>
             <option value="Physician">Physician</option>
           </select>
-          <span v-if="errors.accountType" class="error-message">{{ errors.accountType }}</span>
+          <span v-if="errors.accountType" class="block text-sm text-red-500 mt-1.5">{{ errors.accountType }}</span>
         </div>
 
-        <div class="input-group">
-          <label class="input-label">Email Address</label>
-          <input 
-            type="email" 
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            Email address
+          </label>
+          <input
+            type="email"
             v-model="email"
-            placeholder="Enter your email address"
-            :class="['form-input', { 'input-error': errors.email }]"
+            placeholder="you@example.com"
+            :class="['input-modern', { 'ring-2 ring-red-500 border-red-500': errors.email }]"
             @blur="validateEmail"
           />
-          <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
+          <span v-if="errors.email" class="block text-sm text-red-500 mt-1.5">{{ errors.email }}</span>
         </div>
 
-        <div class="input-group">
-          <label class="input-label">Password</label>
-          <div class="password-input-wrapper">
-            <input 
-              :type="showPassword ? 'text' : 'password'" 
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            Password
+          </label>
+          <div class="relative">
+            <input
+              :type="showPassword ? 'text' : 'password'"
               v-model="password"
-              placeholder="Enter your password"
-              :class="['form-input', { 'input-error': errors.password }]"
+              placeholder="••••••••"
+              :class="['input-modern pr-12', { 'ring-2 ring-red-500 border-red-500': errors.password }]"
               @blur="validatePassword"
             />
-            <button 
+            <button
               type="button"
-              class="password-toggle"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg"
               @click="showPassword = !showPassword"
             >
               <svg v-if="showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,22 +65,24 @@
               </svg>
             </button>
           </div>
-          <span v-if="errors.password" class="error-message">{{ errors.password }}</span>
+          <span v-if="errors.password" class="block text-sm text-red-500 mt-1.5">{{ errors.password }}</span>
         </div>
 
-        <div class="input-group">
-          <label class="input-label">Confirm Password</label>
-          <div class="password-input-wrapper">
-            <input 
-              :type="showConfirmPassword ? 'text' : 'password'" 
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            Confirm password
+          </label>
+          <div class="relative">
+            <input
+              :type="showConfirmPassword ? 'text' : 'password'"
               v-model="confirmPassword"
-              placeholder="Confirm your password"
-              :class="['form-input', { 'input-error': errors.confirmPassword }]"
+              placeholder="••••••••"
+              :class="['input-modern pr-12', { 'ring-2 ring-red-500 border-red-500': errors.confirmPassword }]"
               @blur="validateConfirmPassword"
             />
-            <button 
+            <button
               type="button"
-              class="password-toggle"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg"
               @click="showConfirmPassword = !showConfirmPassword"
             >
               <svg v-if="showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,52 +94,66 @@
               </svg>
             </button>
           </div>
-          <span v-if="errors.confirmPassword" class="error-message">{{ errors.confirmPassword }}</span>
+          <span v-if="errors.confirmPassword" class="block text-sm text-red-500 mt-1.5">{{ errors.confirmPassword }}</span>
         </div>
       </div>
 
-      <div class="buttons-container">
-        <button 
-          type="submit" 
-          class="submit-button"
-          :disabled="loading"
-        >
-          <span v-if="loading">Creating...</span>
-          <span v-else>Create Account</span>
-          <span class="material-symbols-outlined"> arrow_forward </span>
-        </button>
-        <button 
-          type="button" 
-          class="submit-button secondary" 
+      <div class="flex gap-3 mt-8">
+        <button
+          type="button"
           @click="handleBack"
           :disabled="loading"
+          class="btn-secondary flex-1"
         >
-          <span class="material-symbols-outlined"> arrow_back </span>
           Back
         </button>
+        <button
+          type="submit"
+          :disabled="loading"
+          class="btn-primary flex-1 inline-flex items-center justify-center gap-2"
+        >
+          <span v-if="loading">Creating...</span>
+          <span v-else>Create account</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </button>
       </div>
 
-      <span class="divider" />
+      <div class="relative my-8">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-slate-200 dark:border-slate-600"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-4 bg-white dark:bg-slate-800 text-slate-500">Or sign up with</span>
+        </div>
+      </div>
 
-      <p class="signin-options-title">Or signup with</p>
-
-      <div class="signin-options-container">
-        <button type="button" @click="handleSocialSignup('facebook')">
-          <FacebookIcon />
-          Facebook
-        </button>
-        <button type="button" @click="handleSocialSignup('google')">
-          <GoogleIcon />
+      <div class="flex gap-3">
+        <button
+          type="button"
+          @click="handleSocialSignup('google')"
+          class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-slate-700 dark:text-slate-300"
+        >
+          <GoogleIcon class="w-5 h-5" />
           Google
         </button>
+        <button
+          type="button"
+          @click="handleSocialSignup('facebook')"
+          class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-slate-700 dark:text-slate-300"
+        >
+          <FacebookIcon class="w-5 h-5" />
+          Facebook
+        </button>
       </div>
 
-      <div class="alt-sign-in">
-        <p>
-          Already have an account?
-          <router-link :to="{ path: '/login' }">Login</router-link>
-        </p>
-      </div>
+      <p class="text-center text-slate-600 dark:text-slate-400 mt-8">
+        Already have an account?
+        <router-link to="/login" class="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400">
+          Sign in
+        </router-link>
+      </p>
     </form>
   </AuthLayout>
 </template>
@@ -155,38 +181,23 @@ export default {
   },
   methods: {
     validateAccountType() {
-      if (!this.accountType) {
-        this.errors.accountType = 'Account type is required'
-      } else {
-        delete this.errors.accountType
-      }
+      if (!this.accountType) this.errors.accountType = 'Account type is required'
+      else delete this.errors.accountType
     },
     validateEmail() {
-      if (!this.email) {
-        this.errors.email = 'Email is required'
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
-        this.errors.email = 'Please enter a valid email address'
-      } else {
-        delete this.errors.email
-      }
+      if (!this.email) this.errors.email = 'Email is required'
+      else if (!/^[^\s@]+@[^\s@]+(\.[^\s@]+)*$/.test(this.email)) this.errors.email = 'Please enter a valid email address'
+      else delete this.errors.email
     },
     validatePassword() {
-      if (!this.password) {
-        this.errors.password = 'Password is required'
-      } else if (this.password.length < 6) {
-        this.errors.password = 'Password must be at least 6 characters'
-      } else {
-        delete this.errors.password
-      }
+      if (!this.password) this.errors.password = 'Password is required'
+      else if (this.password.length < 6) this.errors.password = 'Password must be at least 6 characters'
+      else delete this.errors.password
     },
     validateConfirmPassword() {
-      if (!this.confirmPassword) {
-        this.errors.confirmPassword = 'Please confirm your password'
-      } else if (this.password !== this.confirmPassword) {
-        this.errors.confirmPassword = 'Passwords do not match'
-      } else {
-        delete this.errors.confirmPassword
-      }
+      if (!this.confirmPassword) this.errors.confirmPassword = 'Please confirm your password'
+      else if (this.password !== this.confirmPassword) this.errors.confirmPassword = 'Passwords do not match'
+      else delete this.errors.confirmPassword
     },
     validateForm() {
       this.validateAccountType()
@@ -197,27 +208,17 @@ export default {
     },
     async handleSubmit() {
       if (!this.validateForm()) {
-        if (this.$notification) {
-          this.$notification.error('Validation Error', 'Please fix the errors in the form')
-        }
+        if (this.$notification) this.$notification.error('Validation Error', 'Please fix the errors in the form')
         return
       }
-
       this.loading = true
       try {
         await register(this.email, this.password, this.accountType)
-        if (this.$notification) {
-          this.$notification.success('Registration Successful', 'Your account has been created successfully!')
-        }
-        setTimeout(() => {
-          this.$router.push('/login')
-        }, 1500)
+        if (this.$notification) this.$notification.success('Account created', 'You can now sign in.')
+        setTimeout(() => this.$router.push('/login'), 1500)
       } catch (error) {
-        console.error('Registration error:', error)
-        const errorMessage = error.message || 'Registration failed. Please try again.'
-        if (this.$notification) {
-          this.$notification.error('Registration Failed', errorMessage)
-        }
+        const msg = error.message || 'Registration failed. Please try again.'
+        if (this.$notification) this.$notification.error('Registration failed', msg)
       } finally {
         this.loading = false
       }
@@ -226,65 +227,8 @@ export default {
       this.$router.push('/')
     },
     handleSocialSignup(provider) {
-      // TODO: Implement social signup
-      console.log(`Social signup with ${provider}`)
-      if (this.$notification) {
-        this.$notification.info('Coming Soon', `Social signup with ${provider} will be available soon.`)
-      }
+      if (this.$notification) this.$notification.info('Coming soon', `${provider} signup will be available soon.`)
     },
   },
 }
 </script>
-
-<style scoped>
-.subtitle {
-  @apply text-gray-600 dark:text-gray-400 mb-6 text-center;
-}
-
-.input-group {
-  @apply mb-4;
-}
-
-.input-label {
-  @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
-}
-
-.form-input,
-.form-select {
-  @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200 transition-all;
-}
-
-.form-select {
-  @apply appearance-none bg-white dark:bg-gray-700;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
-  background-position: right 0.5rem center;
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-  padding-right: 2.5rem;
-}
-
-.form-input.input-error,
-.form-select.input-error {
-  @apply border-red-500 focus:ring-red-500;
-}
-
-.password-input-wrapper {
-  @apply relative;
-}
-
-.password-toggle {
-  @apply absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300;
-}
-
-.error-message {
-  @apply block text-sm text-red-500 mt-1;
-}
-
-.submit-button.secondary {
-  @apply bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600;
-}
-
-.submit-button:disabled {
-  @apply opacity-50 cursor-not-allowed;
-}
-</style>

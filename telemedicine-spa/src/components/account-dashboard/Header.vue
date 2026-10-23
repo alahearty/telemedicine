@@ -1,7 +1,7 @@
 <template>
   <!-- this header -->
   <header
-    class="bg-white dark:bg-gray-800 p-2 border-b-2 dark:border-gray-700 fixed top-0 left-0 right-0"
+    class="bg-white dark:bg-slate-800 p-4 border-b border-slate-200 dark:border-slate-700 fixed top-0 left-0 right-0 z-30"
   >
     <div class="wrap-header flex items-center justify-between flex-wrap">
       <div class="flex flex-no-shrink items-center">
@@ -28,14 +28,14 @@
           </svg>
         </button>
         <h2
-          class="text-md text-indigo-800 ml-3 lg:block hidden px-5 p-2 rounded-md bg-indigo-200"
+          class="text-md text-slate-700 dark:text-slate-200 ml-3 lg:block hidden px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700"
         >
-          Welcome back, Woriayibapri Hearty Alapher
+          Welcome back{{ displayName ? `, ${displayName}` : '' }}
         </h2>
       </div>
       <div class="mr-5 flex">
         <div
-          class="input-box border dark:bg-gray-900 dark:border-gray-700 rounded-md mr-5 hidden lg:w-search w-full box-border lg:flex md:flex focus-within:bg-gray-100 dark:focus-within:bg-gray-700"
+          class="input-box border border-slate-200 dark:border-slate-600 rounded-xl mr-5 hidden lg:w-search w-full box-border lg:flex md:flex focus-within:ring-2 focus-within:ring-primary-500/20 focus-within:border-primary-500"
         >
           <span class="text-3xl p-2 text-gray-400"
             ><Icon icon="ei:search"
@@ -102,41 +102,40 @@
             class="block absolute right-10 mt-12 z-10 w-44 border dark:border-gray-700 bg-white dark:bg-gray-800 rounded divide-y dark:divide-gray-700 divide-gray-100 shadow"
           >
             <div class="py-3 px-4 text-sm text-gray-900 dark:text-gray-200">
-              <div>Logged As</div>
-              <div class="font-medium truncate">Wori Hearty Alapher</div>
+              <div>Logged in as</div>
+              <div class="font-medium truncate">{{ displayName || 'User' }}</div>
             </div>
             <ul
               class="py-1 text-sm text-gray-700 dark:text-gray-200"
               aria-labelledby="dropdownSmallButton"
             >
               <li>
-                <a
-                  href="#"
-                  class="block py-2 px-4 0 hover:bg-primary hover:text-white"
-                  >User Profile</a
+                <router-link
+                  :to="accountLink"
+                  class="block py-2 px-4 hover:bg-primary-500 hover:text-white"
+                  @click="menu = false"
                 >
+                  {{ isPhysician ? 'Profile' : 'Account' }}
+                </router-link>
               </li>
-              <li>
-                <a
-                  href="#"
-                  class="block py-2 px-4 hover:bg-primary hover:text-white"
-                  >Settings</a
+              <li v-if="!isPhysician">
+                <router-link
+                  to="/dashboard/update-record"
+                  class="block py-2 px-4 hover:bg-primary-500 hover:text-white"
+                  @click="menu = false"
                 >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="block py-2 px-4 hover:bg-primary hover:text-white"
-                  >Github</a
-                >
+                  Update Record
+                </router-link>
               </li>
             </ul>
             <div class="py-1">
               <a
                 href="#"
                 class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-primary hover:text-white"
-                >Sign out</a
+                @click.prevent="signOut"
               >
+                Sign out
+              </a>
             </div>
           </div>
         </transition>
@@ -156,6 +155,21 @@ export default {
   components: {
     Icon,
   },
+  computed: {
+    displayName() {
+      const name = localStorage.getItem('user-name')
+      if (name) return name.split(' ').slice(0, 2).join(' ')
+      const email = localStorage.getItem('user-email')
+      return email ? email.split('@')[0] : null
+    },
+    isPhysician() {
+      const role = (localStorage.getItem('user-role') || '').toLowerCase()
+      return role.includes('physician') || role.includes('doctor')
+    },
+    accountLink() {
+      return this.isPhysician ? '/physician/profile' : '/dashboard/account'
+    },
+  },
   methods: {
     menuToggle: function () {
       this.menu = !this.menu
@@ -164,7 +178,17 @@ export default {
       this.menu = false
     },
     sidebarToggle: function () {
-      document.querySelector('.flex-sidebar').classList.remove('hidden')
+      document.querySelector('.flex-sidebar')?.classList.remove('hidden')
+    },
+    signOut() {
+      this.menu = false
+      localStorage.removeItem('access-token')
+      localStorage.removeItem('user-id')
+      localStorage.removeItem('user-name')
+      localStorage.removeItem('user-email')
+      localStorage.removeItem('user-role')
+      localStorage.removeItem('physician-id')
+      this.$router.push('/login')
     },
   },
   mounted() {

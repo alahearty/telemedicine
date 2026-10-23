@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using telemedicine_webapi.Application.Common.Interfaces;
 
 namespace telemedicine_webapi.Infrastructure.Persistence.Context;
 
@@ -38,6 +39,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser<Guid>, Identi
     public DbSet<TelemedicineService> TelemedicineServices => Set<TelemedicineService>();
     public DbSet<TelemedicinePayment> TelemedicinePayments => Set<TelemedicinePayment>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<PhysicianAvailability> PhysicianAvailabilities => Set<PhysicianAvailability>();
     public DbSet<PhysicianPatientTransaction> PhysianPatientTransactions => Set<PhysicianPatientTransaction>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<Message> Messages => Set<Message>();

@@ -1,150 +1,61 @@
 <template>
   <div class="payment-container">
     <div class="payment-header">
-      <h1 class="payment-title">{{ pendingAppointment ? 'Complete Payment' : 'Choose Your Plan' }}</h1>
-      <p class="payment-subtitle">{{ pendingAppointment ? 'Pay for your selected telemedicine service' : 'Select the perfect plan for your healthcare needs' }}</p>
+      <h1 class="payment-title">Appointment Payment</h1>
+      <p class="payment-subtitle">Sandbox checkout for your telemedicine appointment</p>
     </div>
 
-    <div v-if="pendingAppointment" class="appointment-payment-section">
-      <div class="appointment-summary-card">
-        <h3>{{ pendingAppointment.service?.title || 'Telemedicine Service' }}</h3>
-        <p class="service-cost">${{ pendingAppointment.service?.costValue ?? pendingAppointment.service?.cost?.replace?.(/[^0-9.]/g, '') ?? '0' }}</p>
-        <button class="plan-button plan-button-selected" @click="showPaymentForm = true">
-          Proceed to Payment
+    <div v-if="paymentComplete" class="success-card">
+      <div class="success-icon">✓</div>
+      <h2>Appointment confirmed</h2>
+      <p class="success-note">
+        The simulated payment was approved and the appointment was created. No real money was charged.
+      </p>
+      <dl class="summary-list">
+        <div><dt>Service</dt><dd>{{ booking.serviceName }}</dd></div>
+        <div><dt>Amount</dt><dd>${{ booking.amount.toFixed(2) }}</dd></div>
+        <div><dt>Appointment</dt><dd>#{{ booking.appointmentId }}</dd></div>
+        <div v-if="booking.appointmentDate"><dt>Requested date</dt><dd>{{ formatDate(booking.appointmentDate) }}</dd></div>
+        <div v-if="booking.physicianName"><dt>Physician</dt><dd>{{ booking.physicianName }}</dd></div>
+      </dl>
+      <router-link to="/dashboard" class="submit-payment-btn inline-flex justify-center">Back to dashboard</router-link>
+    </div>
+
+    <div v-else-if="pendingAppointment" class="checkout-card">
+      <h2>{{ pendingAppointment.service?.title || 'Telemedicine service' }}</h2>
+      <p class="service-description">{{ pendingAppointment.service?.description || 'Selected telemedicine consultation' }}</p>
+
+      <dl class="summary-list">
+        <div><dt>Requested date</dt><dd>{{ requestedDateLabel }}</dd></div>
+        <div><dt>Requested time</dt><dd>{{ pendingAppointment.selectedTime || 'Not selected' }}</dd></div>
+        <div><dt>Physician</dt><dd>{{ selectedPhysicianLabel }}</dd></div>
+        <div class="amount-row"><dt>Amount due</dt><dd>${{ amount.toFixed(2) }}</dd></div>
+      </dl>
+
+      <div class="sandbox-note">
+        <strong>Sandbox / simulated payment.</strong>
+        No card number, CVV or real payment details are collected. The API records a synthetic payment
+        and returns a one-time token used to create the appointment.
+      </div>
+
+      <p v-if="error" class="error-box">{{ error }}</p>
+
+      <div class="actions">
+        <button type="button" class="submit-payment-btn" :disabled="processing || amount <= 0" @click="processPayment">
+          {{ processing ? 'Processing simulated payment...' : `Pay $${amount.toFixed(2)} (demo)` }}
+        </button>
+        <button type="button" class="secondary-btn" :disabled="processing" @click="cancelCheckout">
+          Cancel
         </button>
       </div>
     </div>
 
-    <div v-else class="payment-plans">
-      <div 
-        v-for="plan in plans" 
-        :key="plan.id"
-        :class="['plan-card', { 'plan-featured': plan.featured, 'plan-selected': selectedPlan === plan.id }]"
-        @click="selectPlan(plan.id)"
-      >
-        <div v-if="plan.featured" class="plan-badge">Most Popular</div>
-        <div class="plan-header">
-          <h3 class="plan-name">{{ plan.name }}</h3>
-          <div class="plan-price">
-            <span class="plan-currency">$</span>
-            <span class="plan-amount">{{ plan.price }}</span>
-            <span class="plan-period">/ {{ plan.period }}</span>
-          </div>
-        </div>
-        <ul class="plan-features">
-          <li v-for="feature in plan.features" :key="feature" class="plan-feature">
-            <svg class="feature-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span>{{ feature }}</span>
-          </li>
-        </ul>
-        <button 
-          :class="['plan-button', { 'plan-button-selected': selectedPlan === plan.id }]"
-          @click.stop="proceedToPayment(plan)"
-        >
-          {{ selectedPlan === plan.id ? 'Selected' : 'Select Plan' }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Payment Form Modal -->
-    <div v-if="showPaymentForm" class="payment-modal-overlay" @click="closePaymentForm">
-      <div class="payment-modal" @click.stop>
-        <div class="modal-header">
-          <h2 class="modal-title">Payment Details</h2>
-          <button class="modal-close" @click="closePaymentForm">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        
-        <div class="modal-content">
-          <div class="selected-plan-summary">
-            <h3>{{ pendingAppointment ? (selectedPlanData?.name || 'Service') : (selectedPlanData?.name + ' Plan') }}</h3>
-            <p class="summary-price">${{ selectedPlanData?.price }}{{ selectedPlanData?.period ? ' / ' + selectedPlanData.period : '' }}</p>
-          </div>
-
-          <form @submit.prevent="processPayment" class="payment-form">
-            <div class="form-group">
-              <label class="form-label">Card Number</label>
-              <input 
-                type="text" 
-                v-model="paymentDetails.cardNumber"
-                class="form-input"
-                placeholder="1234 5678 9012 3456"
-                maxlength="19"
-                @input="formatCardNumber"
-              />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Expiry Date</label>
-                <input 
-                  type="text" 
-                  v-model="paymentDetails.expiryDate"
-                  class="form-input"
-                  placeholder="MM/YY"
-                  maxlength="5"
-                  @input="formatExpiryDate"
-                />
-              </div>
-              <div class="form-group">
-                <label class="form-label">CVV</label>
-                <input 
-                  type="text" 
-                  v-model="paymentDetails.cvv"
-                  class="form-input"
-                  placeholder="123"
-                  maxlength="3"
-                />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Cardholder Name</label>
-              <input 
-                type="text" 
-                v-model="paymentDetails.cardholderName"
-                class="form-input"
-                placeholder="John Doe"
-              />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Billing Address</label>
-              <input 
-                type="text" 
-                v-model="paymentDetails.billingAddress"
-                class="form-input"
-                placeholder="123 Main Street"
-              />
-            </div>
-
-            <div class="payment-summary">
-              <div class="summary-row">
-                <span>Subtotal</span>
-                <span>${{ selectedPlanData?.price }}</span>
-              </div>
-              <div class="summary-row">
-                <span>Tax</span>
-                <span>${{ taxAmount }}</span>
-              </div>
-              <div class="summary-row summary-total">
-                <span>Total</span>
-                <span>${{ totalAmount }}</span>
-              </div>
-            </div>
-
-            <button type="submit" class="submit-payment-btn" :disabled="!isFormValid || processing">
-              <span v-if="processing">Processing...</span>
-              <span v-else>Pay ${{ totalAmount }}</span>
-            </button>
-          </form>
-        </div>
-      </div>
+    <div v-else class="empty-card">
+      <h2>No appointment selected</h2>
+      <p>Choose a service and a time before continuing to payment.</p>
+      <router-link to="/dashboard/book-service" class="submit-payment-btn inline-flex justify-center">
+        Book an appointment
+      </router-link>
     </div>
   </div>
 </template>
@@ -157,157 +68,105 @@ export default {
   data() {
     return {
       pendingAppointment: null,
-      selectedPlan: null,
-      showPaymentForm: false,
       processing: false,
-      paymentDetails: {
-        cardNumber: '',
-        expiryDate: '',
-        cvv: '',
-        cardholderName: '',
-        billingAddress: ''
-      },
-      plans: [
-        {
-          id: 1,
-          name: 'Basic',
-          price: '9.99',
-          period: 'month',
-          features: [
-            '10GB Storage',
-            'Basic Consultation',
-            'Email Support',
-            'Neurology Services',
-            'Limited Access'
-          ]
-        },
-        {
-          id: 2,
-          name: 'Pro',
-          price: '24.99',
-          period: 'month',
-          featured: true,
-          features: [
-            'Unlimited Storage',
-            'Priority Consultation',
-            '24/7 Support',
-            'Eye Care Services',
-            'Neurology Services',
-            'Cardiac Care',
-            'Physiotherapy'
-          ]
-        },
-        {
-          id: 3,
-          name: 'Premium',
-          price: '49.99',
-          period: 'month',
-          features: [
-            'Unlimited Storage',
-            'VIP Consultation',
-            '24/7 Premium Support',
-            'All Medical Services',
-            'Home Visits Available',
-            'Unlimited Appointments',
-            'Priority Scheduling'
-          ]
-        }
-      ]
+      paymentComplete: false,
+      error: '',
+      booking: {
+        appointmentId: null,
+        serviceName: '',
+        amount: 0,
+        appointmentDate: null,
+        physicianName: null
+      }
     }
   },
   mounted() {
     try {
       const stored = sessionStorage.getItem('pendingAppointment')
-      if (stored) {
-        this.pendingAppointment = JSON.parse(stored)
-      }
+      if (stored) this.pendingAppointment = JSON.parse(stored)
     } catch (e) {
       console.warn('Could not parse pending appointment', e)
     }
   },
   computed: {
-    selectedPlanData() {
-      if (this.pendingAppointment?.service) {
-        return {
-          name: this.pendingAppointment.service.title || 'Service',
-          price: this.pendingAppointment.service.costValue ?? this.pendingAppointment.service.cost?.replace?.(/[^0-9.]/g, '') ?? '0'
-        }
-      }
-      return this.plans.find(p => p.id === this.selectedPlan)
+    amount() {
+      const service = this.pendingAppointment?.service
+      return Number(service?.costValue ?? 0)
     },
-    taxAmount() {
-      if (!this.selectedPlanData) return '0.00'
-      const price = parseFloat(this.selectedPlanData.price)
-      return this.pendingAppointment ? '0.00' : (price * 0.1).toFixed(2)
+    requestedDateLabel() {
+      return this.pendingAppointment?.selectedDate
+        ? this.formatDate(this.pendingAppointment.selectedDate)
+        : 'Not selected'
     },
-    totalAmount() {
-      if (!this.selectedPlanData) return '0.00'
-      const price = parseFloat(this.selectedPlanData.price)
-      return this.pendingAppointment ? price.toFixed(2) : (price + parseFloat(this.taxAmount)).toFixed(2)
-    },
-    isFormValid() {
-      return this.paymentDetails.cardNumber.replace(/\s/g, '').length >= 16 &&
-             this.paymentDetails.expiryDate.length === 5 &&
-             this.paymentDetails.cvv.length >= 3 &&
-             this.paymentDetails.cardholderName.trim() !== '' &&
-             this.paymentDetails.billingAddress.trim() !== ''
+    selectedPhysicianLabel() {
+      const doctor = this.pendingAppointment?.selectedDoctor
+      if (!doctor) return 'Any available physician'
+      return `Physician #${doctor}`
     }
   },
   methods: {
-    selectPlan(planId) {
-      this.selectedPlan = planId
+    formatDate(value) {
+      if (!value) return 'Not selected'
+      const date = new Date(value)
+      if (Number.isNaN(date.getTime())) return value
+      return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
     },
-    proceedToPayment(plan) {
-      this.selectedPlan = plan.id
-      this.showPaymentForm = true
-    },
-    closePaymentForm() {
-      this.showPaymentForm = false
-    },
-    formatCardNumber(event) {
-      let value = event.target.value.replace(/\s/g, '')
-      let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value
-      this.paymentDetails.cardNumber = formattedValue
-    },
-    formatExpiryDate(event) {
-      let value = event.target.value.replace(/\D/g, '')
-      if (value.length >= 2) {
-        value = value.substring(0, 2) + '/' + value.substring(2, 4)
-      }
-      this.paymentDetails.expiryDate = value
+    buildAppointmentDate() {
+      const dateValue = this.pendingAppointment?.selectedDate
+      const timeValue = this.pendingAppointment?.selectedTime
+      if (!dateValue || !timeValue) return null
+      const match = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(timeValue.trim())
+      if (!match) return null
+      let hours = Number(match[1])
+      const minutes = Number(match[2])
+      const meridiem = match[3].toUpperCase()
+      if (meridiem === 'PM' && hours < 12) hours += 12
+      if (meridiem === 'AM' && hours === 12) hours = 0
+      const date = new Date(`${dateValue}T00:00:00`)
+      date.setHours(hours, minutes, 0, 0)
+      return date.toISOString()
     },
     async processPayment() {
+      if (this.processing || !this.pendingAppointment) return
       this.processing = true
+      this.error = ''
       try {
-        if (this.pendingAppointment) {
-          const { serviceId, service } = this.pendingAppointment
-          const amountPaid = Number(service?.costValue ?? service?.cost?.replace?.(/[^0-9.]/g, '') ?? 0)
-          if (!serviceId || amountPaid <= 0) {
-            throw new Error('Invalid appointment data')
-          }
-          const paymentResult = await makePayment(serviceId, amountPaid)
-          const paymentToken = paymentResult?.paymentToken ?? paymentResult
-          if (!paymentToken) throw new Error('Payment failed')
-          await scheduleAppointment(serviceId, paymentToken)
-          sessionStorage.removeItem('pendingAppointment')
-          if (this.$notification) {
-            this.$notification.success('Success', 'Appointment scheduled successfully!')
-          }
-          this.$router.push('/dashboard')
-        } else {
-          await new Promise(r => setTimeout(r, 1500))
-          if (this.$notification) {
-            this.$notification.success('Payment Successful', 'Your subscription has been activated.')
-          }
+        const serviceId = Number(this.pendingAppointment.serviceId)
+        if (!serviceId) throw new Error('The selected service is missing.')
+        if (this.amount <= 0) throw new Error('The selected service has no payable amount.')
+
+        const payment = await makePayment(serviceId, this.amount)
+        const paymentToken = payment?.paymentToken
+        if (!paymentToken) throw new Error('The payment service did not return a token.')
+
+        const appointmentDate = this.buildAppointmentDate()
+        const physicianId = this.pendingAppointment.selectedDoctor || null
+        const appointmentId = await scheduleAppointment(serviceId, paymentToken, appointmentDate, physicianId)
+
+        this.booking = {
+          appointmentId: appointmentId ?? 'created',
+          serviceName: this.pendingAppointment.service?.title || 'Telemedicine service',
+          amount: this.amount,
+          appointmentDate,
+          physicianName: this.pendingAppointment.selectedDoctor
+            ? `Physician #${this.pendingAppointment.selectedDoctor}`
+            : null
         }
-        this.closePaymentForm()
-      } catch (error) {
+        sessionStorage.removeItem('pendingAppointment')
+        this.paymentComplete = true
         if (this.$notification) {
-          this.$notification.error('Payment Failed', error.message || 'Please try again.')
+          this.$notification.success('Appointment booked', 'Simulated payment approved.')
         }
+      } catch (err) {
+        this.error = err.message || 'The simulated payment could not be completed.'
+        if (this.$notification) this.$notification.error('Payment failed', this.error)
       } finally {
         this.processing = false
       }
+    },
+    cancelCheckout() {
+      sessionStorage.removeItem('pendingAppointment')
+      this.$router.push('/dashboard/book-service')
     }
   }
 }
@@ -315,181 +174,94 @@ export default {
 
 <style scoped>
 .payment-container {
-  @apply max-w-7xl mx-auto p-6 bg-gray-50 dark:bg-gray-900 min-h-screen;
+  @apply max-w-3xl mx-auto p-6 min-h-screen;
 }
 
 .payment-header {
-  @apply text-center mb-12;
+  @apply text-center mb-8;
 }
 
 .payment-title {
-  @apply text-4xl font-bold text-gray-800 dark:text-gray-200 mb-4;
+  @apply font-display text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2;
 }
 
 .payment-subtitle {
-  @apply text-lg text-gray-600 dark:text-gray-400;
+  @apply text-slate-600 dark:text-slate-400;
 }
 
-.appointment-payment-section {
-  @apply max-w-md mx-auto mb-8;
+.checkout-card,
+.success-card,
+.empty-card {
+  @apply bg-white dark:bg-slate-800 rounded-2xl shadow-soft border border-slate-100 dark:border-slate-700 p-8;
 }
 
-.appointment-summary-card {
-  @apply bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 text-center;
+.checkout-card h2,
+.success-card h2,
+.empty-card h2 {
+  @apply text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2;
 }
 
-.appointment-summary-card h3 {
-  @apply text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2;
+.service-description {
+  @apply text-slate-600 dark:text-slate-400 mb-6;
 }
 
-.appointment-summary-card .service-cost {
-  @apply text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-6;
+.summary-list {
+  @apply divide-y divide-slate-100 dark:divide-slate-700 mb-6;
 }
 
-.payment-plans {
-  @apply grid grid-cols-1 md:grid-cols-3 gap-8 mb-8;
+.summary-list > div {
+  @apply flex justify-between gap-4 py-3 text-sm;
 }
 
-.plan-card {
-  @apply relative bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-indigo-300 dark:hover:border-indigo-600;
+.summary-list dt {
+  @apply text-slate-500 dark:text-slate-400;
 }
 
-.plan-card.plan-featured {
-  @apply border-indigo-500 dark:border-indigo-400 transform scale-105;
+.summary-list dd {
+  @apply font-semibold text-slate-800 dark:text-slate-100 text-right;
 }
 
-.plan-card.plan-selected {
-  @apply border-indigo-500 dark:border-indigo-400 ring-4 ring-indigo-200 dark:ring-indigo-800;
+.amount-row dd {
+  @apply text-xl text-primary-600 dark:text-primary-400;
 }
 
-.plan-badge {
-  @apply absolute -top-4 left-1/2 transform -translate-x-1/2 bg-indigo-500 text-white px-4 py-1 rounded-full text-sm font-semibold;
+.sandbox-note {
+  @apply bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 rounded-xl p-4 text-sm leading-relaxed mb-6;
 }
 
-.plan-header {
-  @apply mb-6 pb-6 border-b border-gray-200 dark:border-gray-700;
+.error-box {
+  @apply bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl p-3 text-sm mb-4;
 }
 
-.plan-name {
-  @apply text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4;
-}
-
-.plan-price {
-  @apply flex items-baseline;
-}
-
-.plan-currency {
-  @apply text-xl text-gray-600 dark:text-gray-400;
-}
-
-.plan-amount {
-  @apply text-4xl font-bold text-gray-800 dark:text-gray-200;
-}
-
-.plan-period {
-  @apply text-lg text-gray-600 dark:text-gray-400 ml-1;
-}
-
-.plan-features {
-  @apply space-y-4 mb-8;
-}
-
-.plan-feature {
-  @apply flex items-start text-gray-700 dark:text-gray-300;
-}
-
-.feature-icon {
-  @apply w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5;
-}
-
-.plan-button {
-  @apply w-full py-3 px-6 rounded-lg font-semibold transition-colors bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600;
-}
-
-.plan-button-selected {
-  @apply bg-indigo-500 text-white hover:bg-indigo-600;
-}
-
-/* Payment Modal */
-.payment-modal-overlay {
-  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4;
-}
-
-.payment-modal {
-  @apply bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto;
-}
-
-.modal-header {
-  @apply flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700;
-}
-
-.modal-title {
-  @apply text-2xl font-bold text-gray-800 dark:text-gray-200;
-}
-
-.modal-close {
-  @apply p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
-}
-
-.modal-content {
-  @apply p-6;
-}
-
-.selected-plan-summary {
-  @apply bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg mb-6;
-}
-
-.selected-plan-summary h3 {
-  @apply text-xl font-semibold text-gray-800 dark:text-gray-200 mb-1;
-}
-
-.summary-price {
-  @apply text-lg text-indigo-600 dark:text-indigo-400 font-semibold;
-}
-
-.payment-form {
-  @apply space-y-4;
-}
-
-.form-group {
-  @apply mb-4;
-}
-
-.form-label {
-  @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
-}
-
-.form-input {
-  @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200;
-}
-
-.form-row {
-  @apply grid grid-cols-2 gap-4;
-}
-
-.payment-summary {
-  @apply bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-2 mb-6;
-}
-
-.summary-row {
-  @apply flex justify-between text-gray-700 dark:text-gray-300;
-}
-
-.summary-total {
-  @apply text-xl font-bold text-gray-800 dark:text-gray-200 pt-2 border-t border-gray-300 dark:border-gray-600;
+.actions {
+  @apply flex flex-col sm:flex-row gap-3;
 }
 
 .submit-payment-btn {
-  @apply w-full py-3 px-6 bg-indigo-500 text-white rounded-lg font-semibold hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply w-full py-3 px-6 bg-primary-500 text-white rounded-xl font-semibold hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-center;
 }
 
-@media (max-width: 768px) {
-  .payment-plans {
-    @apply grid-cols-1;
-  }
-  
-  .plan-card.plan-featured {
-    @apply transform scale-100;
-  }
+.secondary-btn {
+  @apply w-full sm:w-auto py-3 px-6 rounded-xl font-semibold border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50;
+}
+
+.success-card {
+  @apply text-center;
+}
+
+.success-icon {
+  @apply w-14 h-14 rounded-full bg-green-100 text-green-700 text-3xl flex items-center justify-center mx-auto mb-4;
+}
+
+.success-note {
+  @apply text-slate-600 dark:text-slate-400 mb-6;
+}
+
+.success-card .summary-list {
+  @apply text-left;
+}
+
+.empty-card {
+  @apply text-center;
 }
 </style>

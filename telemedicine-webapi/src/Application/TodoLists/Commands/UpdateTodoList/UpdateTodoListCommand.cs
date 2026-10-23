@@ -1,4 +1,4 @@
-﻿using telemedicine_webapi.Application.Common.Exceptions;
+using telemedicine_webapi.Application.Common.Exceptions;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using MediatR;
@@ -25,7 +25,7 @@ public class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoListComman
     public async Task<BaseResponse> Handle(UpdateTodoListCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoListRepository.GetByIdAsync(request.Id);
-        if (entity == null) return OperationResult.NotSuccessful("Not found");
+        if (entity == null) throw new NotFoundException("TodoList", request.Id);
 
         entity.Title = request.Title;
 

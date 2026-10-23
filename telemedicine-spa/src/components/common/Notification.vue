@@ -36,6 +36,8 @@
 </template>
 
 <script>
+import { getCurrentInstance } from 'vue'
+
 export default {
   name: 'Notification',
   data() {
@@ -44,14 +46,18 @@ export default {
     }
   },
   mounted() {
-    this.$notification = {
-      show: this.show,
+    const api = {
+      show: this.show.bind(this),
       success: (title, message) => this.show(title, message, 'success'),
       error: (title, message) => this.show(title, message, 'error'),
       warning: (title, message) => this.show(title, message, 'warning'),
       info: (title, message) => this.show(title, message, 'info')
     }
-    this.$root.$notification = this.$notification
+    const instance = getCurrentInstance()
+    if (instance?.appContext?.app) {
+      instance.appContext.app.config.globalProperties.$notification = api
+    }
+    this.$root.$notification = api
   },
   methods: {
     show(title, message = '', type = 'info', duration = 5000) {

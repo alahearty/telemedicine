@@ -1,4 +1,4 @@
-﻿using telemedicine_webapi.Infrastructure.Identity;
+using telemedicine_webapi.Infrastructure.Identity;
 using telemedicine_webapi.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -31,6 +31,7 @@ public partial class Testing
 
         _checkpoint = new Checkpoint
         {
+            DbAdapter = DbAdapter.Postgres,
             TablesToIgnore = new[] { "__EFMigrationsHistory" }
         };
     }
@@ -95,7 +96,9 @@ public partial class Testing
 
     public static async Task ResetState()
     {
-        await _checkpoint.Reset(_configuration.GetConnectionString("DefaultConnection"));
+        await using var connection = new Npgsql.NpgsqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+        await connection.OpenAsync();
+        await _checkpoint.Reset(connection);
 
         _currentUserId = Guid.Empty;
     }

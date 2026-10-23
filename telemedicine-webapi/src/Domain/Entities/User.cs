@@ -6,6 +6,8 @@ using Domain.Entities;
 namespace telemedicine_webapi.Domain.Entities;
 public class User : BaseAuditableEntity
 {
+    /// <summary>The ASP.NET Identity account owning this application profile.</summary>
+    public Guid? IdentityUserId { get; set; }
     [Required]
     public string? FirstName { get; set; }
     [Required]

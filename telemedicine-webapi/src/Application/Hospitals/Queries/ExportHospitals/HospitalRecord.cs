@@ -5,7 +5,7 @@ namespace telemedicine_webapi.Application.Hospitals.Queries.ExportHospitals;
 
 public class HospitalRecord : IMapFrom<Hospital>
 {
-    public string? Description { get; set; }
+    public string? HospitalName { get; set; }
 
-    public bool Done { get; set; }
+    public string? Address { get; set; }
 }

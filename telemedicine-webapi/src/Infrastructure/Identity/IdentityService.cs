@@ -66,7 +66,7 @@ public class IdentityService : IIdentityService
         var error1 = result.Errors.Select(error => error.Description);
         if (!result.Succeeded) return OperationResult.NotSuccessful(result.Errors.Select(error => error.Description));
 
-        result = await _userManager.AddToRoleAsync(user, role.ToString());
+        result = await _userManager.AddToRoleAsync(user, role.Name!);
 
         return result.Succeeded?OperationResult.Successful(user):OperationResult.NotSuccessful("unable to create user");
     }

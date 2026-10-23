@@ -6,6 +6,7 @@ namespace telemedicine.api.Controllers;
 
 [ApiController]
 [Route("chat-hub")]
+[Microsoft.AspNetCore.Authorization.Authorize]
 public class ChatHubController : ControllerBase
 {
     private readonly IHubContext<ChatHub, IChatHub> _hubContext;
@@ -21,16 +22,7 @@ public class ChatHubController : ControllerBase
     [HttpPost("publish-to-all")]
     public async Task<IActionResult> SendMessageToAllConnectedClient(string userName, string message)
     {
-        try
-        {
-            await _hubContext.Clients.All.ReceiveMessage(userName, message);
-        }
-        catch (Exception ex)
-        {
-
-            return BadRequest();
-        }
-        return Ok();
+        return Forbid();
     }
 
     [HttpPost("send-to-user")]
@@ -38,7 +30,7 @@ public class ChatHubController : ControllerBase
     {
         try
         {
-            await _hubContext.Clients.Client(receiverConnectionId).ReceiveMessage(userName, message);
+            await _hubContext.Clients.User(receiverConnectionId).ReceiveMessage(User.Identity?.Name ?? "user", message);
         }
         catch (Exception)
         {
@@ -83,17 +75,7 @@ public class ChatHubController : ControllerBase
     [HttpPost("join-group")]
     public async Task<IActionResult> JoinGroup(string groupName)
     {
-        try
-        {
-            await _hubContext.Groups.AddToGroupAsync(userConnectionId, groupName);
-
-        }
-        catch (Exception)
-        {
-
-            return BadRequest();
-        }
-        return Ok();
+        return Forbid();
     }
 
     [HttpPut("remove-cleint")]

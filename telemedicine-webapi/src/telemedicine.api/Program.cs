@@ -10,8 +10,6 @@ using Application.SignalRHub;
 var builder = WebApplication.CreateBuilder(args);
 {
     // Add services to the container.
-    var environment = builder.Environment.IsDevelopment() ? "Development" : "Production";
-    builder.Configuration.AddJsonFile($"appsettings.{environment}.json");
 
     builder.Services.AddApplicationServices();
     builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -48,13 +46,13 @@ var builder = WebApplication.CreateBuilder(args);
                     {
                         new OpenApiSecurityScheme
                         {
-                            Reference=new OpenApiReference
+                            Reference = new OpenApiReference
                             {
-                                Type=ReferenceType.SecurityScheme,
-                                Id="Bearer"
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
                             }
                         },
-                        new string[]{ }
+                        Array.Empty<string>()
                     }
                 });
                 
@@ -157,7 +155,13 @@ var app = builder.Build();
         c.EnableFilter();
     });
 
-    app.UseHttpsRedirection();
+    // In development the Vue CLI dev server proxies same-origin HTTP requests
+    // to this API. Redirecting those to HTTPS makes the browser follow a
+    // cross-origin redirect and drop the Authorization header.
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHttpsRedirection();
+    }
     
     // CORS
     app.UseCors(app.Environment.IsDevelopment() ? "DevelopmentPolicy" : "DefaultPolicy");

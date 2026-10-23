@@ -5,6 +5,7 @@ using telemedicine_webapi.Application.Common.Models;
 using System.ComponentModel.DataAnnotations;
 using telemedicine_webapi.Domain.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace telemedicine_webapi.Application.Physicians.Commands.CreatePhysician;
 
@@ -33,17 +34,24 @@ public class CreatePhysicianCommandHandler : IRequestHandler<CreatePhysicianComm
 {
     private readonly IUnitOfWork _context;
     private readonly ICurrentUserService _currentUser;
+    private readonly IApplicationDbContext _db;
 
-    public CreatePhysicianCommandHandler(IUnitOfWork context, ICurrentUserService currentUser)
+    public CreatePhysicianCommandHandler(IUnitOfWork context, ICurrentUserService currentUser, IApplicationDbContext db)
     {
         _context = context;
         _currentUser = currentUser;
+        _db = db;
     }
 
     public async Task<BaseResponse> Handle(CreatePhysicianCommand request, CancellationToken cancellationToken)
     {
+        if (_currentUser.UserId == Guid.Empty || !string.Equals(request.Email, _currentUser.Email, StringComparison.OrdinalIgnoreCase))
+            return OperationResult.NotSuccessful("The profile email must match the authenticated account");
+        if (await _db.Physicians.AnyAsync(x => x.IdentityUserId == _currentUser.UserId || x.Email == _currentUser.Email || x.License == request.License, cancellationToken))
+            return OperationResult.NotSuccessful("A physician profile or licence already exists");
         var entity = new Physician()
         {
+            IdentityUserId = _currentUser.UserId,
             FirstName = request.FirstName,
             LastName = request.LastName,
             Gender = request.Gender,
@@ -53,7 +61,7 @@ public class CreatePhysicianCommandHandler : IRequestHandler<CreatePhysicianComm
             Address = request.Address,
             License = request.License,
             MedicalSpecialization = request.MedicalSpecialization,
-            AccountType = request.AccountType,
+            AccountType = AccountType.PHYSICIAN,
             Created = DateTime.UtcNow,
             CreatedBy = _currentUser.Email
         };

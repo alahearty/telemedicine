@@ -5,8 +5,7 @@ using telemedicine_webapi.Application.Common.Models;
 
 namespace telemedicine_webapi.Application.TodoLists.Commands.PurgeTodoLists;
 
-// [Authorize(Roles = "Administrator")]
-// [Authorize(Policy = "CanPurge")]
+[Authorize(Roles = "Administrator")]
 public record PurgeTodoListsCommand : IRequest<BaseResponse>;
 
 public class PurgeTodoListsCommandHandler : IRequestHandler<PurgeTodoListsCommand,BaseResponse>

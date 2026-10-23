@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.TodoLists.Queries.ExportTodos;
 using telemedicine_webapi.Infrastructure.Files.Maps;
@@ -17,7 +17,7 @@ public class CsvFileBuilder : ICsvFileBuilder
         {
             using var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
 
-            csvWriter.Configuration.RegisterClassMap<HospitalRecordMap>();
+            csvWriter.Context.RegisterClassMap<HospitalRecordMap>();
             csvWriter.WriteRecords(records);
         }
 
@@ -31,7 +31,7 @@ public class CsvFileBuilder : ICsvFileBuilder
         {
             using var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
 
-            csvWriter.Configuration.RegisterClassMap<PatientFileRecordMap>();
+            csvWriter.Context.RegisterClassMap<PatientFileRecordMap>();
             csvWriter.WriteRecords(records);
         }
 
@@ -45,7 +45,7 @@ public class CsvFileBuilder : ICsvFileBuilder
         {
             using var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
 
-            csvWriter.Configuration.RegisterClassMap<TodoItemRecordMap>();
+            csvWriter.Context.RegisterClassMap<TodoItemRecordMap>();
             csvWriter.WriteRecords(records);
         }
 
@@ -59,7 +59,7 @@ public class CsvFileBuilder : ICsvFileBuilder
         {
             using var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
 
-            csvWriter.Configuration.RegisterClassMap<TodoItemRecordMap>();
+            csvWriter.Context.RegisterClassMap<TodoItemRecordMap>();
             csvWriter.WriteRecords(records);
         }
 

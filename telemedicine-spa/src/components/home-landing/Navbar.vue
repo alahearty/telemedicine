@@ -1,9 +1,9 @@
 <template>
   <header :class="['navbar', { 'navbar-scrolled': isScrolled }]">
     <nav class="nav-container">
-      <div class="logo">
+      <router-link to="/" class="logo">
         <TelemedicineLogo />
-      </div>
+      </router-link>
 
       <button class="mobile-menu-toggle" @click="toggleMobileMenu" aria-label="Toggle menu">
         <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -16,14 +16,14 @@
 
       <ul :class="['nav-links', { 'nav-links-open': mobileMenuOpen }]">
         <li><a href="#departments" @click="closeMobileMenu">Departments</a></li>
-        <li><a href="#about" @click="closeMobileMenu">About us</a></li>
-        <li><a href="#doctors" @click="closeMobileMenu">Our Doctors</a></li>
-        <li><a href="#service" @click="closeMobileMenu">Our Services</a></li>
+        <li><a href="#about" @click="closeMobileMenu">About</a></li>
+        <li><a href="#doctors" @click="closeMobileMenu">Doctors</a></li>
+        <li><a href="#service" @click="closeMobileMenu">Services</a></li>
       </ul>
 
       <ul :class="['nav-auth', { 'nav-auth-open': mobileMenuOpen }]">
-        <li><button class="register-btn" @click="pushToRegister">Register</button></li>
-        <li><button class="login-btn" @click="pushToLogin">Login</button></li>
+        <li><button class="register-btn" @click="pushToRegister">Sign up</button></li>
+        <li><button class="login-btn" @click="pushToLogin">Sign in</button></li>
       </ul>
     </nav>
   </header>
@@ -34,16 +34,13 @@ import TelemedicineLogo from '@/components/icons/TelemedicineHomeLogo.vue'
 
 export default {
   name: 'Navbar',
-
   components: { TelemedicineLogo },
-
   data() {
     return {
       isScrolled: false,
       mobileMenuOpen: false
     }
   },
-
   methods: {
     pushToRegister() {
       this.$router.push('/signup')
@@ -79,25 +76,23 @@ export default {
   top: 0;
   width: 100%;
   z-index: 1000;
-  padding-inline: var(--bg-padding-inline);
+  padding-inline: var(--bg-padding-inline, 1.5rem);
   transition: all 0.3s ease;
   background: transparent;
 }
 
 .navbar-scrolled {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .nav-container {
   display: flex;
   padding: 1rem 0;
-  color: #1b71a1;
   align-items: center;
-  max-width: var(--max-width);
+  max-width: 1200px;
   margin-inline: auto;
-  position: relative;
 }
 
 .logo {
@@ -105,14 +100,14 @@ export default {
 }
 
 .logo svg {
-  height: 30px;
+  height: 32px;
 }
 
 .mobile-menu-toggle {
   display: none;
   margin-left: auto;
   padding: 0.5rem;
-  color: #283779;
+  color: #04786a;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -120,37 +115,19 @@ export default {
 }
 
 nav a {
-  color: #283779;
+  color: #065f55;
   font-weight: 600;
-  transition: all 300ms ease;
-  position: relative;
-}
-
-nav a::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #283779;
-  transition: width 300ms ease;
-}
-
-nav a:hover::after {
-  width: 100%;
+  font-size: 0.9375rem;
+  transition: color 0.2s ease;
 }
 
 nav a:hover {
-  color: #1b71a1;
+  color: #059682;
 }
 
 .nav-links {
   display: flex;
-  width: 450px;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.1rem;
+  gap: 2rem;
   margin-left: auto;
   list-style: none;
   padding: 0;
@@ -159,7 +136,7 @@ nav a:hover {
 .nav-auth {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-left: 2rem;
   list-style: none;
   padding: 0;
@@ -167,33 +144,33 @@ nav a:hover {
 
 .nav-auth button {
   font-weight: 600;
-  border: 1px solid #283779;
-  border-radius: 50px;
-  padding: 0.4rem 1rem;
-  transition: all 300ms ease;
-  color: #283779;
-  background: transparent;
+  font-size: 0.9375rem;
+  border-radius: 12px;
+  padding: 0.5rem 1.25rem;
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
-.nav-auth button:hover {
-  background-color: #283779;
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(40, 55, 121, 0.3);
+.register-btn {
+  color: #04786a;
+  background: transparent;
+  border: 2px solid #10b99a;
 }
 
-.nav-auth button.register-btn {
-  background-color: transparent;
+.register-btn:hover {
+  background: #ecfdf8;
+  color: #059682;
 }
 
-.nav-auth button.login-btn {
-  background-color: #283779;
-  color: #fff;
+.login-btn {
+  background: linear-gradient(135deg, #059682 0%, #04786a 100%);
+  color: white;
+  border: none;
 }
 
-.nav-auth button.login-btn:hover {
-  background-color: #1b71a1;
+.login-btn:hover {
+  background: linear-gradient(135deg, #04786a 0%, #065f55 100%);
+  box-shadow: 0 4px 14px rgba(5, 150, 130, 0.4);
 }
 
 @media (max-width: 970px) {
@@ -208,7 +185,7 @@ nav a:hover {
     width: 100%;
     height: 100vh;
     background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
     flex-direction: column;
     justify-content: center;
     gap: 2rem;
@@ -218,17 +195,12 @@ nav a:hover {
     z-index: 1000;
   }
 
+  .nav-links a {
+    font-size: 1.25rem;
+  }
+
   .nav-links-open {
     transform: translateX(0);
-  }
-
-  .nav-links li {
-    opacity: 0;
-    animation: fadeIn 0.3s ease forwards;
-  }
-
-  .nav-links-open li {
-    animation-delay: 0.1s;
   }
 
   .nav-auth {
@@ -250,23 +222,6 @@ nav a:hover {
   .nav-auth button {
     width: 200px;
     padding: 0.75rem 1.5rem;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 450px) {
-  .nav-container {
-    padding: 0.75rem 0;
   }
 }
 </style>

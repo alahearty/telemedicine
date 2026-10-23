@@ -1,4 +1,4 @@
-﻿using telemedicine_webapi.Application.Common.Exceptions;
+using telemedicine_webapi.Application.Common.Exceptions;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using MediatR;
@@ -28,7 +28,7 @@ public class UpdateTodoItemCommandHandler : IRequestHandler<UpdateTodoItemComman
     {
         var entity = await _context.TodoItemRepository.GetByIdAsync(request.Id);
 
-        if (entity == null)return OperationResult.NotSuccessful("Not found");
+        if (entity == null) throw new NotFoundException("TodoItem", request.Id);
 
         entity.Title = request.Title;
         entity.Done = request.Done;

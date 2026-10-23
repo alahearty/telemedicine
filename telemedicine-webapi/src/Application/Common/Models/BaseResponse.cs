@@ -21,7 +21,7 @@ public class BaseResponse
     }
 
     public object? Data { get; set; }
-    public List<string> Errors => new List<string>();
+    public List<string> Errors { get; set; } = new List<string>();
     public bool WasSuccesful => !NotSuccesful;
     public bool NotSuccesful { get; set; }
 }

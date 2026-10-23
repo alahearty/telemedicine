@@ -1,4 +1,4 @@
-﻿using telemedicine_webapi.Application.Common.Exceptions;
+using telemedicine_webapi.Application.Common.Exceptions;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Domain.Entities;
 using MediatR;
@@ -21,7 +21,7 @@ public class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoListComman
     public async Task<BaseResponse> Handle(DeleteTodoListCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoListRepository.GetByIdAsync(request.Id);
-        if (entity == null)return OperationResult.NotSuccessful("Not found");
+        if (entity == null) throw new NotFoundException("TodoList", request.Id);
         _context.TodoListRepository.Delete(entity);
 
         var commitResult=await _context.SaveChangesAsync(cancellationToken);

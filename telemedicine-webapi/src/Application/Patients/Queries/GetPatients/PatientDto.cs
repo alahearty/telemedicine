@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using telemedicine_webapi.Application.Common.Mappings;
 using telemedicine_webapi.Domain.Entities;
 using telemedicine_webapi.Domain.Enums;
@@ -12,6 +12,7 @@ public class PatientDto:IMapFrom<Patient>
     public string? Email { get; set; }
     public Gender Gender { get; set; }
     public int Age { get; set; }
+    public DateTime Birth { get; set; }
     public string? Phone { get; set; }
     public string? Address { get; set; }
 

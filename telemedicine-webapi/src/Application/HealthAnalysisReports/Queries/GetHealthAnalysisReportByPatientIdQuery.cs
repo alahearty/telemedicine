@@ -21,18 +21,18 @@ public class GetHealthAnalysisReportByPatientIdQueryHandler : IRequestHandler<Ge
 
     public async Task<BaseResponse> Handle(GetHealthAnalysisReportByPatientIdQuery request, CancellationToken cancellationToken)
     {
-        var patientHealthReports = await _context.HealthAnalysisReportRepository.FindAsync(h => h.Patient!.Id == request.patientId);
+        var patientHealthReports = await _context.HealthAnalysisReportRepository.FindAsync(h => h.Patient != null && h.Patient.Id == request.patientId);
         var healthReportDtos = new List<HealthAnalysisReportDto>();
 
         foreach (var healthReport in patientHealthReports)
         {
             healthReportDtos.Add(new HealthAnalysisReportDto
             {
-                PatientId = healthReport.Patient!.Id,
-                Comments = healthReport.Comments.Select(c => new CommentDto
+                PatientId = healthReport.Patient?.Id ?? request.patientId,
+                Comments = (healthReport.Comments ?? Array.Empty<Domain.Entities.Comment>()).Where(c => c != null).Select(c => new CommentDto
                 {
                     Description = c.Description,
-                    PhysicianId = c.Physician!.Id,
+                    PhysicianId = c.Physician?.Id ?? 0,
                     Title = c.Title
                 }).ToList()
             });

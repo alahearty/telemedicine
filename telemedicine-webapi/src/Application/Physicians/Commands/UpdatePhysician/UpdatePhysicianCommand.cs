@@ -33,7 +33,11 @@ public class UpdatePhysicianCommandHandler : IRequestHandler<UpdatePhysicianComm
     {
         var entity = await _context.PhysicianRepository.GetByIdAsync(request.Id);
 
-        if (entity == null) return OperationResult.NotSuccessful($"Patient with Id-{request.Id} not found");
+        if (entity == null)
+            throw new NotFoundException("Physician", request.Id);
+
+        if (!string.Equals(entity.Email, _currentUser.Email, StringComparison.OrdinalIgnoreCase))
+            throw new ForbiddenAccessException();
 
         if (request.FirstName != null) entity.FirstName = request.FirstName;
         if (request.LastName != null) entity.LastName = request.LastName;

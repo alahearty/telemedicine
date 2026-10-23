@@ -1,4 +1,5 @@
-﻿using telemedicine_webapi.Application.Common.Interfaces;
+using telemedicine_webapi.Application.Common.Exceptions;
+using telemedicine_webapi.Application.Common.Interfaces;
 using MediatR;
 using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Domain.Entities;
@@ -32,7 +33,11 @@ public class UpdatePatientCommandHandler : IRequestHandler<UpdatePatientCommand,
     {
         var entity = await _context.PatientRepository.GetByIdAsync(request.Id);
 
-        if (entity == null)return OperationResult.NotSuccessful($"Patient with Id-{request.Id} not found");
+        if (entity == null)
+            throw new NotFoundException("Patient", request.Id);
+
+        if (!string.Equals(entity.Email, _currentUser.Email, StringComparison.OrdinalIgnoreCase))
+            throw new ForbiddenAccessException();
 
         if (request.FirstName != null) entity.FirstName = request.FirstName;
         if (request.LastName != null) entity.LastName = request.LastName;

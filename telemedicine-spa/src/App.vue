@@ -22,8 +22,7 @@ export default {
   },
 
   mounted() {
-    Scrollbar.init(document.querySelector('#body-scroll'))
-
+    this.initScrollbar()
     setTimeout(() => {
       var alert_dis = document.querySelectorAll('.alert-dismiss')
       alert_dis.forEach((x) =>
@@ -32,6 +31,23 @@ export default {
         })
       )
     }, 100)
+  },
+
+  watch: {
+    $route() {
+      this.$nextTick(() => this.initScrollbar())
+    },
+  },
+
+  methods: {
+    initScrollbar() {
+      const el = document.querySelector('#body-scroll')
+      if (el) {
+        const existing = Scrollbar.get(el)
+        if (existing) existing.destroy()
+        Scrollbar.init(el)
+      }
+    },
   },
 }
 </script>

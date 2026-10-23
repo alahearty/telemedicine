@@ -20,6 +20,6 @@ public class UpdateTodoListCommandValidator : AbstractValidator<UpdateTodoListCo
 
     public async Task<bool> BeUniqueTitle(UpdateTodoListCommand model, string title, CancellationToken cancellationToken)
     {
-        return await _context.TodoListRepository.Exists(l => l.Id != model.Id);
+        return !await _context.TodoListRepository.Exists(l => l.Id != model.Id && l.Title == title);
     }
 }

@@ -1,4 +1,5 @@
 using MediatR;
+using telemedicine_webapi.Application.Appointments;
 using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Domain.Entities;
@@ -26,6 +27,8 @@ public class CancelAppointmentCommandHandler : IRequestHandler<CancelAppointment
         {
             return OperationResult.NotSuccessful($"Appointment with ID {request.Id} not found");
         }
+
+        await AppointmentAccess.EnsureCanAccessAsync(_context, _currentUser, appointment);
 
         if (appointment.Status == ScheduleStatus.Cancelled)
         {

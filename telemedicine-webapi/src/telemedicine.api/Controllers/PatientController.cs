@@ -21,8 +21,17 @@ public class PatientController : ApiControllerBase
         return HandleResponse(response);
     }
 
+    [HttpGet("me")]
+    [Permit("Patient")]
+    public async Task<IActionResult> GetCurrentPatient()
+    {
+        var query = new GetCurrentPatientQuery();
+        var response = await Mediator.Send(query);
+        return HandleResponse(response);
+    }
+
     [HttpGet("{id}")]
-    [Permit("Patient, Administrator")]
+    [Permit("Patient, Administrator, Physician")]
     public async Task<IActionResult> GetPatient(int id)
     {
         var query = new GetPatientQuery(id);

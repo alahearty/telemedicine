@@ -20,7 +20,8 @@ import './assets/sass/css/style.css'
 
 const app = createApp(App)
 app.use(store)
-app.use(router, Icon)
+app.use(router)
+app.component('Icon', Icon)
 app.use(VueApexCharts)
 app.use(PrimeVue)
 app.component('Dialog', Dialog)
@@ -29,6 +30,6 @@ app.use(PerfectScrollbar)
 app.mount('#app')
 
 router.beforeEach((to, from, next) => {
-  document.querySelector('.flex-sidebar').classList.add('hidden')
+  document.querySelector('.flex-sidebar')?.classList.add('hidden')
   next()
 })
