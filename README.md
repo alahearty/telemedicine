@@ -84,6 +84,17 @@ npm run build --prefix telemedicine-spa
 
 ## Run
 
+### One-click Windows launcher
+
+Double-click **`run.cmd`**, or right-click **`run.ps1` → Run with PowerShell**.
+
+The launcher checks .NET and Node.js, installs SPA dependencies if needed, starts the API on
+`http://127.0.0.1:5231` and the Vue SPA on `http://127.0.0.1:8080`, then opens the SPA.
+PostgreSQL must be running and the demo database migrations must be available; Development startup
+can apply migrations and seed synthetic demo data.
+
+### Manual run
+
 Start the API:
 
 ```powershell
