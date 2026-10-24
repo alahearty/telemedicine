@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { Icon } from '@iconify/vue'
+import Icon from '@/components/LocalIcon.vue'
 import { getUnattendedAppointments, respondToAppointment } from '@/api'
 
 export default {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using telemedicine_webapi.Application.AppointmentChat;
 
 namespace Application.SignalRHub
 {
@@ -13,6 +14,8 @@ namespace Application.SignalRHub
         Task UserDisconnected(string connectionId);
         Task ReceiveMessageToUser(string user, string message);
         Task ReceiveMessageFromGroup(string user, string message);
+        Task ReceiveAppointmentMessage(AppointmentChatMessageDto message);
+        Task AppointmentMessagesRead(int appointmentId, string readerRole);
     }
 
     public interface IChatHubConnection

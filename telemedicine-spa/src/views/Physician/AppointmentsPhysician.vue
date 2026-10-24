@@ -17,6 +17,7 @@
           <thead>
             <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
               <th class="p-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-400">ID</th>
+              <th class="p-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-400">Patient</th>
               <th class="p-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-400">Service</th>
               <th class="p-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-400">Date</th>
               <th class="p-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-400">Status</th>
@@ -26,6 +27,7 @@
           <tbody>
             <tr v-for="apt in appointments" :key="apt.id" class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50/50">
               <td class="p-4 text-slate-600 dark:text-slate-400">{{ apt.id }}</td>
+              <td class="p-4 font-medium text-slate-800 dark:text-slate-100">{{ apt.patientName || 'Patient' }}</td>
               <td class="p-4 font-medium text-slate-800 dark:text-slate-100">{{ apt.serviceName || 'Consultation' }}</td>
               <td class="p-4 text-slate-600 dark:text-slate-400">{{ formatDate(apt.appointmentDate || apt.scheduleStartTime) }}</td>
               <td class="p-4">
@@ -34,11 +36,12 @@
                 </span>
               </td>
               <td class="p-4">
-                <div class="flex flex-wrap items-center gap-3">
-                  <router-link :to="`/physician/appointments/${apt.id}`" class="text-primary-600 hover:text-primary-700 font-medium">Details</router-link>
+                <div class="flex flex-wrap items-center gap-2">
+                  <AppointmentActions :appointment="apt" compact />
+                  <router-link :to="`/physician/appointments/${apt.id}`" data-testid="appointment-details-link" class="px-2 py-1.5 text-xs font-semibold text-primary-600 hover:text-primary-700">Details</router-link>
                   <template v-if="statusLabel(apt.status) === 'Pending'">
-                    <button class="text-emerald-600 hover:text-emerald-700 font-medium" @click="respond(apt.id, true)">Accept</button>
-                    <button class="text-red-600 hover:text-red-700 font-medium" @click="respond(apt.id, false)">Decline</button>
+                    <button data-testid="accept-row" class="px-2 py-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700" @click="respond(apt.id, true)">Accept</button>
+                    <button data-testid="decline-row" class="px-2 py-1.5 text-xs font-semibold text-red-600 hover:text-red-700" @click="respond(apt.id, false)">Decline</button>
                   </template>
                 </div>
               </td>
@@ -54,11 +57,13 @@
 </template>
 
 <script>
+import AppointmentActions from '@/components/appointments/AppointmentActions.vue'
 import { getPhysicianAppointments, getCurrentPhysician, respondToAppointment } from '@/api'
 import { statusClass as classForStatus, statusLabel as labelForStatus } from '@/utils/appointments'
 
 export default {
   name: 'AppointmentsPhysician',
+  components: { AppointmentActions },
   data() {
     return {
       appointments: [],

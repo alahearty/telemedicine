@@ -19,6 +19,8 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+!docs/releases/
+!docs/releases/**
 x64/
 x86/
 bld/
@@ -563,3 +565,8 @@ FodyWeavers.xsd
 # Additional files built by Visual Studio
 
 # End of https://www.toptal.com/developers/gitignore/api/vue,vuejs,aspnetcore,visualstudio,visualstudiocode
+
+# Disposable browser-test output
+telemedicine-spa/test-results/
+telemedicine-spa/playwright-report/
+

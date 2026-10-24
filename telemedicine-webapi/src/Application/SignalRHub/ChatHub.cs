@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using telemedicine_webapi.Application.AppointmentChat;
 using telemedicine_webapi.Application.Common.Interfaces;
 
 namespace Application.SignalRHub
@@ -9,10 +10,27 @@ namespace Application.SignalRHub
     public class ChatHub : Hub<IChatHub>, IChatHubConnection
     {
         private readonly IApplicationDbContext _db;
+        private readonly IAppointmentChatService _appointmentChat;
 
-        public ChatHub(IApplicationDbContext db)
+        public ChatHub(IApplicationDbContext db, IAppointmentChatService appointmentChat)
         {
             _db = db;
+            _appointmentChat = appointmentChat;
+        }
+
+        public async Task SendAppointmentMessage(int appointmentId, string message)
+        {
+            var identity = new AppointmentChatIdentity(UserId, Email ?? string.Empty, Role);
+            var result = await _appointmentChat.SendAsync(appointmentId, message, identity, Context.ConnectionAborted);
+            await Clients.User(result.RecipientUserId.ToString()).ReceiveAppointmentMessage(result.Message with { IsMine = false });
+            await Clients.User(result.SenderUserId.ToString()).ReceiveAppointmentMessage(result.Message);
+        }
+
+        public async Task MarkAppointmentMessagesRead(int appointmentId)
+        {
+            var identity = new AppointmentChatIdentity(UserId, Email ?? string.Empty, Role);
+            await _appointmentChat.MarkReadAsync(appointmentId, identity, Context.ConnectionAborted);
+            await Clients.Caller.AppointmentMessagesRead(appointmentId, Role ?? "user");
         }
 
         public async Task SendMessage(string message)

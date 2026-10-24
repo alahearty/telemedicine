@@ -5,12 +5,13 @@ namespace telemedicine.api.Services;
 
 public static class SeedingDefaultDataExtension
 {
-    public async static Task SeedData(this IApplicationBuilder app)
+    public async static Task SeedData(this IApplicationBuilder app, bool applyMigrations)
     {
         using(var scope=app.ApplicationServices.CreateScope())
         {
             var dbContextInit = scope.ServiceProvider.GetService<IApplicationDbContextInitialiser>();
-            await dbContextInit!.InitialiseAsync();
+            if (applyMigrations)
+                await dbContextInit!.InitialiseAsync();
             await dbContextInit!.SeedAsync();
         }
     }

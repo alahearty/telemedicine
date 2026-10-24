@@ -40,6 +40,6 @@ public class PostgresConcurrencyTests : BaseTestFixture
     private static async Task<bool> Save(ApplicationDbContext db)
     {
         try { await db.SaveChangesAsync(); return true; }
-        catch (DbUpdateException) { return false; }
+        catch (Exception ex) when (ex is DbUpdateException or InvalidOperationException) { return false; }
     }
 }

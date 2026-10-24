@@ -16,15 +16,15 @@ public class PermissionPolicyProvider : IAuthorizationPolicyProvider
 
     public Task<AuthorizationPolicy> GetDefaultPolicyAsync() => Task.FromResult(new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme).RequireAuthenticatedUser().Build());
 
-    public Task<AuthorizationPolicy> GetFallbackPolicyAsync() => Task.FromResult<AuthorizationPolicy>(null);
+    public Task<AuthorizationPolicy?> GetFallbackPolicyAsync() => Task.FromResult<AuthorizationPolicy?>(null);
 
-    public Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
+    public Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
         if (policyName.StartsWith(HAS_PERMISSION_POLICY_NAME, StringComparison.OrdinalIgnoreCase))
         {
             var policy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme);
             policy.AddRequirements(new PermissionAuthorizationRequirement(policyName.Substring(HAS_PERMISSION_POLICY_NAME.Length)));
-            return Task.FromResult(policy.Build());
+            return Task.FromResult<AuthorizationPolicy?>(policy.Build());
         }
         return BackupPolicyProvider.GetPolicyAsync(policyName);
     }

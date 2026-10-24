@@ -1,7 +1,7 @@
 /**
  * Centralized API service - consumes all backend endpoints
  */
-const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || 'https://localhost:7231/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 function getAuthToken() {
   return localStorage.getItem('access-token') || '';
@@ -254,6 +254,48 @@ export async function respondToAppointment(payload) {
     body: JSON.stringify(payload),
   });
   return handleResponse(res);
+}
+
+// --- Consultations ---
+export async function createOrGetConsultation(appointmentId) {
+  const res = await fetch(`${API_BASE_URL}/consultations/appointment/${appointmentId}`, { method: 'POST', headers: authHeaders() });
+  return handleResponse(res);
+}
+export async function getConsultation(sessionId) {
+  return handleResponse(await fetch(`${API_BASE_URL}/consultations/${sessionId}`, { headers: authHeaders() }));
+}
+export async function joinConsultation(sessionId) {
+  return handleResponse(await fetch(`${API_BASE_URL}/consultations/${sessionId}/join`, { method: 'POST', headers: authHeaders() }));
+}
+export async function endConsultation(sessionId, reason = '') {
+  return handleResponse(await fetch(`${API_BASE_URL}/consultations/${sessionId}/end`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ reason }) }));
+}
+export async function getConsultationIceServers(sessionId) {
+  return handleResponse(await fetch(`${API_BASE_URL}/consultations/${sessionId}/ice-servers`, { headers: authHeaders() }));
+}
+export async function getConsultationPolicy() {
+  return handleResponse(await fetch(`${API_BASE_URL}/consultations/policy`, { headers: authHeaders() }));
+}
+
+// --- Appointment chat ---
+export async function getChatThreads() {
+  return handleResponse(await fetch(`${API_BASE_URL}/chat/threads`, { headers: authHeaders() }));
+}
+export async function getAppointmentMessages(appointmentId) {
+  return handleResponse(await fetch(`${API_BASE_URL}/appointments/${appointmentId}/messages`, { headers: authHeaders() }));
+}
+export async function sendAppointmentChatMessage(appointmentId, message) {
+  return handleResponse(await fetch(`${API_BASE_URL}/appointments/${appointmentId}/messages`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ message }),
+  }));
+}
+export async function markAppointmentMessagesRead(appointmentId) {
+  return handleResponse(await fetch(`${API_BASE_URL}/appointments/${appointmentId}/messages/read`, {
+    method: 'POST',
+    headers: authHeaders(),
+  }));
 }
 
 // --- Availability ---

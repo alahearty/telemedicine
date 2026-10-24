@@ -56,7 +56,7 @@
             <span class="text-sm text-primary-800 dark:text-primary-200">
               Selected {{ localDateTime(selectedSlot.start) }}
             </span>
-            <button type="button" class="btn-primary" @click="bookSelected">Continue booking</button>
+            <button type="button" data-testid="continue-from-profile" class="btn-primary" @click="bookSelected">Continue booking</button>
           </div>
         </section>
       </div>

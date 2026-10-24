@@ -9,6 +9,8 @@ public interface IApplicationDbContext
     DbSet<telemedicine_webapi.Domain.Entities.Physician> Physicians { get; }
     DbSet<telemedicine_webapi.Domain.Entities.PhysicianAvailability> PhysicianAvailabilities { get; }
     DbSet<telemedicine_webapi.Domain.Entities.Appointment> Appointments { get; }
+    DbSet<telemedicine_webapi.Domain.Entities.ConsultationSession> ConsultationSessions { get; }
+    DbSet<telemedicine_webapi.Domain.Entities.AppointmentChatMessage> AppointmentChatMessages { get; }
     DatabaseFacade Database { get; }
     DbSet<T> Set<T>() where T : class;
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

@@ -2,34 +2,26 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import store from './store/admin'
 import router from './router'
-import { Icon } from '@iconify/vue'
+import Icon from '@/components/LocalIcon.vue'
 import VueApexCharts from 'vue3-apexcharts'
-import PerfectScrollbar from 'vue3-perfect-scrollbar'
-import PrimeVue from 'primevue/config'
-import Breadcrumb from 'primevue/breadcrumb'
-import Dialog from 'primevue/dialog'
+import { initTheme } from '@/composables/useTheme'
 
-import 'primevue/resources/themes/saga-blue/theme.css' // theme
-import 'primevue/resources/primevue.min.css' // core
-import 'primeicons/primeicons.css' // icons
+import '@fontsource/sora/latin-500.css'
+import '@fontsource/sora/latin-600.css'
+import '@fontsource/sora/latin-700.css'
+import '@fontsource/dm-sans/latin-400.css'
+import '@fontsource/dm-sans/latin-500.css'
+import '@fontsource/dm-sans/latin-600.css'
+import '@fontsource/dm-sans/latin-700.css'
 
-import 'vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css'
 import './assets/tailwind.css'
 import './assets/animate.css'
-import './assets/sass/css/style.css'
+
+initTheme()
 
 const app = createApp(App)
 app.use(store)
 app.use(router)
 app.component('Icon', Icon)
 app.use(VueApexCharts)
-app.use(PrimeVue)
-app.component('Dialog', Dialog)
-app.component('Breadcrumb', Breadcrumb)
-app.use(PerfectScrollbar)
 app.mount('#app')
-
-router.beforeEach((to, from, next) => {
-  document.querySelector('.flex-sidebar')?.classList.add('hidden')
-  next()
-})

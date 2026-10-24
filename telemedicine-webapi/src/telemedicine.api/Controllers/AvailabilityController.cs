@@ -79,6 +79,7 @@ public class AvailabilityController : ControllerBase
         return Ok(await _db.PhysicianAvailabilities
             .Where(x => x.PhysicianId == physician.Id && x.IsActive)
             .OrderBy(x => x.DayOfWeek).ThenBy(x => x.StartTime)
+            .Select(x => new { x.Id, x.PhysicianId, x.DayOfWeek, x.StartTime, x.EndTime, x.SlotDurationMinutes, x.IsActive })
             .ToListAsync(ct));
     }
 
@@ -87,6 +88,7 @@ public class AvailabilityController : ControllerBase
     public async Task<IActionResult> Get(int physicianId, CancellationToken ct) => Ok(await _db.PhysicianAvailabilities
         .Where(x => x.PhysicianId == physicianId && x.IsActive)
         .OrderBy(x => x.DayOfWeek).ThenBy(x => x.StartTime)
+        .Select(x => new { x.Id, x.PhysicianId, x.DayOfWeek, x.StartTime, x.EndTime, x.SlotDurationMinutes, x.IsActive })
         .ToListAsync(ct));
 
     [HttpGet("{physicianId:int}/slots")]

@@ -10,7 +10,7 @@ const LABELS = {
 export function statusLabel(status) {
   if (typeof status === 'string') {
     if (/^\d+$/.test(status)) return LABELS[Number(status)] || 'Unknown'
-    return status
+    return status.replace(/([a-z])([A-Z])/g, '$1 $2')
   }
   return LABELS[status] || 'Unknown'
 }
@@ -47,4 +47,48 @@ export function formatDateTime(value) {
     weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
     hour: '2-digit', minute: '2-digit',
   })
+}
+
+export function formatDateShort(value) {
+  if (!value) return 'Not scheduled'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
+}
+
+export function formatTime(value) {
+  if (!value) return 'Time TBD'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'Time TBD'
+  return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+}
+
+export function formatDateParts(value) {
+  if (!value) return { day: '--', month: 'TBD', weekday: '', time: 'Time TBD', full: 'Not scheduled' }
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return { day: '--', month: 'TBD', weekday: '', time: 'Time TBD', full: String(value) }
+  }
+  return {
+    day: date.toLocaleDateString(undefined, { day: '2-digit' }),
+    month: date.toLocaleDateString(undefined, { month: 'short' }),
+    weekday: date.toLocaleDateString(undefined, { weekday: 'long' }),
+    time: formatTime(value),
+    full: formatDateShort(value),
+  }
+}
+
+export function formatCurrency(value) {
+  const amount = Number(value)
+  if (!Number.isFinite(amount)) return '$0'
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+  }).format(amount)
+}
+
+export function formatNumber(value) {
+  const amount = Number(value)
+  return Number.isFinite(amount) ? new Intl.NumberFormat('en-US').format(amount) : '0'
 }

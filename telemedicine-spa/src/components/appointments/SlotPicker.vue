@@ -106,6 +106,7 @@ export default {
 </script>
 
 <style scoped>
+@reference "../../assets/tailwind.css";
 .slot-chip {
   @apply px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:border-primary-400 hover:text-primary-600 transition-colors dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200;
 }

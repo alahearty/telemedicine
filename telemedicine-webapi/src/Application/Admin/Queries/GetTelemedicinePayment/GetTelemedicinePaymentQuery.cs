@@ -39,10 +39,10 @@ public class GetTelemedicinePaymentQueryHandler : IRequestHandler<GetTelemedicin
         var telemedicinePaymentQueryDtos = new TelemedicinePaymentQueryDto
         {
             TelemedicinePayments = telemedicinePaymentDtos,
-            Count = telemedicinePaymentDtos.Count(),
-            TotalAmountPaid = telemedicinePaymentDtos.Select(x => x.AmountPaid).Sum(),
-            NoOfNotPaidTransaction = telemedicinePaymentDtos.Select(x => x.IsPaid == false).Count(),
-            NoOfPaidTransaction = telemedicinePaymentDtos.Select(x => x.IsPaid).Count()
+            Count = telemedicinePaymentDtos.Count,
+            TotalAmountPaid = telemedicinePaymentDtos.Sum(x => x.AmountPaid ?? 0),
+            NoOfNotPaidTransaction = telemedicinePaymentDtos.Count(x => x.IsPaid == false),
+            NoOfPaidTransaction = telemedicinePaymentDtos.Count(x => x.IsPaid == true)
         };
 
         return OperationResult.Successful(telemedicinePaymentQueryDtos);

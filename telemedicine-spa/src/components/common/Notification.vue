@@ -89,29 +89,30 @@ export default {
 </script>
 
 <style scoped>
+@reference "../../assets/tailwind.css";
 .notification-container {
-  @apply fixed top-4 right-4 z-50 space-y-2 max-w-md;
+  @apply fixed bottom-4 right-4 z-40 max-w-sm space-y-2 sm:bottom-6 sm:right-6 sm:max-w-md;
 }
 
 .notification {
-  @apply bg-white dark:bg-gray-800 rounded-lg shadow-lg border-l-4 overflow-hidden;
+  @apply overflow-hidden rounded-2xl border border-slate-200/80 border-l-4 bg-white/95 shadow-soft backdrop-blur-xl dark:border-white/[0.08] dark:bg-midnight-850/95;
   animation: slideIn 0.3s ease-out;
 }
 
 .notification-success {
-  @apply border-green-500;
+  @apply border-l-emerald-500;
 }
 
 .notification-error {
-  @apply border-red-500;
+  @apply border-l-rose-500;
 }
 
 .notification-warning {
-  @apply border-yellow-500;
+  @apply border-l-amber-500;
 }
 
 .notification-info {
-  @apply border-blue-500;
+  @apply border-l-sky-500;
 }
 
 .notification-content {
@@ -123,19 +124,19 @@ export default {
 }
 
 .notification-success .notification-icon {
-  @apply text-green-500;
+  @apply text-emerald-500;
 }
 
 .notification-error .notification-icon {
-  @apply text-red-500;
+  @apply text-rose-500;
 }
 
 .notification-warning .notification-icon {
-  @apply text-yellow-500;
+  @apply text-amber-500;
 }
 
 .notification-info .notification-icon {
-  @apply text-blue-500;
+  @apply text-sky-500;
 }
 
 .notification-text {
@@ -143,15 +144,15 @@ export default {
 }
 
 .notification-title {
-  @apply font-semibold text-gray-800 dark:text-gray-200;
+  @apply text-sm font-semibold text-ink-900 dark:text-slate-100;
 }
 
 .notification-message {
-  @apply text-sm text-gray-600 dark:text-gray-400 mt-1;
+  @apply mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400;
 }
 
 .notification-close {
-  @apply ml-3 flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors;
+  @apply ml-3 flex-shrink-0 text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200;
 }
 
 .notification-progress {

@@ -23,6 +23,7 @@ const DoctorDirectory = () => import(/* webpackChunkName: "patient" */ '@/views/
 const DoctorProfile = () => import(/* webpackChunkName: "patient" */ '@/views/Patient/DoctorProfile.vue')
 const AppointmentsPatient = () => import(/* webpackChunkName: "patient" */ '@/views/Patient/AppointmentsPatient.vue')
 const AppointmentDetails = () => import(/* webpackChunkName: "appointments" */ '@/views/Appointment/AppointmentDetails.vue')
+const Consultation = () => import('@/views/Consultation/Consultation.vue')
 
 var appname = ' - Analytics Dashboard'
 
@@ -47,7 +48,8 @@ const routes = [
       { path: 'doctors/:id', name: 'DoctorProfile', component: DoctorProfile },
       { path: 'appointments', name: 'PatientAppointments', component: AppointmentsPatient },
       { path: 'appointments/:id', name: 'PatientAppointmentDetails', component: AppointmentDetails },
-      { path: 'chat', component: Chat },
+      { path: 'consultations/:sessionId', name: 'PatientConsultation', component: Consultation },
+      { path: 'chat', name: 'PatientChat', component: Chat },
       { path: 'feedback', component: DoctorFeedback },
       { path: 'hospital', name: 'HospitalManagement', component: HospitalManagement },
     ],
@@ -60,6 +62,8 @@ const routes = [
       { path: '', name: 'PhysicianDashboard', component: DashboardPhysician },
       { path: 'appointments', name: 'PhysicianAppointments', component: AppointmentsPhysician },
       { path: 'appointments/:id', name: 'PhysicianAppointmentDetails', component: AppointmentDetails },
+      { path: 'consultations/:sessionId', name: 'PhysicianConsultation', component: Consultation },
+      { path: 'chat', name: 'PhysicianChat', component: Chat },
       { path: 'availability', name: 'PhysicianAvailability', component: AvailabilityPhysician },
       { path: 'patients', name: 'PhysicianPatients', component: PatientsPhysician },
       { path: 'profile', name: 'PhysicianProfile', component: ProfilePhysician },
@@ -86,10 +90,13 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 
   linkExactActiveClass: 'exact-active',
+  scrollBehavior(to, from, savedPosition) {
+    return savedPosition || { top: 0 }
+  },
 })
 
 // Route guard for authentication

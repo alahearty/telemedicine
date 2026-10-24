@@ -140,6 +140,7 @@ export default {
 </script>
 
 <style scoped>
+@reference "../../assets/tailwind.css";
 .modal-overlay {
   @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm;
 }

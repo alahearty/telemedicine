@@ -22,7 +22,11 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+        services.AddOptions<JwtSettings>()
+            .Bind(configuration.GetSection("JwtSettings"))
+            .Validate(settings => !string.IsNullOrWhiteSpace(settings.Key) && Encoding.UTF8.GetByteCount(settings.Key) >= 32,
+                "JwtSettings:Key must be supplied by a secure configuration provider and contain at least 32 bytes.")
+            .ValidateOnStart();
 
         var sqlserverConnection = new StaticFiles();
         var jwtSettings = new JwtSettings();
@@ -82,7 +86,8 @@ public static class ConfigureServices
                     {
                         var accessToken = context.Request.Query["access_token"];
                         if (!string.IsNullOrEmpty(accessToken)
-                            && context.HttpContext.Request.Path.StartsWithSegments("/chat-hub"))
+                            && (context.HttpContext.Request.Path.StartsWithSegments("/chat-hub")
+                                || context.HttpContext.Request.Path.StartsWithSegments("/consultation-hub")))
                         {
                             context.Token = accessToken;
                         }

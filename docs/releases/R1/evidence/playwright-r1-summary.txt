@@ -1,0 +1,8 @@
+﻿Running 7 tests using 1 worker
+  ok 1 tests\e2e\r1-workflows.spec.js:118:3 ΓÇ║ Release 1 patient and physician workflows ΓÇ║ patient registers, books a slot, reschedules and cancels (29.7s)
+  ok 2 tests\e2e\r1-workflows.spec.js:196:3 ΓÇ║ Release 1 patient and physician workflows ΓÇ║ physician saves availability and accepts and declines requests (11.7s)
+  ok 3 tests\e2e\release1.spec.js:40:1 ΓÇ║ invalid credentials are rejected (3.7s)
+  ok 4 tests\e2e\release1.spec.js:46:1 ΓÇ║ protected routes redirect anonymous users and remain protected after logout (5.6s)
+  ok 5 tests\e2e\release1.spec.js:56:1 ΓÇ║ patient authenticates, opens directory and sees persisted appointments (5.6s)
+  ok 6 tests\e2e\release1.spec.js:75:1 ΓÇ║ physician authenticates and sees only assigned appointment requests (4.5s)
+  ok 7 tests\e2e\release1.spec.js:88:1 ΓÇ║ chat and EMR endpoints reject unauthorised access without leaking errors (736ms)

@@ -1,5 +1,5 @@
 // API Base URL Configuration
-const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || 'https://localhost:7231/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // Helper function to get auth token
 function getAuthToken() {

@@ -44,7 +44,7 @@
       </p>
 
       <div class="flex flex-wrap gap-3 pt-2">
-        <button type="submit" class="btn-primary" :disabled="saving">{{ saving ? 'Saving...' : 'Save schedule' }}</button>
+        <button type="submit" data-testid="save-availability" class="btn-primary" :disabled="saving">{{ saving ? 'Saving...' : 'Save schedule' }}</button>
         <router-link to="/physician" class="btn-secondary">Back to dashboard</router-link>
         <router-link to="/physician/appointments" class="btn-secondary">View appointments</router-link>
       </div>
@@ -64,6 +64,8 @@ const DAYS = [
   { day: 5, name: 'Friday' },
   { day: 6, name: 'Saturday' },
 ]
+
+const DAY_INDEX = Object.fromEntries(DAYS.map((day) => [day.name, day.day]))
 
 export default {
   name: 'AvailabilityPhysician',
@@ -97,8 +99,14 @@ export default {
         if (!id) throw new Error('Physician profile not found.')
         localStorage.setItem('physician-id', String(id))
         const rules = await getPhysicianAvailability(id)
+        const availability = Array.isArray(rules) ? rules : []
         for (const row of this.rows) {
-          const rule = (Array.isArray(rules) ? rules : []).find(r => Number(r.dayOfWeek) === row.day && r.isActive)
+          const rule = availability.find((item) => {
+            const dayIndex = typeof item.dayOfWeek === 'number'
+              ? item.dayOfWeek
+              : DAY_INDEX[String(item.dayOfWeek)]
+            return dayIndex === row.day && item.isActive
+          })
           if (rule) {
             row.enabled = true
             row.start = this.normalizeTime(rule.startTime, row.start)

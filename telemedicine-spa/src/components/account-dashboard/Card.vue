@@ -23,6 +23,7 @@ export default {
 </script>
 
 <style scoped>
+@reference "../../assets/tailwind.css";
 .icon-wrap {
   @apply flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center;
 }

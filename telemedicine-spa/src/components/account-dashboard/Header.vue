@@ -145,7 +145,7 @@
 </template>
 
 <script>
-import { Icon } from '@iconify/vue'
+import Icon from '@/components/LocalIcon.vue'
 export default {
   data() {
     return {

@@ -60,7 +60,7 @@
           <button
             v-for="doctor in filteredDoctors"
             :key="doctor.id"
-            data-testid="service-card" type="button" class="text-left rounded-2xl border p-5 transition-all"
+            data-testid="doctor-card" type="button" class="text-left rounded-2xl border p-5 transition-all"
             :class="selectedDoctor?.id === doctor.id
               ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-200 dark:bg-primary-900/20 dark:ring-primary-800'
               : 'border-slate-200 bg-white hover:border-primary-300 dark:border-slate-700 dark:bg-slate-800'"
@@ -115,7 +115,7 @@
 </template>
 
 <script>
-import { Icon } from '@iconify/vue'
+import Icon from '@/components/LocalIcon.vue'
 import SlotPicker from '@/components/appointments/SlotPicker.vue'
 import { getTelemedicineServices, getPhysicians, getCurrentPatient } from '@/api'
 

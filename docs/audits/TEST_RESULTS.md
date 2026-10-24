@@ -1,7 +1,10 @@
 # Telemedicine Test Results — Baseline Audit
 
 Date: 2026-10-23
-Status: baseline before Phase 0-16 implementation
+Status: historical baseline before Phase 0-16 implementation.
+
+Current Release 1 results are in `docs/releases/R1/R1_TEST_RESULTS.md`
+(44/44 R1-scope backend tests and 7/7 Playwright workflows pass).
 
 ## Automated tests
 

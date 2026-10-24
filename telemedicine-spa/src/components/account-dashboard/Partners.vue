@@ -42,6 +42,8 @@
 </template>
 
 <script>
+const partnerImages = import.meta.glob('../../assets/img/user*.png', { eager: true, import: 'default' })
+
 export default {
     name: 'Partners',
     data() {
@@ -90,7 +92,7 @@ export default {
     },
     methods: {
         getImage(name) {
-            return require(`../../assets/img/${name}`)
+            return partnerImages[`../../assets/img/${name}`]
         }
     }
 }

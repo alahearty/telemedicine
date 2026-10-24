@@ -62,9 +62,12 @@ public class ApplicationDbContextInitialiser : IApplicationDbContextInitialiser
     private async Task TrySeedAsync()
     {
         await SeedRolesAsync();
-        await EnsureIdentityUserAsync("administrator@localhost", "Administrator1!", "Administrator");
-
-        if (_configuration.GetValue("DemoData:Enabled", false))
+        var demoDataEnabled = _configuration.GetValue("DemoData:Enabled", false);
+        if (demoDataEnabled || _configuration.GetValue("SeedAdmin", false))
+        {
+            await EnsureIdentityUserAsync("administrator@localhost", "Administrator1!", "Administrator");
+        }
+        if (demoDataEnabled)
         {
             await SeedDemoDataAsync();
         }
@@ -201,6 +204,9 @@ public class ApplicationDbContextInitialiser : IApplicationDbContextInitialiser
         await EnsureServiceAsync("Paediatric Consultation", 600m, "Synthetic paediatric telemedicine consultation.");
 
         await EnsureDemoAppointmentsAsync(patient, physician, secondPhysician);
+        await EnsureDemoChatAsync(patient, physician);
+        if (_configuration.GetValue("DemoData:ResetConsultations", false))
+            await _context.ConsultationSessions.Where(x => x.PatientId == patient.Id).ExecuteDeleteAsync();
 
         _logger.LogInformation("Release 1 demo data is available for synthetic local demonstrations.");
     }
@@ -299,6 +305,44 @@ public class ApplicationDbContextInitialiser : IApplicationDbContextInitialiser
         await EnsureAppointmentAsync(patient, physician, generalService, baseDate.AddHours(9), ScheduleStatus.Pending, "Synthetic pending request.");
         await EnsureAppointmentAsync(patient, physician, generalService, baseDate.AddDays(1).AddHours(10), ScheduleStatus.Active, "Synthetic accepted appointment.");
         await EnsureAppointmentAsync(patient, secondPhysician, cardiologyService, baseDate.AddDays(2).AddHours(11), ScheduleStatus.Pending, "Synthetic cardiology request.");
+    }
+
+    private async Task EnsureDemoChatAsync(Patient patient, Physician physician)
+    {
+        if (patient.IdentityUserId is null || physician.IdentityUserId is null) return;
+        var appointment = await _context.Appointments
+            .Where(x => x.PatientId == patient.Id && x.PhysicianId == physician.Id && x.Status == ScheduleStatus.Active)
+            .OrderBy(x => x.AppointmentDate)
+            .FirstOrDefaultAsync();
+        if (appointment is null) return;
+        if (await _context.AppointmentChatMessages.AnyAsync(x => x.AppointmentId == appointment.Id)) return;
+
+        var now = DateTime.UtcNow;
+        _context.AppointmentChatMessages.AddRange(
+            new AppointmentChatMessage
+            {
+                AppointmentId = appointment.Id,
+                SenderUserId = physician.IdentityUserId.Value,
+                SenderRole = "Physician",
+                Body = "Hello Demo, this is Dr. Demo Physician. You can message me here before your consultation.",
+                SentAtUtc = now.AddMinutes(-25),
+                PhysicianReadAtUtc = now,
+                Created = now,
+                CreatedBy = "demo-seeder"
+            },
+            new AppointmentChatMessage
+            {
+                AppointmentId = appointment.Id,
+                SenderUserId = patient.IdentityUserId.Value,
+                SenderRole = "Patient",
+                Body = "Thank you! I have a quick question about my upcoming appointment.",
+                SentAtUtc = now.AddMinutes(-20),
+                PatientReadAtUtc = now,
+                PhysicianReadAtUtc = now,
+                Created = now,
+                CreatedBy = "demo-seeder"
+            });
+        await _context.SaveChangesAsync();
     }
 
     private async Task EnsureAppointmentAsync(

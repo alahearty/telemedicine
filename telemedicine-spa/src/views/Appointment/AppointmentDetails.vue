@@ -21,7 +21,7 @@
       <div class="card-modern p-6">
         <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
           <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ appointment.serviceName || 'Consultation' }}</h2>
-          <span class="px-3 py-1 rounded-full text-sm font-medium" :class="statusClass(appointment.status)">{{ statusLabel(appointment.status) }}</span>
+          <span data-testid="appointment-status" class="px-3 py-1 rounded-full text-sm font-medium" :class="statusClass(appointment.status)">{{ statusLabel(appointment.status) }}</span>
         </div>
 
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
@@ -36,22 +36,35 @@
         </dl>
       </div>
 
+      <div v-if="!isAdmin && !isClosedStatus" class="card-modern p-6 mt-6">
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="font-semibold text-slate-800 dark:text-slate-100">Consultation</h3>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Video opens shortly before the scheduled time. Chat stays available for accepted appointments.</p>
+          </div>
+          <router-link :to="{ path: isPhysician ? '/physician/chat' : '/dashboard/chat', query: { appointmentId: String(appointment.id) } }" class="text-xs font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300">
+            Open messages
+          </router-link>
+        </div>
+        <AppointmentActions :appointment="appointment" />
+      </div>
+
       <div class="card-modern p-6 mt-6">
-        <h3 class="font-semibold text-slate-800 dark:text-slate-100 mb-4">Actions</h3>
+        <h3 class="font-semibold text-slate-800 dark:text-slate-100 mb-4">Appointment actions</h3>
         <p v-if="actionError" class="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300 mb-4">{{ actionError }}</p>
         <p v-if="actionMessage" class="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300 mb-4">{{ actionMessage }}</p>
 
         <div class="flex flex-wrap gap-3">
           <template v-if="isPhysician && isPending">
-            <button type="button" class="btn-primary" :disabled="busy" @click="respond(true)">Accept appointment</button>
-            <button type="button" class="btn-secondary text-red-600 border-red-200" :disabled="busy" @click="decline">Decline with reason</button>
+            <button type="button" data-testid="accept-appointment" class="btn-primary" :disabled="busy" @click="respond(true)">Accept appointment</button>
+            <button type="button" data-testid="decline-appointment" class="btn-secondary text-red-600 border-red-200" :disabled="busy" @click="decline">Decline with reason</button>
           </template>
 
-          <button v-if="isPatient && canPatientReschedule" type="button" class="btn-secondary" :disabled="busy" @click="showReschedule = !showReschedule">
+          <button v-if="isPatient && canPatientReschedule" type="button" data-testid="reschedule-toggle" class="btn-secondary" :disabled="busy" @click="showReschedule = !showReschedule">
             {{ showReschedule ? 'Hide reschedule' : 'Reschedule' }}
           </button>
 
-          <button v-if="canCancel" type="button" class="btn-secondary text-red-600 border-red-200" :disabled="busy" @click="cancel">
+          <button v-if="canCancel" type="button" data-testid="cancel-appointment" class="btn-secondary text-red-600 border-red-200" :disabled="busy" @click="cancel">
             {{ isPhysician ? 'Cancel appointment' : 'Cancel appointment' }}
           </button>
         </div>
@@ -80,13 +93,14 @@
 </template>
 
 <script>
+import AppointmentActions from '@/components/appointments/AppointmentActions.vue'
 import SlotPicker from '@/components/appointments/SlotPicker.vue'
 import { getAppointment, updateAppointment, cancelAppointment, respondToAppointment } from '@/api'
 import { formatDateTime, statusClass, statusLabel } from '@/utils/appointments'
 
 export default {
   name: 'AppointmentDetails',
-  components: { SlotPicker },
+  components: { AppointmentActions, SlotPicker },
   data() {
     return {
       id: Number(this.$route.params.id),
@@ -107,6 +121,10 @@ export default {
     isAdmin() { return this.role.includes('admin') || this.role.includes('administrator') },
     isPhysicianOrAdmin() { return this.isPhysician || this.isAdmin },
     isPending() { return statusLabel(this.appointment?.status).toLowerCase() === 'pending' },
+    isClosedStatus() {
+      const status = statusLabel(this.appointment?.status).toLowerCase()
+      return status === 'cancelled' || status === 'declined'
+    },
     canPatientReschedule() {
       const status = statusLabel(this.appointment?.status).toLowerCase()
       return status === 'pending' || status === 'active' || status === 'not attended'

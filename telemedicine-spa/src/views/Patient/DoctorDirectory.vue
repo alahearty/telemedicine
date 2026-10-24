@@ -5,7 +5,7 @@
         <h1 class="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">Find a doctor</h1>
         <p class="text-slate-600 dark:text-slate-400 mt-1">Browse physicians, their specialities and live availability.</p>
       </div>
-      <input v-model="search" type="search" class="input-modern max-w-sm" placeholder="Search name, speciality or bio" />
+      <input v-model="search" data-testid="directory-search" type="search" class="input-modern max-w-sm" placeholder="Search name, speciality or bio" />
     </div>
 
     <div v-if="loading" class="flex items-center gap-3 py-16 text-slate-500">
@@ -22,7 +22,7 @@
     </div>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      <article v-for="doctor in filtered" :key="doctor.id" class="card-modern p-6 flex flex-col">
+      <article v-for="doctor in filtered" :key="doctor.id" data-testid="doctor-card" class="card-modern p-6 flex flex-col">
         <div class="flex items-center gap-4">
           <div class="w-14 h-14 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-lg font-bold dark:bg-primary-900/40 dark:text-primary-300">
             {{ initials(doctor) }}
@@ -37,7 +37,7 @@
           {{ doctor.bio || doctor.qualifications || 'No professional biography has been added yet.' }}
         </p>
         <div class="mt-5 flex gap-2">
-          <router-link :to="`/dashboard/doctors/${doctor.id}`" class="btn-secondary flex-1 text-center">View profile</router-link>
+          <router-link :to="`/dashboard/doctors/${doctor.id}`" data-testid="view-doctor" class="btn-secondary flex-1 text-center">View profile</router-link>
           <router-link :to="`/dashboard/book-service?physicianId=${doctor.id}`" class="btn-primary flex-1 text-center">Book</router-link>
         </div>
       </article>

@@ -1,596 +1,434 @@
-<template>
-  <div class="chat-container">
-    <div class="chat-wrapper">
-      <!-- Chat Sidebar -->
-      <div class="chat-sidebar">
-        <div class="sidebar-header">
-          <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Messages</h2>
-          <button class="new-chat-btn" @click="startNewChat">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
+﻿<template>
+  <div class="space-y-5">
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <p class="eyebrow">Care messages</p>
+        <h1 class="page-title mt-1">Messages</h1>
+        <p class="page-subtitle">Secure conversations for your accepted appointments.</p>
+      </div>
+      <span class="badge badge-neutral">
+        <Icon icon="message-circle" class="text-[11px]" />
+        {{ threads.length }} {{ threads.length === 1 ? 'conversation' : 'conversations' }}
+      </span>
+    </div>
+
+    <div class="card flex h-[calc(100dvh-250px)] min-h-[540px] overflow-hidden">
+      <aside
+        class="w-full shrink-0 flex-col border-r border-slate-100 dark:border-white/[0.06] lg:flex lg:w-[340px]"
+        :class="selectedThread ? 'hidden' : 'flex'"
+      >
+        <div class="border-b border-slate-100 p-4 dark:border-white/[0.06]">
+          <div class="relative">
+            <Icon icon="search" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
+            <input
+              v-model="search"
+              type="search"
+              class="input-modern py-2 pl-9"
+              placeholder="Search conversations..."
+              aria-label="Search conversations"
+            />
+          </div>
+        </div>
+
+        <div v-if="loadingThreads" class="space-y-3 p-4">
+          <div v-for="n in 4" :key="n" class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full skeleton" />
+            <div class="flex-1 space-y-2"><div class="h-3 w-1/2 skeleton" /><div class="h-2.5 w-3/4 skeleton" /></div>
+          </div>
+        </div>
+
+        <div v-else-if="filteredThreads.length" class="scrollbar-slim flex-1 overflow-y-auto p-2">
+          <button
+            v-for="thread in filteredThreads"
+            :key="thread.appointmentId"
+            type="button"
+            class="flex w-full items-start gap-3 rounded-xl p-3 text-left transition-colors"
+            :class="selectedThread?.appointmentId === thread.appointmentId
+              ? 'bg-primary-50/80 ring-1 ring-primary-100 dark:bg-primary-400/[0.08] dark:ring-primary-400/15'
+              : 'hover:bg-slate-50 dark:hover:bg-white/[0.03]'"
+            @click="selectThread(thread)"
+          >
+            <AppAvatar :name="thread.counterpartName" size="md" />
+            <span class="min-w-0 flex-1">
+              <span class="flex items-center justify-between gap-2">
+                <span class="truncate text-xs font-semibold text-ink-900 dark:text-slate-100">{{ thread.counterpartName }}</span>
+                <span class="shrink-0 text-[10px] text-slate-400 dark:text-slate-500">{{ threadTime(thread) }}</span>
+              </span>
+              <span class="mt-0.5 block truncate text-[11px] text-slate-500 dark:text-slate-400">
+                {{ thread.serviceName }} &middot; {{ formatDateShort(thread.appointmentDate) }}
+              </span>
+              <span class="mt-1 flex items-center gap-2">
+                <span class="min-w-0 flex-1 truncate text-[11px]" :class="thread.unreadCount ? 'font-semibold text-slate-700 dark:text-slate-200' : 'text-slate-400 dark:text-slate-500'">
+                  {{ thread.lastMessage || 'No messages yet' }}
+                </span>
+                <span v-if="thread.unreadCount" class="grid h-5 min-w-5 place-items-center rounded-full bg-primary-500 px-1.5 text-[10px] font-bold text-white">
+                  {{ thread.unreadCount > 9 ? '9+' : thread.unreadCount }}
+                </span>
+              </span>
+            </span>
           </button>
         </div>
-        
-        <div class="search-container">
-          <div class="search-input-wrapper">
-            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input 
-              type="search" 
-              v-model="searchQuery"
-              class="search-input" 
-              placeholder="Search conversations..."
-            />
-            </div>
-          </div>
 
-        <div class="chat-list">
-          <div 
-            v-for="chat in filteredChats" 
-            :key="chat.id"
-            :class="['chat-item', { active: selectedChat?.id === chat.id }]"
-            @click="selectChat(chat)"
-          >
-            <div class="chat-avatar-wrapper">
-              <img :src="chat.avatar" :alt="chat.name" class="chat-avatar" />
-              <span v-if="chat.online" class="online-indicator"></span>
-                  </div>
-            <div class="chat-info">
-              <div class="chat-header-info">
-                <span class="chat-name">{{ chat.name }}</span>
-                <span class="chat-time">{{ chat.lastMessageTime }}</span>
-                </div>
-              <div class="chat-preview">
-                <span class="chat-message">{{ chat.lastMessage }}</span>
-                <span v-if="chat.unread" class="unread-badge">{{ chat.unread }}</span>
-                </div>
-                  </div>
-                </div>
-        </div>
-            </div>
+        <EmptyState
+          v-else-if="!threads.length"
+          class="flex-1"
+          icon="message-circle"
+          title="No conversations yet"
+          description="Accepted appointments create a secure chat thread with your physician."
+        >
+          <router-link to="/dashboard/appointments" class="btn-secondary">View appointments</router-link>
+        </EmptyState>
+        <p v-else class="p-8 text-center text-xs text-slate-500 dark:text-slate-400">No conversations match your search.</p>
+      </aside>
 
-      <!-- Chat Main Area -->
-      <div class="chat-main">
-        <div v-if="!selectedChat" class="no-chat-selected">
-          <div class="no-chat-content">
-            <svg class="w-24 h-24 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
-            <h3 class="text-2xl font-semibold text-gray-600 dark:text-gray-400 mb-2">Select a conversation</h3>
-            <p class="text-gray-500 dark:text-gray-500">Choose a chat from the sidebar to start messaging</p>
-                  </div>
-                  </div>
-
-        <div v-else class="chat-window">
-          <!-- Chat Header -->
-          <div class="chat-window-header">
-            <div class="header-user-info">
-              <div class="header-avatar-wrapper">
-                <img :src="selectedChat.avatar" :alt="selectedChat.name" class="header-avatar" />
-                <span v-if="selectedChat.online" class="header-online-indicator"></span>
-                  </div>
-              <div>
-                <h3 class="header-name">{{ selectedChat.name }}</h3>
-                <p class="header-status">{{ selectedChat.online ? 'Online' : 'Offline' }}</p>
-                  </div>
-            </div>
-            <div class="header-actions">
-              <button class="header-action-btn" title="Video Call">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
+      <section class="min-w-0 flex-1 flex-col" :class="selectedThread ? 'flex' : 'hidden lg:flex'">
+        <template v-if="selectedThread">
+          <header class="flex flex-wrap items-center gap-3 border-b border-slate-100 p-4 dark:border-white/[0.06] sm:p-5">
+            <div class="flex min-w-0 flex-1 items-center gap-3">
+              <button type="button" class="btn-icon h-9 w-9 shrink-0 lg:hidden" aria-label="Back to conversations" @click="selectedThread = null">
+                <Icon icon="arrow-left" class="text-base" />
               </button>
-              <button class="header-action-btn" title="More options">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Messages Area -->
-          <div class="messages-container" ref="messagesContainer">
-            <div 
-              v-for="message in messages" 
-              :key="message.id"
-              :class="['message', { 'message-sent': message.sent, 'message-received': !message.sent }]"
-            >
-              <div class="message-content">
-                <p class="message-text">{{ message.text }}</p>
-                <span class="message-time">{{ message.time }}</span>
+              <AppAvatar :name="selectedThread.counterpartName" size="md" />
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-semibold text-ink-900 dark:text-slate-100">{{ selectedThread.counterpartName }}</p>
+                <p class="mt-0.5 truncate text-[11px] text-slate-500 dark:text-slate-400">
+                  {{ selectedThread.serviceName }} &middot; {{ formatDateShort(selectedThread.appointmentDate) }}
+                </p>
               </div>
             </div>
+            <div class="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
+              <StatusBadge :status="selectedThread.status" />
+              <button
+                v-if="video.canJoin"
+                type="button"
+                class="btn-primary px-3 py-2 text-xs"
+                :disabled="joiningVideo"
+                @click="joinVideo"
+              >
+                <Icon icon="video" class="text-sm" />
+                {{ joiningVideo ? 'Opening...' : 'Join video' }}
+              </button>
+              <span v-else-if="video.state === 'waiting' || video.state === 'closed'" class="text-[10px] font-medium text-slate-400 dark:text-slate-500">
+                {{ video.detail }}
+              </span>
+              <router-link :to="detailsLink" class="btn-secondary hidden px-3 py-2 text-xs sm:inline-flex">Details</router-link>
+            </div>
+          </header>
+
+          <div
+            v-if="connectionState === 'reconnecting' || connectionState === 'offline'"
+            class="border-b border-amber-200 bg-amber-50 px-4 py-2 text-[11px] font-medium text-amber-700 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-300"
+          >
+            {{ connectionState === 'reconnecting' ? 'Reconnecting to live chat...' : 'Live connection unavailable. Messages will still be saved.' }}
           </div>
 
-          <!-- Message Input -->
-          <div class="message-input-container">
-            <div class="input-actions">
-              <button class="input-action-btn" @click="toggleEmojiPicker" title="Emoji">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </button>
-              <button class="input-action-btn" @click="attachFile" title="Attach file">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                </svg>
+          <div ref="messagesContainer" class="scrollbar-slim flex-1 space-y-3 overflow-y-auto bg-slate-50/50 p-4 dark:bg-white/[0.01] sm:p-5">
+            <div v-if="loadingMessages" class="space-y-3">
+              <div v-for="n in 4" :key="n" class="flex" :class="n % 2 ? 'justify-start' : 'justify-end'">
+                <div class="h-11 w-2/5 skeleton rounded-2xl" />
+              </div>
+            </div>
+
+            <template v-else-if="messages.length">
+              <template v-for="(message, index) in messages" :key="message.id || index">
+                <div v-if="showDateDivider(index)" class="flex items-center gap-3 py-2">
+                  <span class="h-px flex-1 bg-slate-200/70 dark:bg-white/[0.06]" />
+                  <span class="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400 dark:text-slate-500">{{ formatDateShort(message.sentAtUtc) }}</span>
+                  <span class="h-px flex-1 bg-slate-200/70 dark:bg-white/[0.06]" />
+                </div>
+                <div class="flex" :class="message.isMine ? 'justify-end' : 'justify-start'">
+                  <div class="max-w-[85%] sm:max-w-[72%]">
+                    <div
+                      class="whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-6"
+                      :class="message.isMine
+                        ? 'rounded-br-md bg-gradient-to-br from-teal-500 to-cyan-500 text-white shadow-sm'
+                        : 'rounded-bl-md border border-slate-200/80 bg-white text-slate-700 shadow-sm dark:border-white/[0.08] dark:bg-midnight-850 dark:text-slate-200'"
+                    >
+                      {{ message.body }}
+                    </div>
+                    <p class="mt-1 text-[10px] text-slate-400 dark:text-slate-500" :class="message.isMine ? 'text-right' : ''">
+                      {{ message.isMine ? 'You' : message.senderName }} &middot; {{ formatTime(message.sentAtUtc) }}
+                    </p>
+                  </div>
+                </div>
+              </template>
+            </template>
+
+            <EmptyState
+              v-else
+              icon="message-circle"
+              title="Start the conversation"
+              description="Send a message to your care team. Messages are saved with this appointment."
+            />
+          </div>
+
+          <div class="border-t border-slate-100 p-3 dark:border-white/[0.06] sm:p-4">
+            <div v-if="errorMessage" class="mb-2 rounded-lg bg-rose-50 px-3 py-2 text-[11px] text-rose-700 dark:bg-rose-400/10 dark:text-rose-300">
+              {{ errorMessage }}
+            </div>
+            <div class="flex items-end gap-2">
+              <textarea
+                v-model="newMessage"
+                rows="1"
+                maxlength="4000"
+                :disabled="!chat.canChat || sending"
+                class="input-modern max-h-28 min-h-[44px] flex-1 resize-none py-2.5"
+                :placeholder="chat.canChat ? 'Write a message...' : chat.detail"
+                aria-label="Message"
+                @keydown.enter.exact.prevent="send"
+              />
+              <button
+                type="button"
+                class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 text-white shadow-sm transition hover:from-teal-400 hover:to-cyan-400 disabled:cursor-not-allowed disabled:opacity-40"
+                :disabled="!chat.canChat || !newMessage.trim() || sending"
+                aria-label="Send message"
+                @click="send"
+              >
+                <Icon icon="send" class="text-lg" />
               </button>
             </div>
-            <input 
-              type="text" 
-              v-model="newMessage"
-              @keyup.enter="sendMessage"
-              class="message-input" 
-              placeholder="Type a message..."
-            />
-            <button 
-              @click="sendMessage" 
-              :disabled="!newMessage.trim()"
-              class="send-button"
-              :class="{ 'send-button-active': newMessage.trim() }"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </button>
+            <p class="mt-1.5 text-[10px] text-slate-400 dark:text-slate-500">
+              Messages are saved to this appointment. Do not share urgent medical emergencies here.
+            </p>
           </div>
+        </template>
+
+        <div v-else class="flex flex-1 items-center justify-center p-8">
+          <EmptyState
+            icon="message-circle"
+            title="Select a conversation"
+            description="Choose an appointment thread on the left to view messages and consultation actions."
+          />
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script>
-// Note: Install @microsoft/signalr package for SignalR support
-// npm install @microsoft/signalr
-
-const SIGNALR_HUB_URL = process.env.VUE_APP_SIGNALR_HUB_URL || 'https://localhost:7231/chat-hub'
+import * as signalR from '@microsoft/signalr'
+import AppAvatar from '@/components/ui/AppAvatar.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
+import { createOrGetConsultation, getAppointmentMessages, getChatThreads, markAppointmentMessagesRead, sendAppointmentChatMessage } from '@/api'
+import { chatAccessFor, ensureConsultationPolicy, useConsultationPolicy, videoAccessFor } from '@/composables/useConsultationPolicy'
+import { formatDateShort, formatTime } from '@/utils/appointments'
 
 export default {
   name: 'Chat',
+  components: { AppAvatar, EmptyState, StatusBadge },
+  setup() {
+    const { state } = useConsultationPolicy()
+    return { policyState: state }
+  },
   data() {
     return {
-      searchQuery: '',
-      selectedChat: null,
+      threads: [],
+      messages: [],
+      selectedThread: null,
+      loadingThreads: true,
+      loadingMessages: false,
+      search: '',
       newMessage: '',
+      sending: false,
+      joiningVideo: false,
+      errorMessage: '',
       connection: null,
-      connectionId: null,
-      isConnected: false,
-      chats: [
-        {
-          id: 1,
-          name: 'Dr. Emma Watson',
-          avatar: 'https://cdn.pixabay.com/photo/2018/01/15/07/51/woman-3083383__340.jpg',
-          lastMessage: 'Good Morning! How can I help you today?',
-          lastMessageTime: '2:30 PM',
-          online: true,
-          unread: 2,
-          connectionId: null
-        },
-        {
-          id: 2,
-          name: 'Dr. John Smith',
-          avatar: 'https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg',
-          lastMessage: 'The test results look good',
-          lastMessageTime: '1:15 PM',
-          online: false,
-          unread: 0,
-          connectionId: null
-        },
-        {
-          id: 3,
-          name: 'Dr. Sarah Johnson',
-          avatar: 'https://cdn.pixabay.com/photo/2016/11/29/13/14/attractive-1869761__340.jpg',
-          lastMessage: 'Please schedule a follow-up appointment',
-          lastMessageTime: '11:45 AM',
-          online: true,
-          unread: 1,
-          connectionId: null
-        }
-      ],
-      messages: [
-        { id: 1, text: 'Hi, how can I help you today?', sent: false, time: '2:25 PM' },
-        { id: 2, text: 'Hello! I have a question about my prescription', sent: true, time: '2:26 PM' },
-        { id: 3, text: 'Of course! What would you like to know?', sent: false, time: '2:27 PM' }
-      ]
+      connectionState: 'connecting',
     }
   },
   computed: {
-    filteredChats() {
-      if (!this.searchQuery) return this.chats
-      const query = this.searchQuery.toLowerCase()
-      return this.chats.filter(chat => 
-        chat.name.toLowerCase().includes(query) ||
-        chat.lastMessage.toLowerCase().includes(query)
+    isPhysician() {
+      return this.$route.path.startsWith('/physician')
+    },
+    filteredThreads() {
+      const term = this.search.trim().toLowerCase()
+      if (!term) return this.threads
+      return this.threads.filter((thread) =>
+        `${thread.counterpartName} ${thread.serviceName} ${thread.lastMessage || ''}`.toLowerCase().includes(term)
       )
+    },
+    chat() {
+      return chatAccessFor(this.selectedThread)
+    },
+    video() {
+      return videoAccessFor(this.selectedThread, this.policyState.policy)
+    },
+    detailsLink() {
+      if (!this.selectedThread) return this.isPhysician ? '/physician/appointments' : '/dashboard/appointments'
+      return this.isPhysician
+        ? `/physician/appointments/${this.selectedThread.appointmentId}`
+        : `/dashboard/appointments/${this.selectedThread.appointmentId}`
+    },
+  },
+  watch: {
+    '$route.query.appointmentId'(value) {
+      if (!value || !this.threads.length) return
+      const id = Number(value)
+      if (this.selectedThread?.appointmentId === id) return
+      const thread = this.threads.find((item) => item.appointmentId === id)
+      if (thread) this.selectThread(thread)
+    },
+  },
+  async mounted() {
+    ensureConsultationPolicy()
+    await this.loadThreads()
+    await this.connect()
+  },
+  beforeUnmount() {
+    if (this.connection) {
+      this.connection.stop()
+      this.connection = null
     }
   },
   methods: {
-    async initializeSignalR() {
+    formatDateShort,
+    formatTime,
+    threadTime(thread) {
+      const value = thread.lastMessageAtUtc || thread.appointmentDate
+      if (!value) return ''
+      const date = new Date(value)
+      if (Number.isNaN(date.getTime())) return ''
+      const today = new Date()
+      if (date.toDateString() === today.toDateString()) return formatTime(value)
+      return formatDateShort(value)
+    },
+    async loadThreads() {
+      this.loadingThreads = true
       try {
-        // Dynamic import of SignalR if available
-        // Note: You need to install @microsoft/signalr package first
-        // npm install @microsoft/signalr
-        
-        // For now, we'll use a fallback approach
-        // In production, uncomment the SignalR code below after installing the package
-        
-        /*
-        const { HubConnectionBuilder, LogLevel } = await import('@microsoft/signalr')
-        
-        this.connection = new HubConnectionBuilder()
-          .withUrl(SIGNALR_HUB_URL, {
-            accessTokenFactory: () => localStorage.getItem('access-token') || ''
-          })
-          .withAutomaticReconnect()
-          .configureLogging(LogLevel.Information)
-          .build()
-
-        this.connection.on('ReceiveMessage', (user, message) => {
-          this.handleReceivedMessage(user, message)
-        })
-
-        this.connection.on('ReceiveMessageToUser', (user, message) => {
-          this.handleReceivedMessage(user, message)
-        })
-
-        this.connection.on('UserConnected', (connectionId) => {
-          this.handleUserConnected(connectionId)
-        })
-
-        this.connection.on('UserDisconnected', (connectionId) => {
-          this.handleUserDisconnected(connectionId)
-        })
-
-        await this.connection.start()
-        this.isConnected = true
-        this.connectionId = this.connection.connectionId
-        
-        console.log('SignalR connection established:', this.connectionId)
-        */
-        
-        console.log('SignalR not initialized. Please install @microsoft/signalr package.')
+        const data = await getChatThreads()
+        this.threads = Array.isArray(data) ? data : (data?.data ?? [])
+        const queryId = Number(this.$route.query.appointmentId)
+        const target = this.threads.find((thread) => thread.appointmentId === queryId)
+          || (window.matchMedia('(min-width: 1024px)').matches ? this.threads[0] : null)
+        if (target) await this.selectThread(target, { updateRoute: Boolean(queryId) })
       } catch (error) {
-        console.error('Error initializing SignalR:', error)
-        this.isConnected = false
+        this.errorMessage = error.message || 'Could not load conversations.'
+        if (this.$notification) this.$notification.error('Messages unavailable', this.errorMessage)
+      } finally {
+        this.loadingThreads = false
       }
     },
-    async sendMessage() {
-      if (!this.newMessage.trim() || !this.selectedChat) return
-      
-      const messageText = this.newMessage.trim()
-      const now = new Date()
-      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-      
-      // Add message to local state immediately for better UX
-      const newMsg = {
-        id: Date.now(),
-        text: messageText,
-        sent: true,
-        time: time
-      }
-      
-      this.messages.push(newMsg)
-      this.selectedChat.lastMessage = messageText
-      this.selectedChat.lastMessageTime = time
-      
-      // Try to send via SignalR if connected
-      if (this.isConnected && this.connection) {
-        try {
-          if (this.selectedChat.connectionId) {
-            await this.connection.invoke('SendMessageToUser', this.selectedChat.connectionId, 'You', messageText)
-          } else {
-            await this.connection.invoke('SendMessage', 'You', messageText)
-          }
-        } catch (error) {
-          console.error('Error sending message via SignalR:', error)
-        }
-      }
-      
+    async selectThread(thread, options = {}) {
+      if (!thread) return
+      this.selectedThread = thread
+      this.errorMessage = ''
       this.newMessage = ''
-      this.$nextTick(() => {
-        this.scrollToBottom()
-      })
-    },
-    handleReceivedMessage(user, message) {
-      const now = new Date()
-      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-      
-      this.messages.push({
-        id: Date.now(),
-        text: message,
-        sent: false,
-        time: time,
-        user: user
-      })
-      
-      if (this.selectedChat) {
-        this.selectedChat.lastMessage = message
-        this.selectedChat.lastMessageTime = time
-        this.selectedChat.unread = (this.selectedChat.unread || 0) + 1
+      if (options.updateRoute !== false && String(this.$route.query.appointmentId || '') !== String(thread.appointmentId)) {
+        this.$router.replace({ query: { ...this.$route.query, appointmentId: String(thread.appointmentId) } }).catch(() => {})
       }
-      
-      this.$nextTick(() => {
-        this.scrollToBottom()
-      })
+      await this.loadMessages(thread)
     },
-    handleUserConnected(connectionId) {
-      console.log('User connected:', connectionId)
-      // Update chat status if this connection matches a chat
-      const chat = this.chats.find(c => c.connectionId === connectionId)
-      if (chat) {
-        chat.online = true
+    async loadMessages(thread) {
+      this.loadingMessages = true
+      try {
+        const data = await getAppointmentMessages(thread.appointmentId)
+        this.messages = (Array.isArray(data) ? data : (data?.data ?? []))
+          .slice()
+          .sort((a, b) => new Date(a.sentAtUtc) - new Date(b.sentAtUtc))
+        thread.unreadCount = 0
+        markAppointmentMessagesRead(thread.appointmentId).then(() => window.dispatchEvent(new CustomEvent('telemedicine:chat-read'))).catch(() => {})
+        this.$nextTick(this.scrollToBottom)
+      } catch (error) {
+        this.errorMessage = error.message || 'Could not load messages.'
+      } finally {
+        this.loadingMessages = false
       }
     },
-    handleUserDisconnected(connectionId) {
-      console.log('User disconnected:', connectionId)
-      // Update chat status if this connection matches a chat
-      const chat = this.chats.find(c => c.connectionId === connectionId)
-      if (chat) {
-        chat.online = false
+    async connect() {
+      if (this.connection) return
+      this.connectionState = 'connecting'
+      this.connection = new signalR.HubConnectionBuilder()
+        .withUrl('/chat-hub', { accessTokenFactory: () => localStorage.getItem('access-token') || '' })
+        .withAutomaticReconnect([0, 2000, 5000, 10000])
+        .configureLogging(signalR.LogLevel.Warning)
+        .build()
+      this.connection.on('ReceiveAppointmentMessage', this.handleIncomingMessage)
+      this.connection.onreconnecting(() => { this.connectionState = 'reconnecting' })
+      this.connection.onreconnected(() => { this.connectionState = 'connected'; this.loadThreads() })
+      this.connection.onclose(() => { this.connectionState = 'offline' })
+      try {
+        await this.connection.start()
+        this.connectionState = 'connected'
+      } catch {
+        this.connectionState = 'offline'
       }
     },
-    selectChat(chat) {
-      this.selectedChat = chat
-      // Mark as read
-      chat.unread = 0
-      // Scroll to bottom of messages
-      this.$nextTick(() => {
-        this.scrollToBottom()
-      })
+    handleIncomingMessage(message) {
+      if (!message) return
+      const role = (localStorage.getItem('user-role') || '').toLowerCase()
+      const normalized = {
+        ...message,
+        isMine: String(message.senderRole || '').toLowerCase() === (role.includes('physician') || role.includes('doctor') ? 'physician' : 'patient'),
+      }
+      const thread = this.threads.find((item) => item.appointmentId === normalized.appointmentId)
+      if (!thread) {
+        this.loadThreads()
+        return
+      }
+      thread.lastMessage = normalized.body
+      thread.lastMessageAtUtc = normalized.sentAtUtc
+      if (this.selectedThread?.appointmentId === normalized.appointmentId) {
+        if (!this.messages.some((item) => item.id === normalized.id)) this.messages.push(normalized)
+        thread.unreadCount = 0
+        markAppointmentMessagesRead(normalized.appointmentId).then(() => window.dispatchEvent(new CustomEvent('telemedicine:chat-read'))).catch(() => {})
+        this.$nextTick(this.scrollToBottom)
+      } else if (!normalized.isMine) {
+        thread.unreadCount = (thread.unreadCount || 0) + 1
+      }
+    },
+    async send() {
+      const text = this.newMessage.trim()
+      if (!text || !this.selectedThread || !this.chat.canChat || this.sending) return
+      this.sending = true
+      this.errorMessage = ''
+      try {
+        if (this.connection && this.connection.state === signalR.HubConnectionState.Connected) {
+          await this.connection.invoke('SendAppointmentMessage', this.selectedThread.appointmentId, text)
+        } else {
+          const result = await sendAppointmentChatMessage(this.selectedThread.appointmentId, text)
+          const message = result?.message || result
+          if (message && !this.messages.some((item) => item.id === message.id)) {
+            this.messages.push(message)
+            this.selectedThread.lastMessage = message.body
+            this.selectedThread.lastMessageAtUtc = message.sentAtUtc
+            this.$nextTick(this.scrollToBottom)
+          }
+        }
+        this.newMessage = ''
+      } catch (error) {
+        this.errorMessage = error.message || 'Could not send the message.'
+      } finally {
+        this.sending = false
+      }
+    },
+    async joinVideo() {
+      if (!this.selectedThread || this.joiningVideo) return
+      this.joiningVideo = true
+      try {
+        const session = await createOrGetConsultation(this.selectedThread.appointmentId)
+        this.$router.push({
+          name: this.isPhysician ? 'PhysicianConsultation' : 'PatientConsultation',
+          params: { sessionId: session.sessionId },
+        })
+      } catch (error) {
+        this.errorMessage = error.message || 'The video room is not available.'
+        if (this.$notification) this.$notification.error('Video unavailable', this.errorMessage)
+      } finally {
+        this.joiningVideo = false
+      }
+    },
+    showDateDivider(index) {
+      if (index === 0) return true
+      const current = new Date(this.messages[index]?.sentAtUtc).toDateString()
+      const previous = new Date(this.messages[index - 1]?.sentAtUtc).toDateString()
+      return current !== previous
     },
     scrollToBottom() {
       const container = this.$refs.messagesContainer
-      if (container) {
-        container.scrollTop = container.scrollHeight
-      }
+      if (container) container.scrollTop = container.scrollHeight
     },
-    startNewChat() {
-      // Implementation for starting new chat
-      console.log('Start new chat')
-    },
-    toggleEmojiPicker() {
-      // Implementation for emoji picker
-      console.log('Toggle emoji picker')
-    },
-    attachFile() {
-      // Implementation for file attachment
-      console.log('Attach file')
-    }
   },
-  async mounted() {
-    // Initialize SignalR connection
-    await this.initializeSignalR()
-    
-    // Auto-select first chat if available
-    if (this.chats.length > 0 && !this.selectedChat) {
-      this.selectChat(this.chats[0])
-    }
-  },
-  beforeUnmount() {
-    // Clean up SignalR connection
-    if (this.connection) {
-      this.connection.stop()
-      this.isConnected = false
-    }
-  }
 }
 </script>
 
-<style scoped>
-.chat-container {
-  @apply h-full w-full p-4 bg-gray-50 dark:bg-gray-900;
-}
-
-.chat-wrapper {
-  @apply max-w-7xl mx-auto h-[calc(100vh-8rem)] bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden;
-  display: grid;
-  grid-template-columns: 350px 1fr;
-}
-
-/* Sidebar Styles */
-.chat-sidebar {
-  @apply border-r border-gray-200 dark:border-gray-700 flex flex-col bg-white dark:bg-gray-800;
-}
-
-.sidebar-header {
-  @apply p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between;
-}
-
-.new-chat-btn {
-  @apply p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors;
-}
-
-.search-container {
-  @apply p-4 border-b border-gray-200 dark:border-gray-700;
-}
-
-.search-input-wrapper {
-  @apply relative;
-}
-
-.search-icon {
-  @apply absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400;
-}
-
-.search-input {
-  @apply w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-gray-200;
-}
-
-.chat-list {
-  @apply flex-1 overflow-y-auto;
-}
-
-.chat-item {
-  @apply flex items-center p-4 border-b border-gray-100 dark:border-gray-700 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700;
-}
-
-.chat-item.active {
-  @apply bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500;
-}
-
-.chat-avatar-wrapper {
-  @apply relative mr-3;
-}
-
-.chat-avatar {
-  @apply w-12 h-12 rounded-full object-cover;
-}
-
-.online-indicator {
-  @apply absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800;
-}
-
-.chat-info {
-  @apply flex-1 min-w-0;
-}
-
-.chat-header-info {
-  @apply flex items-center justify-between mb-1;
-}
-
-.chat-name {
-  @apply font-semibold text-gray-800 dark:text-gray-200 truncate;
-}
-
-.chat-time {
-  @apply text-xs text-gray-500 dark:text-gray-400;
-}
-
-.chat-preview {
-  @apply flex items-center justify-between;
-}
-
-.chat-message {
-  @apply text-sm text-gray-600 dark:text-gray-400 truncate flex-1;
-}
-
-.unread-badge {
-  @apply ml-2 px-2 py-0.5 bg-indigo-500 text-white text-xs rounded-full font-semibold;
-}
-
-/* Main Chat Area */
-.chat-main {
-  @apply flex flex-col bg-white dark:bg-gray-800;
-}
-
-.no-chat-selected {
-  @apply flex items-center justify-center h-full;
-}
-
-.no-chat-content {
-  @apply text-center;
-}
-
-.chat-window {
-  @apply flex flex-col h-full;
-}
-
-.chat-window-header {
-  @apply p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-800;
-}
-
-.header-user-info {
-  @apply flex items-center;
-}
-
-.header-avatar-wrapper {
-  @apply relative mr-3;
-}
-
-.header-avatar {
-  @apply w-10 h-10 rounded-full object-cover;
-}
-
-.header-online-indicator {
-  @apply absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800;
-}
-
-.header-name {
-  @apply font-semibold text-gray-800 dark:text-gray-200;
-}
-
-.header-status {
-  @apply text-sm text-gray-500 dark:text-gray-400;
-}
-
-.header-actions {
-  @apply flex items-center gap-2;
-}
-
-.header-action-btn {
-  @apply p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
-}
-
-.messages-container {
-  @apply flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50;
-}
-
-.message {
-  @apply flex;
-}
-
-.message-sent {
-  @apply justify-end;
-}
-
-.message-received {
-  @apply justify-start;
-}
-
-.message-content {
-  @apply max-w-xs lg:max-w-md px-4 py-2 rounded-lg;
-}
-
-.message-sent .message-content {
-  @apply bg-indigo-500 text-white rounded-br-none;
-}
-
-.message-received .message-content {
-  @apply bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none shadow;
-}
-
-.message-text {
-  @apply mb-1;
-}
-
-.message-time {
-  @apply text-xs opacity-70;
-}
-
-.message-input-container {
-  @apply p-4 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2 bg-white dark:bg-gray-800;
-}
-
-.input-actions {
-  @apply flex items-center gap-2;
-}
-
-.input-action-btn {
-  @apply p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
-}
-
-.message-input {
-  @apply flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-gray-200;
-}
-
-.send-button {
-  @apply p-2 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-.send-button-active {
-  @apply text-indigo-500 hover:text-indigo-600 dark:text-indigo-400;
-}
-
-@media (max-width: 1024px) {
-  .chat-wrapper {
-    grid-template-columns: 1fr;
-  }
-  
-  .chat-sidebar {
-    display: none;
-  }
-}
-</style>

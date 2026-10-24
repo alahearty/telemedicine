@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using telemedicine.api.Services.Authorization;
 using telemedicine_webapi.Application.Common.Models;
 using telemedicine_webapi.Application.Appointments;
@@ -14,6 +15,7 @@ public class AppointmentController : ApiControllerBase
 {
     [HttpPost]
     [Permit("Patient")]
+    [EnableRateLimiting("scheduling")]
     public async Task<IActionResult> ScheduleAppointment([FromBody] ScheduleAppointmentCommand command)
     {
         var response = await Mediator.Send(command);
@@ -22,6 +24,7 @@ public class AppointmentController : ApiControllerBase
     
     [HttpPost("respond")]
     [Permit("Physician")]
+    [EnableRateLimiting("scheduling")]
     public async Task<IActionResult> RespondToScheduledAppointment([FromBody] RespondToScheduledAppointmentCommand command)
     {
         var response = await Mediator.Send(command);
@@ -39,6 +42,7 @@ public class AppointmentController : ApiControllerBase
 
     [HttpGet("{id}")]
     [Permit("Patient, Physician, Administrator")]
+    [EnableRateLimiting("scheduling")]
     public async Task<IActionResult> GetAppointmentById(int id)
     {
         var query = new GetAppointmentByIdQuery(id);
@@ -66,6 +70,7 @@ public class AppointmentController : ApiControllerBase
 
     [HttpDelete("{id}")]
     [Permit("Patient, Physician, Administrator")]
+    [EnableRateLimiting("scheduling")]
     public async Task<IActionResult> CancelAppointment(int id, [FromQuery] string? reason = null)
     {
         var command = new CancelAppointmentCommand(id, reason);
@@ -77,11 +82,7 @@ public class AppointmentController : ApiControllerBase
     [Permit("Patient, Physician, Administrator")]
     public async Task<IActionResult> UpdateAppointment(int id, [FromBody] UpdateAppointmentCommand command)
     {
-        if (id != command.Id)
-        {
-            return BadRequest(new BaseResponse { NotSuccesful = true }.SetError("ID mismatch"));
-        }
-
+        command.Id = id;
         var response = await Mediator.Send(command);
         return HandleResponse(response);
     }

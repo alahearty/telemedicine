@@ -39,6 +39,8 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser<Guid>, Identi
     public DbSet<TelemedicineService> TelemedicineServices => Set<TelemedicineService>();
     public DbSet<TelemedicinePayment> TelemedicinePayments => Set<TelemedicinePayment>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<ConsultationSession> ConsultationSessions => Set<ConsultationSession>();
+    public DbSet<AppointmentChatMessage> AppointmentChatMessages => Set<AppointmentChatMessage>();
     public DbSet<PhysicianAvailability> PhysicianAvailabilities => Set<PhysicianAvailability>();
     public DbSet<PhysicianPatientTransaction> PhysianPatientTransactions => Set<PhysicianPatientTransaction>();
     public DbSet<Comment> Comments => Set<Comment>();

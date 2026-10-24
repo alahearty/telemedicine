@@ -17,7 +17,7 @@ namespace telemedicine_webapi.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -320,6 +320,61 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("telemedicine_webapi.Domain.Entities.AppointmentChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AppointmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("PatientReadAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("PhysicianReadAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SenderRole")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("SenderUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("SentAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId", "SentAtUtc");
+
+                    b.ToTable("AppointmentChatMessages", t =>
+                        {
+                            t.HasCheckConstraint("CK_AppointmentChatMessages_Body_NotBlank", "length(btrim(\"Body\")) > 0");
+                        });
+                });
+
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.Comment", b =>
                 {
                     b.Property<int>("Id")
@@ -359,6 +414,78 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.HasIndex("PhysicianId");
 
                     b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("telemedicine_webapi.Domain.Entities.ConsultationSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AppointmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EndReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("EndedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("PatientJoinedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PhysicianId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("PhysicianJoinedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ScheduledAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("StartedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId")
+                        .IsUnique();
+
+                    b.HasIndex("SessionId")
+                        .IsUnique();
+
+                    b.HasIndex("PatientId", "Status");
+
+                    b.HasIndex("PhysicianId", "Status");
+
+                    b.ToTable("ConsultationSessions", t =>
+                        {
+                            t.HasCheckConstraint("CK_ConsultationSessions_EndAfterStart", "\"EndedAtUtc\" IS NULL OR \"StartedAtUtc\" IS NULL OR \"EndedAtUtc\" >= \"StartedAtUtc\"");
+                        });
                 });
 
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.HealthAnalysisReport", b =>
@@ -870,6 +997,17 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                     b.Navigation("TelemedicineService");
                 });
 
+            modelBuilder.Entity("telemedicine_webapi.Domain.Entities.AppointmentChatMessage", b =>
+                {
+                    b.HasOne("telemedicine_webapi.Domain.Entities.Appointment", "Appointment")
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+                });
+
             modelBuilder.Entity("telemedicine_webapi.Domain.Entities.Comment", b =>
                 {
                     b.HasOne("telemedicine_webapi.Domain.Entities.HealthAnalysisReport", "HealthAnalysisReport")
@@ -881,6 +1019,33 @@ namespace telemedicine_webapi.Infrastructure.Migrations
                         .HasForeignKey("PhysicianId");
 
                     b.Navigation("HealthAnalysisReport");
+
+                    b.Navigation("Physician");
+                });
+
+            modelBuilder.Entity("telemedicine_webapi.Domain.Entities.ConsultationSession", b =>
+                {
+                    b.HasOne("telemedicine_webapi.Domain.Entities.Appointment", "Appointment")
+                        .WithOne()
+                        .HasForeignKey("telemedicine_webapi.Domain.Entities.ConsultationSession", "AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("telemedicine_webapi.Domain.Entities.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("telemedicine_webapi.Domain.Entities.Physician", "Physician")
+                        .WithMany()
+                        .HasForeignKey("PhysicianId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("Patient");
 
                     b.Navigation("Physician");
                 });

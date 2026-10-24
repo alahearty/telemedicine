@@ -81,6 +81,7 @@
 
 <script>
 import Layout from "@/Layout/AuthLayout.vue";
+import { refreshSession } from "@/composables/useSession";
 
 export default {
   name: "Login",
@@ -127,6 +128,7 @@ export default {
         localStorage.setItem("access-token", result.token);
         localStorage.setItem("user-email", this.email);
         localStorage.setItem("user-role", result.role || "");
+        refreshSession();
         if (this.$notification) this.$notification.success('Welcome back', 'You have signed in successfully.');
         const role = result.role?.toLowerCase();
         if (role === 'patient' || role === 'patientrole') this.$router.push('/dashboard');

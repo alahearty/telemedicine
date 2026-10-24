@@ -7,7 +7,7 @@
 
     <div v-if="paymentComplete" class="card-modern p-8 text-center">
       <div class="w-14 h-14 rounded-full bg-green-100 text-green-700 text-3xl flex items-center justify-center mx-auto mb-4">✓</div>
-      <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Appointment confirmed</h2>
+      <h2 data-testid="payment-success" class="text-2xl font-bold text-slate-800 dark:text-slate-100">Appointment confirmed</h2>
       <p class="text-slate-600 dark:text-slate-400 mt-2 mb-6">
         The simulated payment was approved and the appointment was created. No real money was charged.
       </p>
@@ -47,7 +47,7 @@
       </p>
 
       <div class="flex flex-col sm:flex-row gap-3">
-        <button type="button" class="btn-primary" :disabled="processing || amount <= 0" @click="processPayment">
+        <button type="button" data-testid="pay-button" class="btn-primary" :disabled="processing || amount <= 0" @click="processPayment">
           {{ processing ? 'Processing simulated payment...' : `Pay $${amount.toFixed(2)} (demo)` }}
         </button>
         <button type="button" class="btn-secondary" :disabled="processing" @click="cancelCheckout">Cancel</button>

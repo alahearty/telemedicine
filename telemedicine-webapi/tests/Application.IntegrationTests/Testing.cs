@@ -1,8 +1,11 @@
 using telemedicine_webapi.Infrastructure.Identity;
+using telemedicine_webapi.Application.Common.Interfaces;
 using telemedicine_webapi.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,6 +54,42 @@ public partial class Testing
     }
 
     public static IServiceScope CreateScope() => _scopeFactory.CreateScope();
+
+    public static HttpClient CreateClient() => _factory.CreateClient(new WebApplicationFactoryClientOptions
+    {
+        AllowAutoRedirect = false,
+        BaseAddress = new Uri("https://localhost")
+    });
+
+    public static HubConnection CreateHubConnection(string? token = null)
+    {
+        return new HubConnectionBuilder()
+            .WithUrl(new Uri("http://localhost/chat-hub"), options =>
+            {
+                options.Transports = HttpTransportType.LongPolling;
+                options.HttpMessageHandlerFactory = _ => _factory.Server.CreateHandler();
+                if (token != null) options.AccessTokenProvider = () => Task.FromResult<string?>(token);
+            })
+            .Build();
+    }
+
+    public static HubConnection CreateConsultationHubConnection(string? token = null)
+    {
+        return new HubConnectionBuilder()
+            .WithUrl(new Uri("http://localhost/consultation-hub"), options =>
+            {
+                options.Transports = HttpTransportType.LongPolling;
+                options.HttpMessageHandlerFactory = _ => _factory.Server.CreateHandler();
+                if (token != null) options.AccessTokenProvider = () => Task.FromResult<string?>(token);
+            })
+            .Build();
+    }
+
+    public static string CreateAccessToken(Guid userId, string email, string role)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        return scope.ServiceProvider.GetRequiredService<IJwtTokenGenerator>().GenerateJwtToken(userId, email, role);
+    }
 
     //public static async Task<string> RunAsDefaultUserAsync()
     //{

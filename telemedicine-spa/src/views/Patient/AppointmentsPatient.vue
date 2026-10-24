@@ -32,31 +32,43 @@
     </div>
 
     <div v-else class="space-y-4">
-      <router-link v-for="apt in filtered" :key="apt.id" :to="`/dashboard/appointments/${apt.id}`" class="card-modern p-5 flex flex-wrap items-center justify-between gap-4 hover:border-primary-200 dark:hover:border-primary-800 transition-colors">
-        <div>
-          <p class="font-semibold text-slate-800 dark:text-slate-100">{{ apt.serviceName || 'Consultation' }}</p>
-          <p class="text-sm text-slate-500 dark:text-slate-400">
-            {{ formatDateTime(apt.appointmentDate || apt.scheduleStartTime) }}
-          </p>
-          <p v-if="apt.physicianName" class="text-sm text-slate-500 dark:text-slate-400">Dr. {{ apt.physicianName }} · {{ apt.physicianSpecialization }}</p>
+      <article v-for="apt in filtered" :key="apt.id" class="card card-hover p-5">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <p class="font-semibold text-slate-800 dark:text-slate-100">{{ apt.serviceName || 'Consultation' }}</p>
+              <StatusBadge :status="apt.status" />
+            </div>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {{ formatDateTime(apt.appointmentDate || apt.scheduleStartTime) }}
+            </p>
+            <p v-if="apt.physicianName" class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              Dr. {{ apt.physicianName }}<span v-if="apt.physicianSpecialization"> · {{ apt.physicianSpecialization }}</span>
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+            <AppointmentActions :appointment="apt" compact />
+            <router-link :to="`/dashboard/appointments/${apt.id}`" class="btn-ghost px-2.5 py-1.5 text-xs">
+              Details
+              <Icon icon="arrow-right" class="text-xs" />
+            </router-link>
+          </div>
         </div>
-        <div class="flex items-center gap-3">
-          <span class="px-3 py-1 rounded-full text-xs font-medium" :class="statusClass(apt.status)">{{ statusLabel(apt.status) }}</span>
-          <span class="text-primary-600 dark:text-primary-300 text-sm font-medium">Details →</span>
-        </div>
-      </router-link>
+      </article>
     </div>
   </div>
 </template>
 
 <script>
-import { Icon } from '@iconify/vue'
+import Icon from '@/components/LocalIcon.vue'
+import AppointmentActions from '@/components/appointments/AppointmentActions.vue'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
 import { getCurrentPatient, getPatientAppointments } from '@/api'
-import { formatDateTime, isUpcoming, statusClass, statusLabel } from '@/utils/appointments'
+import { formatDateTime, isUpcoming, statusLabel } from '@/utils/appointments'
 
 export default {
   name: 'AppointmentsPatient',
-  components: { Icon },
+  components: { AppointmentActions, Icon, StatusBadge },
   data() {
     return {
       appointments: [],
@@ -82,7 +94,6 @@ export default {
   },
   methods: {
     formatDateTime,
-    statusClass,
     statusLabel,
     async load() {
       this.loading = true

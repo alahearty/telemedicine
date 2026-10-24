@@ -7,13 +7,21 @@ async function login(page, email, password) {
   await page.getByRole('button', { name: /sign in/i }).click()
 }
 
-test.beforeEach(async ({ page }, testInfo) => {
+test.beforeEach(async ({ page, context }, testInfo) => {
+  await context.setExtraHTTPHeaders({
+    'X-RateLimit-Partition': `playwright-${testInfo.testId}-${Date.now()}-${Math.random()}`,
+  })
   const failures = []
   page.on('console', message => {
-    if (message.type() === 'error') failures.push(`console: ${message.text()}`)
+    if (message.type() === 'error' && !/401 \(Unauthorized\)|403 \(Forbidden\)/.test(message.text())) {
+      failures.push(`console: ${message.text()}`)
+    }
   })
   page.on('response', response => {
     if (response.status() >= 500) failures.push(`http ${response.status()}: ${response.url()}`)
+  })
+  page.on('requestfailed', request => {
+    failures.push(`request: ${request.failure()?.errorText || 'failed'} ${request.url()}`)
   })
   testInfo._runtimeFailures = failures
 })
@@ -21,6 +29,11 @@ test.beforeEach(async ({ page }, testInfo) => {
 test.afterEach(async ({ page }, testInfo) => {
   if (testInfo.status !== testInfo.expectedStatus) {
     await page.screenshot({ path: testInfo.outputPath('failure.png'), fullPage: true })
+    return
+  }
+  const failures = testInfo._runtimeFailures || []
+  if (failures.length) {
+    throw new Error(`Unexpected browser runtime failures:\n${failures.join('\n')}`)
   }
 })
 
